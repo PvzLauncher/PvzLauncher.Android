@@ -3,12 +3,34 @@
     x:Class="PvzLauncher.Android.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:local="clr-namespace:PvzLauncher.Android"
+    xmlns:local="clr-namespace:PvzLauncher.Android.Pages"
     Title="PvzLauncher.Android">
 
     <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate local:MainPage}"
-        Route="MainPage" />
+        Title="主页"
+        
+        Route="主页" >
+        <local:PageHome/>
+    </ShellContent>
+    <ShellContent
+    Title="游戏下载"
+    Route="游戏下载" >
+        <local:PageDownload/>
+    </ShellContent>
+    <ShellContent
+Title="游戏管理"
+Route="游戏管理" >
+        <local:PageManage/>
+    </ShellContent>
+    <ShellContent
+Title="设置"
+Route="设置" >
+        <local:PageSettings/>
+    </ShellContent>
+    <ShellContent
+Title="关于"
+Route="关于" >
+        <local:PageAbout/>
+    </ShellContent>
 
 </Shell>
