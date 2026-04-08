@@ -8,7 +8,14 @@
         <Border StrokeShape="RoundRectangle 10,10,10,10" Margin="15">
             <VerticalStackLayout>
                 <Image Source="icon.png" HeightRequest="128" WidthRequest="128" HorizontalOptions="Center"/>
-                <Label Text="Plants Vs. Zombies Launcher for Android" HorizontalOptions="Center"/>
+                <Label Text="Plants Vs. Zombies Launcher for Android" HorizontalOptions="Center" FontAttributes="Bold" FontSize="Medium"/>
+                <Grid Margin="10">
+                    <HorizontalStackLayout HorizontalOptions="Start" VerticalOptions="Center">
+                        <Label Text="当前版本："/>
+                        <Label Text="当前版本" x:Name="VersionBlock"/>
+                    </HorizontalStackLayout>
+                    <Button Text="检测更新" VerticalOptions="Center" HorizontalOptions="End" WidthRequest="120"/>
+                </Grid>
             </VerticalStackLayout>
         </Border>
     </VerticalStackLayout>
