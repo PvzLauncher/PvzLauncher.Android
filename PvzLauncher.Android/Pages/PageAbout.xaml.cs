@@ -27,7 +27,10 @@ public partial class PageAbout : ContentPage
 
         var result = await DisplayAlertAsync($"你可以更新至: {index.Version}", "你现在可以更新", "取消", "更新");
 
+        if(result == true)
+        {
 
+        }
 
 
 

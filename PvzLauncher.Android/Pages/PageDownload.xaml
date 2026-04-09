@@ -4,9 +4,6 @@
              x:Class="PvzLauncher.Android.Pages.PageDownload"
              Title="游戏下载">
     <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
+
     </VerticalStackLayout>
 </ContentPage>

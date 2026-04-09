@@ -4,10 +4,10 @@
              x:Class="PvzLauncher.Android.Pages.PageHome"
              
              Title="主页">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+    <Grid>
+        <VerticalStackLayout Margin="20" HorizontalOptions="Fill" VerticalOptions="End">
+            <Button Text="启动游戏" HeightRequest="60" Margin="5"/>
+            <Button Text="启动修改器" HeightRequest="20" Margin="5" Background="{DynamicResource SecondaryDarkText}"/>
+        </VerticalStackLayout>
+    </Grid>
 </ContentPage>

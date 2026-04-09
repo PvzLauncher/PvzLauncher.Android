@@ -18,6 +18,15 @@
                 </Grid>
             </VerticalStackLayout>
         </Border>
-        <BoxView/>
+        <Border StrokeShape="RoundRectangle 10,10,10,10" Margin="15">
+            <VerticalStackLayout>
+                <Label Text="鸣谢名单" HorizontalOptions="Center" FontAttributes="Bold" FontSize="Medium"/>
+            </VerticalStackLayout>
+        </Border>
+        <Border StrokeShape="RoundRectangle 10,10,10,10" Margin="15">
+            <VerticalStackLayout>
+                <Label Text="许可协议" HorizontalOptions="Center" FontAttributes="Bold" FontSize="Medium"/>
+            </VerticalStackLayout>
+        </Border>
     </VerticalStackLayout>
 </ContentPage>
