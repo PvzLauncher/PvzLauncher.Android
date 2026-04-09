@@ -5,6 +5,8 @@
              
              Title="主页">
     <Grid>
+        <Image x:Name="BackgroundImage" HorizontalOptions="Fill" VerticalOptions="Fill"/>
+        <Image Source="title.png" HorizontalOptions="Center" VerticalOptions="Start" Margin="20" x:Name="TitleImage"/>
         <VerticalStackLayout Margin="20" HorizontalOptions="Fill" VerticalOptions="End">
             <Button Text="启动游戏" HeightRequest="60" Margin="5"/>
             <Button Text="启动修改器" HeightRequest="20" Margin="5" Background="{DynamicResource SecondaryDarkText}"/>

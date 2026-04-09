@@ -10,6 +10,7 @@ public partial class PageAbout : ContentPage
 	{
 		InitializeComponent();
 		VersionBlock.Text = AppGlobals.Version;
+        EULAView.MarkdownText = AppGlobals.EULAString;
 	}
 
     private async void Button_Clicked(object sender, EventArgs e)
