@@ -14,7 +14,7 @@
                         <Label Text="当前版本："/>
                         <Label Text="当前版本" x:Name="VersionBlock"/>
                     </HorizontalStackLayout>
-                    <Button Text="检测更新" VerticalOptions="Center" HorizontalOptions="End" WidthRequest="120"/>
+                    <Button Text="检测更新" VerticalOptions="Center" HorizontalOptions="End" WidthRequest="120" Clicked="Button_Clicked"/>
                 </Grid>
             </VerticalStackLayout>
         </Border>
