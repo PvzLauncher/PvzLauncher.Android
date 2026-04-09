@@ -12,15 +12,29 @@ public partial class PageAbout : ContentPage
 		VersionBlock.Text = AppGlobals.Version;
 	}
 
-    private async Task Button_Clicked(object sender, EventArgs e)
+    private async void Button_Clicked(object sender, EventArgs e)
     {
-		var index = await Updater.GetUpdateIndex();
 
-		if (index.Version == AppGlobals.Version)//无需更新
-		{
-			await DisplayAlertAsync("无需更新", $"你使用的是最新版 \"{AppGlobals.Version}\"", "确定");
-			return;
-		}
+        button_CheckUpdate.IsEnabled = false;
+        var index = await Updater.GetUpdateIndex();
+
+        if (index.Version == AppGlobals.Version)//无需更新
+        {
+            await DisplayAlertAsync("无需更新", $"你使用的是最新版 \"{AppGlobals.Version}\"", "确定");
+            button_CheckUpdate.IsEnabled = true;
+            return;
+        }
+
+        var result = await DisplayAlertAsync($"你可以更新至: {index.Version}", "你现在可以更新", "取消", "更新");
+
+
+
+
+
+
+
+
+        button_CheckUpdate.IsEnabled = true;
 
 
 

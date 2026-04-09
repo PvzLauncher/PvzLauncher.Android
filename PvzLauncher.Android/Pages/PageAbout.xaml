@@ -11,10 +11,10 @@
                 <Label Text="Plants Vs. Zombies Launcher for Android" HorizontalOptions="Center" FontAttributes="Bold" FontSize="Medium"/>
                 <Grid Margin="10">
                     <HorizontalStackLayout HorizontalOptions="Start" VerticalOptions="Center">
-                        <Label Text="当前版本："/>
-                        <Label Text="当前版本" x:Name="VersionBlock"/>
+                        <Label Text="当前版本：" VerticalOptions="Center"/>
+                        <Label Text="当前版本" x:Name="VersionBlock" VerticalOptions="Center"/>
                     </HorizontalStackLayout>
-                    <Button Text="检测更新" VerticalOptions="Center" HorizontalOptions="End" WidthRequest="120" Clicked="Button_Clicked"/>
+                    <Button x:Name="button_CheckUpdate" Text="检测更新" VerticalOptions="Center" HorizontalOptions="End" WidthRequest="120" Clicked="Button_Clicked"/>
                 </Grid>
             </VerticalStackLayout>
         </Border>
