@@ -2,8 +2,14 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="PvzLauncher.Android.Pages.PageManage"
-             Title="游戏管理">
-    <VerticalStackLayout>
+             Title="管理">
+    <ScrollView>
+        
+        <VerticalStackLayout>
+            <Button Text="导入游戏" WidthRequest="120" HorizontalOptions="End" Margin="10"/>
+            <CollectionView x:Name="RootList">
 
-    </VerticalStackLayout>
+            </CollectionView>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

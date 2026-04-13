@@ -2,8 +2,13 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="PvzLauncher.Android.Pages.PageDownload"
-             Title="游戏下载">
-    <VerticalStackLayout>
+             Title="下载">
+    <ScrollView>
+        <VerticalStackLayout>
+            <Button Text="下载任务" WidthRequest="120" HorizontalOptions="End" Margin="10"/>
+            <CollectionView x:Name="RootList">
 
-    </VerticalStackLayout>
+            </CollectionView>
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

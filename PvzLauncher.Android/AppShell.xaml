@@ -13,13 +13,13 @@
         <local:PageHome/>
     </ShellContent>
     <ShellContent
-    Title="游戏下载"
-    Route="游戏下载" >
+    Title="下载"
+    Route="下载" >
         <local:PageDownload/>
     </ShellContent>
     <ShellContent
-Title="游戏管理"
-Route="游戏管理" >
+Title="管理"
+Route="管理" >
         <local:PageManage/>
     </ShellContent>
     <ShellContent
