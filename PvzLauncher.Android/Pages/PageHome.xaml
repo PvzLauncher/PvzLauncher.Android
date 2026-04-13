@@ -7,9 +7,9 @@
     <Grid>
         <Image x:Name="BackgroundImage" HorizontalOptions="Fill" VerticalOptions="Fill"/>
         <Image Source="title.png" HorizontalOptions="Center" VerticalOptions="Start" Margin="20" x:Name="TitleImage"/>
-        <VerticalStackLayout Margin="20" HorizontalOptions="Fill" VerticalOptions="End">
-            <Button Text="启动游戏" HeightRequest="60" Margin="5" CornerRadius="9999"/>
-            <Button Text="启动修改器" HeightRequest="20" Margin="5" CornerRadius="9999" Background="{DynamicResource SecondaryDarkText}"/>
+        <VerticalStackLayout Margin="20" HorizontalOptions="End" VerticalOptions="End">
+            <Button Text="&#xe1c4;" FontFamily="MaterialIcons" FontSize="32" HeightRequest="64" WidthRequest="64" Margin="5" CornerRadius="9999"/>
+            <Button Text="&#xea3c;" FontSize="18" FontFamily="MaterialIcons" HeightRequest="32" WidthRequest="32" Margin="5" CornerRadius="9999" Background="{DynamicResource SecondaryDarkText}"/>
         </VerticalStackLayout>
     </Grid>
 </ContentPage>
