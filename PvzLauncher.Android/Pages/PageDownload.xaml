@@ -5,7 +5,10 @@
              Title="下载">
     <ScrollView>
         <VerticalStackLayout>
-            <Button Text="下载任务" WidthRequest="120" HorizontalOptions="End" Margin="10"/>
+            <Grid Margin="10">
+                <Label Text="可供下载的游戏：" FontSize="16" VerticalOptions="Center" HorizontalOptions="Start"/>
+                <Button x:Name="TaskButton" Clicked="TaskButton_Clicked" Text="&#xf075;" CornerRadius="9999" FontFamily="MaterialIcons" WidthRequest="32" HorizontalOptions="End" VerticalOptions="Center"/>
+            </Grid>
             <CollectionView x:Name="RootList">
 
             </CollectionView>

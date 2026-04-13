@@ -6,7 +6,10 @@
     <ScrollView>
         
         <VerticalStackLayout>
-            <Button Text="导入游戏" WidthRequest="120" HorizontalOptions="End" Margin="10"/>
+            <Grid Margin="10">
+                <Label Text="已经导入的游戏：" FontSize="16" VerticalOptions="Center" HorizontalOptions="Start"/>
+                <Button x:Name="ImportButton" Clicked="ImportButton_Clicked" Text="&#xe2c8;" CornerRadius="9999"  FontFamily="MaterialIcons" WidthRequest="32" HorizontalOptions="End"/>
+            </Grid>
             <CollectionView x:Name="RootList">
 
             </CollectionView>

@@ -6,4 +6,10 @@ public partial class PageManage : ContentPage
 	{
 		InitializeComponent();
 	}
+
+
+    private void ImportButton_Clicked(object sender, EventArgs e)
+    {
+		Shell.Current.GoToAsync("import");
+    }
 }

@@ -6,4 +6,9 @@ public partial class PageDownload : ContentPage
 	{
 		InitializeComponent();
 	}
+
+    private void TaskButton_Clicked(object sender, EventArgs e)
+    {
+		Shell.Current.GoToAsync("task");
+    }
 }
