@@ -10,9 +10,9 @@
                 <Label Text="已经导入的游戏：" FontSize="16" VerticalOptions="Center" HorizontalOptions="Start"/>
                 <Button x:Name="ImportButton" Clicked="ImportButton_Clicked" Text="&#xe2c8;" CornerRadius="9999"  FontFamily="MaterialIcons" WidthRequest="32" HorizontalOptions="End"/>
             </Grid>
-            <CollectionView x:Name="RootList">
+            <VerticalStackLayout x:Name="RootList">
 
-            </CollectionView>
+            </VerticalStackLayout>
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

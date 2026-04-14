@@ -5,7 +5,11 @@ public partial class PageManage : ContentPage
 	public PageManage()
 	{
 		InitializeComponent();
-	}
+        Loaded += ((s, e) =>
+        {
+
+        });
+    }
 
 
     private void ImportButton_Clicked(object sender, EventArgs e)
