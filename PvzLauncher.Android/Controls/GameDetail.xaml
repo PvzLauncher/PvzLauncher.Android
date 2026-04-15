@@ -12,7 +12,7 @@
                 </VerticalStackLayout>
             </HorizontalStackLayout>
             <HorizontalStackLayout HorizontalOptions="End">
-                <Button Clicked="InfoButton_Clicked" x:Name="InfoButton" Text="&#xe941;" FontSize="18" FontFamily="MaterialIcons" HeightRequest="32" WidthRequest="32" Margin="5" CornerRadius="9999"/>
+                <Button  Clicked="InfoButton_Clicked" x:Name="InfoButton" Text="&#xe315;" FontSize="22" FontFamily="MaterialIcons" HeightRequest="32" WidthRequest="32" Margin="5" CornerRadius="9999"/>
             </HorizontalStackLayout>
         </Grid>
     </Border>
