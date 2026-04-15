@@ -6,8 +6,9 @@
     <ScrollView>
         <VerticalStackLayout>
             <Border StrokeShape="RoundRectangle 10,10,10,10" Margin="5">
-                <Label Text="游戏信息" HorizontalOptions="Center" FontAttributes="Bold" FontSize="Medium"/>
+                
                 <Grid Margin="5">
+                    <Label Text="游戏信息" HorizontalOptions="Center" FontAttributes="Bold" FontSize="Medium"/>
                     <HorizontalStackLayout HorizontalOptions="Start">
                         <Image x:Name="GameImage" Margin="5"  MaximumHeightRequest="64" MaximumWidthRequest="64"/>
                         <VerticalStackLayout Margin="5" VerticalOptions="Center">
@@ -21,8 +22,9 @@
                 </Grid>
             </Border>
             <Border StrokeShape="RoundRectangle 10,10,10,10" Margin="5">
-                <Label Text="游戏截图" HorizontalOptions="Center" FontAttributes="Bold" FontSize="Medium"/>
+                
                 <Grid Margin="5">
+                    <Label Text="游戏截图" HorizontalOptions="Center" FontAttributes="Bold" FontSize="Medium"/>
                 </Grid>
             </Border>
         </VerticalStackLayout>

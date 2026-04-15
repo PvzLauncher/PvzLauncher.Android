@@ -9,11 +9,13 @@ public partial class PageDownload : ContentPage
 		InitializeComponent();
 		Loaded += ((s, e) =>
 		{
+			RootList.Clear();
 			RootList.Add(new GameDetail
 			{
 				Icon="icon.png",
 				Title="Test",
-				Notes="Test"
+				Notes="Test",
+				TargetPage="ddt"
 			});
 		});
 	}

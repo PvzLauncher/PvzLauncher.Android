@@ -20,7 +20,8 @@ public partial class GameDetail : ContentView
 
 	}
 
-
-
-
+    private void InfoButton_Clicked(object sender, EventArgs e)
+    {
+		Shell.Current.GoToAsync(TargetPage);
+    }
 }
