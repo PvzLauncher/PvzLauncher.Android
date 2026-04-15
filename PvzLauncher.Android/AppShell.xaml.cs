@@ -10,7 +10,8 @@ namespace PvzLauncher.Android
             InitializeComponent();
             Routing.RegisterRoute("task",typeof(PageTask));
             Routing.RegisterRoute("import", typeof(PageImport));
-
+            Routing.RegisterRoute("ddt", typeof(PageDownloadDetail));
+            Routing.RegisterRoute("mdt", typeof(PageManangeDetail));
         }
 
         

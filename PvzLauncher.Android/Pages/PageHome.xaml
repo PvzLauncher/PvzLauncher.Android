@@ -5,7 +5,7 @@
              
              Title="主页">
     <Grid>
-        <Image x:Name="BackgroundImage" HorizontalOptions="Center" VerticalOptions="Center" MaximumHeightRequest="64" MaximumWidthRequest="64"/>
+        <Image x:Name="BackgroundImage" HorizontalOptions="Center" VerticalOptions="Center"/>
         <Image Source="title.png" HorizontalOptions="Center" VerticalOptions="Start" Margin="20" x:Name="TitleImage"/>
         <VerticalStackLayout Margin="20" HorizontalOptions="End" VerticalOptions="End">
             <Button Text="&#xe1c4;" FontFamily="MaterialIcons" FontSize="32" HeightRequest="64" WidthRequest="64" Margin="5" CornerRadius="9999"/>

@@ -6,7 +6,7 @@ public partial class GameDetail : ContentView
 	public required ImageSource Icon { get; set; }
 	public required string Title { get; set; }
 	public required string Notes { get; set; }
-	public ContentPage TargetPage {  get; set; }
+	public required string TargetPage {  get; set; }
 
     public GameDetail()
 	{
