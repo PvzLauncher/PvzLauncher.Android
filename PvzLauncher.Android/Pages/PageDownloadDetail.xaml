@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="PvzLauncher.Android.Pages.PageDownloadDetail"
-             Title="PageDownloadDetail">
+             Title="游戏信息">
     <ScrollView>
         <VerticalStackLayout>
             <Border StrokeShape="RoundRectangle 10,10,10,10" Margin="5">
@@ -17,7 +17,7 @@
                         </VerticalStackLayout>
                     </HorizontalStackLayout>
                     <HorizontalStackLayout HorizontalOptions="End">
-                        <Button x:Name="InfoButton" Text="&#xe941;" FontSize="18" FontFamily="MaterialIcons" HeightRequest="32" WidthRequest="32" Margin="5" CornerRadius="9999"/>
+                        <Button Clicked="DownloadButton_Clicked"  x:Name="DownloadButton" Text="&#xf090;" FontSize="18" FontFamily="MaterialIcons" HeightRequest="32" WidthRequest="32" Margin="5" CornerRadius="9999"/>
                     </HorizontalStackLayout>
                 </Grid>
             </Border>
@@ -25,6 +25,7 @@
                 
                 <Grid Margin="5">
                     <Label Text="游戏截图" HorizontalOptions="Center" FontAttributes="Bold" FontSize="Medium"/>
+                    <HorizontalStackLayout x:Name="ScreenShoot"/>
                 </Grid>
             </Border>
         </VerticalStackLayout>

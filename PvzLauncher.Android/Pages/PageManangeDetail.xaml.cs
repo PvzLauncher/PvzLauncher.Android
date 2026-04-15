@@ -2,13 +2,19 @@ namespace PvzLauncher.Android.Pages;
 
 public partial class PageManangeDetail : ContentPage
 {
-    public ImageSource Icon { get; set; }
-    public string Title { get; set; } = "Title";
-    public string Notes { get; set; } = "Notes";
-    //public string Link { get; set; } = "https://www.example.com";
-    public List<ImageSource> Screenshots { get; set; } = new List<ImageSource>();
+    public required ImageSource ArgumentsIcon { get; set; }
+    public required string ArgumentsTitle { get; set; } = "Title";
+    public required string ArgumentsNotes { get; set; } = "Notes";
+
+    //public required GameConfig ArgumentsConfig { get; set; }
+
     public PageManangeDetail()
 	{
 		InitializeComponent();
 	}
+
+    private void SetLaunchButton_Clicked(object sender, EventArgs e)
+    {
+        Shell.Current.SendBackButtonPressed();
+    }
 }

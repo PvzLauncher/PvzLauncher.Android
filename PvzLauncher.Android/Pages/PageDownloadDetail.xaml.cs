@@ -2,12 +2,11 @@ namespace PvzLauncher.Android.Pages;
 
 public partial class PageDownloadDetail : ContentPage
 {
-	//string title,string notes,string link,List<ImageSource> screenshoots
-	public ImageSource Icon { get; set; }
-	public string Title { get; set; } = "Title";
-	public string Notes { get; set; } = "Notes";
-	public string Link { get; set; } = "https://www.example.com";
-	public List<ImageSource> Screenshots { get; set; } = new List<ImageSource>();
+    public required ImageSource ArgumentsIcon { get; set; }
+    public required string ArgumentsTitle { get; set; } = "Title";
+    public required string ArgumentsNotes { get; set; } = "Notes";
+    //public required string Link { get; set; } = "https://www.example.com";
+    public required List<ImageSource> ScreenshotsList { get; set; } = new List<ImageSource>();
 
 
 
@@ -15,4 +14,9 @@ public partial class PageDownloadDetail : ContentPage
 	{
 		InitializeComponent();
 	}
+
+    private void DownloadButton_Clicked(object sender, EventArgs e)
+    {
+		Shell.Current.GoToAsync("task");
+    }
 }

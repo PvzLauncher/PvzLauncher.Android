@@ -1,3 +1,5 @@
+using PvzLauncher.Android.Controls;
+
 namespace PvzLauncher.Android.Pages;
 
 public partial class PageManage : ContentPage
@@ -7,7 +9,14 @@ public partial class PageManage : ContentPage
 		InitializeComponent();
         Loaded += ((s, e) =>
         {
-
+            RootList.Clear();
+            RootList.Add(new GameDetail
+            {
+                Icon = "icon.png",
+                Title = "Test",
+                Notes = "Test",
+                TargetPage = "mdt"
+            });
         });
     }
 
