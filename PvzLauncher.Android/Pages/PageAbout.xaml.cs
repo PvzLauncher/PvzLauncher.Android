@@ -1,15 +1,18 @@
 using Microsoft.Maui.Controls.Internals;
 using PvzLauncher.Android.Classes;
 using PvzLauncher.Android.Utils;
+using System.Windows.Input;
 
 namespace PvzLauncher.Android.Pages;
 
 public partial class PageAbout : ContentPage
 {
-	public PageAbout()
+    public ICommand TapCommand => new Command<string>(async (url) => await Launcher.OpenAsync(url));
+    public PageAbout()
 	{
 		InitializeComponent();
-		VersionBlock.Text = AppGlobals.Version;
+        BindingContext = this;
+        VersionBlock.Text = AppGlobals.Version;
         EULAView.MarkdownText = AppGlobals.EULAString;
 	}
 

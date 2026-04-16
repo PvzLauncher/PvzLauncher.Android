@@ -17,7 +17,7 @@
                         </VerticalStackLayout>
                     </HorizontalStackLayout>
                     <HorizontalStackLayout HorizontalOptions="End">
-                        <Button Clicked="SetLaunchButton_Clicked" x:Name="SetLaunchButton" Text="&#xe037;" FontSize="18" FontFamily="MaterialIcons" HeightRequest="32" WidthRequest="32" Margin="5" CornerRadius="9999"/>
+                        <Button Clicked="SetLaunchButton_Clicked" x:Name="SetLaunchButton" Text="&#xf075;" FontSize="18" FontFamily="MaterialIcons" HeightRequest="32" WidthRequest="32" Margin="5" CornerRadius="9999"/>
                     </HorizontalStackLayout>
                 </Grid>
             </Border>

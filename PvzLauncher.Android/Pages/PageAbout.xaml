@@ -16,13 +16,86 @@
                             <Label Text="当前版本：" FontSize="14" VerticalOptions="Center"/>
                             <Label Text="当前版本" FontSize="14" x:Name="VersionBlock" VerticalOptions="Center"/>
                         </HorizontalStackLayout>
-                        <Button CornerRadius="9999" x:Name="button_CheckUpdate" Text="检测更新" VerticalOptions="Center" HorizontalOptions="End" WidthRequest="150" Clicked="Button_Clicked"/>
+                        <Button CornerRadius="9999" x:Name="button_CheckUpdate" Text="&#xe864;" FontFamily="MaterialIcons" HeightRequest="48" WidthRequest="48" VerticalOptions="Center" HorizontalOptions="End" Clicked="Button_Clicked"/>
                     </Grid>
                 </VerticalStackLayout>
             </Border>
             <Border StrokeShape="RoundRectangle 10,10,10,10" Margin="15">
                 <VerticalStackLayout>
                     <Label Text="鸣谢名单" HorizontalOptions="Center" FontAttributes="Bold" FontSize="Medium"/>
+                    <VerticalStackLayout>
+                        <Label Margin="5" HorizontalOptions="Center">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="联合开发者：" />
+                                    <Span Text="isHuaMouRen"
+                  TextColor="Blue"
+                  TextDecorations="Underline">
+                                        <Span.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding TapCommand}"
+                                          CommandParameter="https://github.com/isHuaMouRen" />
+                                        </Span.GestureRecognizers>
+                                    </Span>
+                                    <Span Text=" " />
+                                    <Span Text="&#x0026;" />
+                                    <Span Text=" " />
+                                    <Span Text="Xiaowang0229"
+TextColor="Blue"
+TextDecorations="Underline">
+                                        <Span.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding TapCommand}"
+                        CommandParameter="https://github.com/Xiaowang0229" />
+                                        </Span.GestureRecognizers>
+                                    </Span>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                        <Label Margin="5" HorizontalOptions="Center"> 
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="访问我们的组织：" />
+                                    <Span Text="PvzLauncher"
+                  TextColor="Blue"
+                  TextDecorations="Underline">
+                                        <Span.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding TapCommand}"
+                                          CommandParameter="https://github.com/PvzLauncher" />
+                                        </Span.GestureRecognizers>
+                                    </Span>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                        <Label Margin="5" HorizontalOptions="Center">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="仓库地址：" />
+                                    <Span Text="PvzLauncher.Android"
+TextColor="Blue"
+TextDecorations="Underline">
+                                        <Span.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding TapCommand}"
+                        CommandParameter="https://github.com/PvzLauncher/PvzLauncher.Android" />
+                                        </Span.GestureRecognizers>
+                                    </Span>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                        <Label Margin="5" HorizontalOptions="Center">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="报告错误：" />
+                                    <Span Text="issues Upload"
+TextColor="Blue"
+TextDecorations="Underline">
+                                        <Span.GestureRecognizers>
+                                            <TapGestureRecognizer Command="{Binding TapCommand}"
+                        CommandParameter="https://github.com/PvzLauncher/PvzLauncher.Android/issues" />
+                                        </Span.GestureRecognizers>
+                                    </Span>
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                    </VerticalStackLayout>
                 </VerticalStackLayout>
             </Border>
             <Border StrokeShape="RoundRectangle 10,10,10,10" Margin="15">
