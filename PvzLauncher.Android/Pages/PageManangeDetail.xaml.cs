@@ -1,12 +1,10 @@
+using PvzLauncher.Android.JsonConfigs;
+
 namespace PvzLauncher.Android.Pages;
 
 public partial class PageManangeDetail : ContentPage
 {
-    public required ImageSource ArgumentsIcon { get; set; }
-    public required string ArgumentsTitle { get; set; } = "Title";
-    public required string ArgumentsNotes { get; set; } = "Notes";
-
-    //public required GameConfig ArgumentsConfig { get; set; }
+    public required GameConfig Config { get; set; }
 
     public PageManangeDetail()
 	{
