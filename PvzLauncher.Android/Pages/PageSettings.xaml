@@ -4,6 +4,20 @@
              x:Class="PvzLauncher.Android.Pages.PageSettings"
              Title="设置">
     <VerticalStackLayout>
-
+        <VerticalStackLayout Margin="5">
+            <Label Text="主页设置" FontSize="16" FontAttributes="Bold"/>
+            <VerticalStackLayout Margin="5">
+                <HorizontalStackLayout>
+                    <Label Text="主页背景图片"/>
+                    <Button CornerRadius="9999" WidthRequest="150" Text="浏览..."/>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+            <VerticalStackLayout Margin="5">
+                <HorizontalStackLayout>
+                    <Label Text="游戏标题图片"/>
+                    <Button CornerRadius="9999" WidthRequest="150" Text="浏览..."/>
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+        </VerticalStackLayout>
     </VerticalStackLayout>
 </ContentPage>

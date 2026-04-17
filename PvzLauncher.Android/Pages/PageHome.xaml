@@ -8,6 +8,7 @@
         <Image x:Name="BackgroundImage" HorizontalOptions="Center" VerticalOptions="Center"/>
         <Image Source="title.png" HorizontalOptions="Center" VerticalOptions="Start" Margin="20" x:Name="TitleImage"/>
         <VerticalStackLayout Margin="20" HorizontalOptions="End" VerticalOptions="End">
+            <Label Margin="5" Text="当前游戏名" x:Name="GameName"/>
             <Button Text="&#xe1c4;" FontFamily="MaterialIcons" FontSize="32" HeightRequest="64" WidthRequest="64" Margin="5" CornerRadius="9999"/>
             <Button Text="&#xea3c;" FontSize="18" FontFamily="MaterialIcons" HeightRequest="32" WidthRequest="32" Margin="5" CornerRadius="9999" Background="{DynamicResource SecondaryDarkText}"/>
         </VerticalStackLayout>
