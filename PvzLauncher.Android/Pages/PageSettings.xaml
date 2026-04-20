@@ -5,18 +5,20 @@
              Title="设置">
     <VerticalStackLayout>
         <VerticalStackLayout Margin="5">
-            <Label Text="主页设置" FontSize="16" FontAttributes="Bold"/>
+            <Label Text="主页设置" FontSize="18" FontAttributes="Bold" Margin="10"/>
             <VerticalStackLayout Margin="5">
-                <HorizontalStackLayout>
-                    <Label Text="主页背景图片"/>
-                    <Button CornerRadius="9999" WidthRequest="150" Text="浏览..."/>
-                </HorizontalStackLayout>
-            </VerticalStackLayout>
-            <VerticalStackLayout Margin="5">
-                <HorizontalStackLayout>
-                    <Label Text="游戏标题图片"/>
-                    <Button CornerRadius="9999" WidthRequest="150" Text="浏览..."/>
-                </HorizontalStackLayout>
+                <VerticalStackLayout Margin="5">
+                    <HorizontalStackLayout>
+                        <Label Text="主页背景图片" VerticalOptions="Center" Margin="10"/>
+                        <Button CornerRadius="9999" WidthRequest="150" Text="浏览..."/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
+                <VerticalStackLayout Margin="5">
+                    <HorizontalStackLayout>
+                        <Label Text="游戏标题图片" VerticalOptions="Center" Margin="10"/>
+                        <Button CornerRadius="9999" WidthRequest="150" Text="浏览..."/>
+                    </HorizontalStackLayout>
+                </VerticalStackLayout>
             </VerticalStackLayout>
         </VerticalStackLayout>
     </VerticalStackLayout>
