@@ -212,7 +212,7 @@ fun PvzLauncherAndroidApp() {
                                     Button(onClick = {
                                         val intent = Intent(
                                             Intent.ACTION_VIEW,
-                                            Uri.parse("https://www.google.com")
+                                            Uri.parse("https://github.com/PvzLauncher/PvzLauncher.Android/issues/new")
                                         )
                                         context.startActivity(intent)
                                     }, modifier = Modifier.padding(5.dp))
@@ -224,7 +224,7 @@ fun PvzLauncherAndroidApp() {
                                     Button(onClick = {
                                         val intent = Intent(
                                             Intent.ACTION_VIEW,
-                                            Uri.parse("https://www.google.com")
+                                            Uri.parse("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/EULA.md")
                                         )
                                         context.startActivity(intent)
                                     }, modifier = Modifier.padding(5.dp))
@@ -236,7 +236,7 @@ fun PvzLauncherAndroidApp() {
                                     Button(onClick = {
                                         val intent = Intent(
                                             Intent.ACTION_VIEW,
-                                            Uri.parse("https://www.google.com")
+                                            Uri.parse("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/QandA.md")
                                         )
                                         context.startActivity(intent)
                                     }, modifier = Modifier.padding(5.dp))
