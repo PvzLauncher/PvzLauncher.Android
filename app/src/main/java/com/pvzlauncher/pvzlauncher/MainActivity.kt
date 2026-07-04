@@ -210,11 +210,7 @@ fun PvzLauncherAndroidApp() {
                                 {
                                     val context = LocalContext.current
                                     Button(onClick = {
-                                        val intent = Intent(
-                                            Intent.ACTION_VIEW,
-                                            Uri.parse("https://github.com/PvzLauncher/PvzLauncher.Android/issues/new")
-                                        )
-                                        context.startActivity(intent)
+
                                     }, modifier = Modifier.padding(5.dp))
                                     {
 
