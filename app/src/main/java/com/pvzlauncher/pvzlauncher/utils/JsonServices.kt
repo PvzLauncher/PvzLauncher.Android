@@ -1,5 +1,6 @@
 package com.pvzlauncher.pvzlauncher.utils
 
+import android.content.Context
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -20,7 +21,11 @@ public data class UpdateConfig(
 public data class GameConfig(
     val GameName : String,
     val GameLink : String,
-    val GameImage : String
+    val GameImage : String,
+    val GameSize : String,
+    val GameVersion : String,
+    val GameDescription : String,
+    val ScreenShoot : List<String>
 )
 
 @Serializable
@@ -28,13 +33,37 @@ public data class GameListConfig(
     val GameIndex : List<GameConfig>
 )
 
+@Serializable
+public data class SaveConfig(
+    val GameName : String,
+    val GamePackageName : String,
+    val AddTime : String,
+    val PlayTime : String,
+    val LaunchTimes : String
+
+)
+
+@Serializable
+public data class SaveConfigList(
+    val GameIndex : List<SaveConfig>
+)
+
+@Serializable
+public data class LauncherConfig(
+    val UseSystemTheme: Boolean = true,
+    val UseDarkTheme : Boolean = false,
+    val UseEnglishTitle : Boolean = false,
+)
+
+
 public inline fun <reified T> ReadJson(jsonString : String) : T
 {
     return Json.decodeFromString<T>(jsonString)
 }
 
-public inline fun <reified T> WriteJson(filePath: String, data: T)
+public inline fun <reified T> WriteJson(fileName: String, data: T,context: Context)
 {
+    val writepath = context.filesDir
     val jsonString = Json.encodeToString(data)
-    File(filePath).writeText(jsonString, Charsets.UTF_8)
+    File("${writepath}/${fileName}").writeText(jsonString, Charsets.UTF_8)
 }

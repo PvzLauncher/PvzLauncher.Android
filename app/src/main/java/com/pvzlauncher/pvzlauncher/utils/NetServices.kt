@@ -5,12 +5,8 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import com.pvzlauncher.pvzlauncher.APP_VERSION
+
 import kotlinx.coroutines.runBlocking
-import io.ktor.client.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import java.net.URL
 
 

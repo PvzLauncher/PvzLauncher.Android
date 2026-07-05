@@ -4,9 +4,11 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import java.io.File
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -32,30 +34,49 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import com.pvzlauncher.pvzlauncher.ui.theme.PvzLauncherAndroidTheme
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Downloading
+import androidx.compose.material.icons.filled.HomeRepairService
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.filled.Rocket
 import androidx.compose.material.icons.filled.RocketLaunch
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Upload
 import androidx.compose.material.icons.filled.VideogameAsset
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.pvzlauncher.pvzlauncher.utils.APP_VERSION
+import com.pvzlauncher.pvzlauncher.utils.GameConfig
+import com.pvzlauncher.pvzlauncher.utils.GameListConfig
+import com.pvzlauncher.pvzlauncher.utils.GameListIndex
 import com.pvzlauncher.pvzlauncher.utils.GetWebSiteContent
+import com.pvzlauncher.pvzlauncher.utils.MDR_FileName
+import com.pvzlauncher.pvzlauncher.utils.MDR_MDContent
+import com.pvzlauncher.pvzlauncher.utils.ManageConfigPath
+import com.pvzlauncher.pvzlauncher.utils.ManageIndex
 import com.pvzlauncher.pvzlauncher.utils.OpenUrl
 import com.pvzlauncher.pvzlauncher.utils.ReadJson
+import com.pvzlauncher.pvzlauncher.utils.SaveConfig
+import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
 import com.pvzlauncher.pvzlauncher.utils.UpdateConfig
 import com.pvzlauncher.pvzlauncher.utils.XW_GameInformationCard
 import com.pvzlauncher.pvzlauncher.utils.XW_Switch
 import com.pvzlauncher.pvzlauncher.utils.XW_ToastMessage
+import dev.jeziellago.compose.markdowntext.MarkdownText
 
-const val APP_VERSION = "1.0.0-alpha.2";
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,6 +92,7 @@ class MainActivity : ComponentActivity() {
 
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @PreviewScreenSizes
 @Composable
 fun PvzLauncherAndroidApp() {
@@ -79,24 +101,26 @@ fun PvzLauncherAndroidApp() {
     NavigationSuiteScaffold(
         navigationSuiteItems = {
             AppDestinations.entries.forEach {
-                item(
-                    icon = {
-                        Icon(
-                            it.icon,
-                            it.label
-                        )
-                    },
-                    label = { Text(it.label) },
-                    selected = it == currentDestination,
-                    onClick = { currentDestination = it }
-                )
+                if (it.icon == Icons.Default.QuestionMark) {
+                    return@forEach
+                }
+                    item(
+                        icon = {
+                            Icon(
+                                it.icon,
+                                it.label
+                            )
+                        },
+                        label = { Text(it.label) },
+                        selected = it == currentDestination,
+                        onClick = { currentDestination = it }
+                    )
+
             }
         }
     ) {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             val pageModifier = Modifier.padding(innerPadding)
-
-            // 用 when 表达式根据当前选中的 destination 切换不同的 UI
             when (currentDestination) {
                 AppDestinations.HomePage -> {
                     Box(modifier = Modifier.fillMaxSize()){
@@ -104,17 +128,30 @@ fun PvzLauncherAndroidApp() {
                             alignment = Alignment.TopCenter, modifier = Modifier.padding(40.dp).fillMaxWidth())
                         Column(modifier = Modifier.align(Alignment.BottomCenter).padding(40.dp), horizontalAlignment = Alignment.CenterHorizontally)
                         {
-                            Button(onClick = {
-
-                            })
+                            Row(verticalAlignment = Alignment.CenterVertically)
                             {
-                                Column()
-                                {
-                                    Row(modifier = Modifier.padding(10.dp), verticalAlignment = Alignment.CenterVertically){
+                                Button(onClick = {
 
-                                        Icon(imageVector = Icons.Default.RocketLaunch,"", modifier = Modifier.padding(5.dp).size(24.dp))
-                                        Text("启动游戏",modifier = Modifier.padding(5.dp), fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                                }, modifier = Modifier.height(64.dp))
+                                {
+                                    Column()
+                                    {
+                                        Row(modifier = Modifier.padding(10.dp), verticalAlignment = Alignment.CenterVertically){
+
+                                            Icon(imageVector = Icons.Default.RocketLaunch,"", modifier = Modifier.padding(5.dp).size(24.dp))
+                                            Text("启动游戏",modifier = Modifier.padding(5.dp), fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                                        }
+
                                     }
+                                }
+                                Button(onClick = {
+
+                                }, modifier = Modifier.padding(5.dp).size(64.dp),contentPadding = PaddingValues(0.dp),
+                                    shape = CircleShape
+                                )
+                                {
+
+                                    Icon(imageVector = Icons.Default.HomeRepairService,"检测更新", modifier = Modifier.size(32.dp))
 
                                 }
                             }
@@ -137,12 +174,7 @@ fun PvzLauncherAndroidApp() {
                                 fontSize = 28.sp
                             )
                         }
-                        XW_GameInformationCard(
-                            painterResource(R.drawable.ic_appicon_vector),
-                            "Title",
-                            "Description",
-                            null
-                        )
+
                     }
                 }
                 AppDestinations.DownloadPage -> {
@@ -151,7 +183,7 @@ fun PvzLauncherAndroidApp() {
                         {
                             Text("下载", fontWeight = FontWeight.Bold,modifier = Modifier.padding(5.dp).align(Alignment.CenterStart), fontSize = 28.sp)
                             Button(onClick = {
-
+                                currentDestination = AppDestinations.TaskPage
                             }, modifier = Modifier.padding(5.dp).size(48.dp).align(Alignment.CenterEnd),contentPadding = PaddingValues(0.dp),
                                 shape = CircleShape
                             )
@@ -161,12 +193,16 @@ fun PvzLauncherAndroidApp() {
 
                             }
                         }
-                        XW_GameInformationCard(
-                            painterResource(R.drawable.ic_appicon_vector),
-                            "Title",
-                            "Description",
-                            null
-                        )
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,modifier = Modifier.padding(2.dp).fillMaxSize())
+                        {
+                            val gameindex = ReadJson<GameListConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/PvzLauncher/PvzLauncher.Service.Android/raw/main/GameIndex.json"))
+                            for(i in gameindex.GameIndex)
+                            {
+                                currentDestination
+                                XW_GameInformationCard(headImage = i.GameImage,gametitle = i.GameName,gameversion = i.GameVersion,gamesize = i.GameSize,args = null)
+                            }
+                        }
+
                     }
                 }
                 AppDestinations.SettingPage -> {
@@ -304,6 +340,153 @@ fun PvzLauncherAndroidApp() {
                         }
                     }
                 }
+
+                AppDestinations.ManageDetailPage ->
+                {
+                    val all = ReadJson<SaveConfigList>(File(ManageConfigPath).readText())
+                    val current = all.GameIndex[ManageIndex]
+                    TopAppBar(
+                        title = {
+                            Text(
+                                text = current.GameName//"关于",
+                                ,fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(5.dp),
+                                fontSize = 28.sp
+                            )
+                        },
+                        navigationIcon = {
+                            Button(onClick = {
+                                currentDestination = AppDestinations.ManagePage
+                            }, modifier = Modifier.padding(5.dp).size(64.dp).background(Color.Transparent),contentPadding = PaddingValues(0.dp),
+                                shape = CircleShape,colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.Transparent,      // 默认状态下背景透明 // 文字/图标的颜色
+                                    disabledContainerColor = Color.Transparent,// 禁用状态下背景透明
+                                    // 如果需要，也可以把按下或聚焦时的颜色设为透明
+                                ),
+                                // 如果不想让透明按钮有阴影（浮起效果），可以将 elevation 设为 0
+                                elevation = ButtonDefaults.buttonElevation(
+                                    defaultElevation = 0.dp,
+                                    pressedElevation = 0.dp
+                                )
+                            )
+                            {
+
+                                Icon(imageVector = Icons.Default.ArrowBack,"返回", modifier = Modifier.size(32.dp))
+
+                            }
+                        }
+                    )
+                }
+                AppDestinations.DownloadDetailPage ->
+                {
+                    val all = ReadJson<GameListConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/PvzLauncher/PvzLauncher.Service.Android/raw/main/GameIndex.json"))
+                    val current = all.GameIndex[GameListIndex]
+                    TopAppBar(
+                        title = {
+                            Text(
+                                current.GameName,//"关于",
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(5.dp),
+                                fontSize = 28.sp
+                            )
+                        },
+                        navigationIcon = {
+                            Button(onClick = {
+                                currentDestination = AppDestinations.DownloadPage
+                            }, modifier = Modifier.padding(5.dp).size(64.dp).background(Color.Transparent),contentPadding = PaddingValues(0.dp),
+                                shape = CircleShape,colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.Transparent,      // 默认状态下背景透明 // 文字/图标的颜色
+                                    disabledContainerColor = Color.Transparent,// 禁用状态下背景透明
+                                    // 如果需要，也可以把按下或聚焦时的颜色设为透明
+                                ),
+                                // 如果不想让透明按钮有阴影（浮起效果），可以将 elevation 设为 0
+                                elevation = ButtonDefaults.buttonElevation(
+                                    defaultElevation = 0.dp,
+                                    pressedElevation = 0.dp
+                                )
+                            )
+                            {
+
+                                Icon(imageVector = Icons.Default.ArrowBack,"返回", modifier = Modifier.size(32.dp))
+
+                            }
+                        }
+                    )
+                }
+                AppDestinations.TaskPage ->
+                {
+                    TopAppBar(
+                        title = {
+                            Text(
+                                "任务",
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(5.dp),
+                                fontSize = 28.sp
+                            )
+                        },
+                        navigationIcon = {
+                            Button(onClick = {
+                                currentDestination = AppDestinations.DownloadPage
+                            }, modifier = Modifier.padding(5.dp).size(64.dp).background(Color.Transparent),contentPadding = PaddingValues(0.dp),
+                                shape = CircleShape,colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.Transparent,      // 默认状态下背景透明 // 文字/图标的颜色
+                                    disabledContainerColor = Color.Transparent,// 禁用状态下背景透明
+                                    // 如果需要，也可以把按下或聚焦时的颜色设为透明
+                                ),
+                                // 如果不想让透明按钮有阴影（浮起效果），可以将 elevation 设为 0
+                                elevation = ButtonDefaults.buttonElevation(
+                                    defaultElevation = 0.dp,
+                                    pressedElevation = 0.dp
+                                )
+                            )
+                            {
+
+                                Icon(imageVector = Icons.Default.ArrowBack,"返回", modifier = Modifier.size(32.dp))
+
+                            }
+                        }
+                    )
+                    Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally)
+                    {
+
+                    }
+                }
+                AppDestinations.MDReaderPage ->
+                {
+                    TopAppBar(
+                        title = {
+                            Text(
+                                text = MDR_FileName,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(5.dp),
+                                fontSize = 28.sp
+                            )
+                        },
+                        navigationIcon = {
+                            Button(onClick = {
+                                currentDestination = AppDestinations.AboutPage
+                            }, modifier = Modifier.padding(5.dp).size(64.dp).background(Color.Transparent),contentPadding = PaddingValues(0.dp),
+                                shape = CircleShape,colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.Transparent,      // 默认状态下背景透明 // 文字/图标的颜色
+                                    disabledContainerColor = Color.Transparent,// 禁用状态下背景透明
+                                    // 如果需要，也可以把按下或聚焦时的颜色设为透明
+                                ),
+                                // 如果不想让透明按钮有阴影（浮起效果），可以将 elevation 设为 0
+                                elevation = ButtonDefaults.buttonElevation(
+                                    defaultElevation = 0.dp,
+                                    pressedElevation = 0.dp
+                                )
+                            )
+                            {
+
+                                Icon(imageVector = Icons.Default.ArrowBack,"返回", modifier = Modifier.size(32.dp))
+
+                            }
+                        }
+                    )
+                    MarkdownText(MDR_MDContent.trimIndent(),modifier = Modifier.padding(5.dp).fillMaxSize())
+                }
+
             }
         }
     }
@@ -315,13 +498,15 @@ enum class AppDestinations(
     val label: String,
     val icon: ImageVector,
 ) {
-    //HOME("主页", R.drawable.ic_home),
     HomePage(label="启动",icon=Icons.Default.Rocket),
     ManagePage(label="管理",icon=Icons.Default.VideogameAsset),
     DownloadPage(label="下载",icon=Icons.Default.Download),
     SettingPage(label="设置",icon=Icons.Default.Settings),
-    AboutPage(label="关于",icon=Icons.Default.Info)
+    AboutPage(label="关于",icon=Icons.Default.Info),
 
-
+    ManageDetailPage(label="ManageDetail",icon=Icons.Default.QuestionMark),
+    DownloadDetailPage(label="DownloadDetail",icon=Icons.Default.QuestionMark),
+    TaskPage(label="Tasks",icon=Icons.Default.QuestionMark),
+    MDReaderPage(label="MDReader",icon=Icons.Default.QuestionMark)
 }
 
