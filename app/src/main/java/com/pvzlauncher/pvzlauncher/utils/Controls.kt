@@ -35,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -45,22 +46,24 @@ import com.pvzlauncher.pvzlauncher.AppDestinations
 import java.util.Objects
 
 @Composable
-public fun XW_Switch(text : String,modifier: Modifier) {
-    var checked by remember { mutableStateOf(false) }
+public fun XW_Switch(text : String,modifier: Modifier,isEnabled : Boolean,OnChanged : (isChecked : Boolean) -> Unit) {
+    var checked by remember { mutableStateOf(isEnabled) }
 
     Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier) {
         Text(text,modifier = Modifier.padding(10.dp,5.dp), fontSize = 16.sp)
 
         Switch(
             checked = checked,
-            onCheckedChange = { checked = it }
+            onCheckedChange = { checked = it
+                OnChanged(checked) }
         )
     }
 }
 
 @Composable
-public fun XW_GameInformationCard(args : GameConfig,currentDestination : AppDestinations)
+public fun XW_GameInformationCard(args : GameConfig,onBack: () -> Unit,Disablebuttonwhenclick : Boolean,Icon: ImageVector)
 {
+    var isEnabled by remember { mutableStateOf(true) }
     return Card(modifier = Modifier.padding(5.dp).fillMaxWidth())
     {
         Box(modifier = Modifier.padding(5.dp).fillMaxWidth())
@@ -92,16 +95,20 @@ public fun XW_GameInformationCard(args : GameConfig,currentDestination : AppDest
                     }
                 }
             }
+
             Button(onClick = {
                 DownloadConfig = args
-                currentDestination = AppDestinations.DownloadDetailPage
-                currentDestination
+                if(Disablebuttonwhenclick)
+                {
+                    isEnabled = false
+                }
+                onBack()
             }, modifier = Modifier.align(Alignment.CenterEnd).padding(5.dp).size(48.dp),contentPadding = PaddingValues(0.dp),
-                shape = CircleShape
+                shape = CircleShape, enabled = isEnabled
             )
             {
 
-                Icon(imageVector = Icons.Default.ArrowRightAlt,"检测更新", modifier = Modifier.size(32.dp))
+                Icon(imageVector = Icon,"检测更新", modifier = Modifier.size(32.dp))
 
             }
 
@@ -109,6 +116,8 @@ public fun XW_GameInformationCard(args : GameConfig,currentDestination : AppDest
         }
     }
 }
+
+
 
 @Composable
 public fun XW_ManageInformationCard(headImage : String,gametitle : String,gameversion : String,gamesize : String,args : Objects?,)
@@ -166,3 +175,4 @@ public fun XW_ToastMessage(message:String,context: Context) {
 
 
 }
+

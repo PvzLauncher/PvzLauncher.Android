@@ -1,6 +1,9 @@
 package com.pvzlauncher.pvzlauncher.utils
 
 import android.content.Context
+import android.util.Log
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -50,9 +53,9 @@ public data class SaveConfigList(
 
 @Serializable
 public data class LauncherConfig(
-    val UseSystemTheme: Boolean = true,
-    val UseDarkTheme : Boolean = false,
-    val UseEnglishTitle : Boolean = false,
+    var UseSystemTheme: Boolean,
+    var UseDarkTheme : Boolean,
+    var UseEnglishTitle : Boolean,
 )
 
 
@@ -65,5 +68,18 @@ public inline fun <reified T> WriteJson(fileName: String, data: T,context: Conte
 {
     val writepath = context.filesDir
     val jsonString = Json.encodeToString(data)
+    Log.d("FilePathTest", "${jsonString}")
     File("${writepath}/${fileName}").writeText(jsonString, Charsets.UTF_8)
+    Log.d("FilePathTest", "文件绝对路径是: ${File("${writepath}/${fileName}").absolutePath}")
+}
+
+@Composable
+public fun InitializeLauncherSettings()
+{
+    WriteJson<LauncherConfig>(LAUNCHERCONFIGNAME, LauncherConfig(
+        UseSystemTheme = true,
+        UseDarkTheme = false,
+        UseEnglishTitle = false
+    ), LocalContext.current
+    )
 }

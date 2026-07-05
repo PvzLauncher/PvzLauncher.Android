@@ -1,14 +1,13 @@
 package com.pvzlauncher.pvzlauncher
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
-import java.io.File
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -18,23 +17,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
-import com.pvzlauncher.pvzlauncher.ui.theme.PvzLauncherAndroidTheme
 import androidx.compose.material.icons.Icons
+import com.downloader.OnCancelListener
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowRightAlt
+import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Downloading
 import androidx.compose.material.icons.filled.HomeRepairService
@@ -49,33 +39,62 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontWeight.Companion.Bold
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
+import com.downloader.Error
+import com.downloader.OnDownloadListener
+import com.downloader.OnPauseListener
+import com.downloader.OnProgressListener
+import com.downloader.OnStartOrResumeListener
+import com.downloader.PRDownloader
+import com.downloader.PRDownloaderConfig
+import com.downloader.Progress
+import com.pvzlauncher.pvzlauncher.ui.theme.PvzLauncherAndroidTheme
 import com.pvzlauncher.pvzlauncher.utils.APP_VERSION
-import com.pvzlauncher.pvzlauncher.utils.GameConfig
+import com.pvzlauncher.pvzlauncher.utils.DownloadConfig
 import com.pvzlauncher.pvzlauncher.utils.GameListConfig
-import com.pvzlauncher.pvzlauncher.utils.GameListIndex
 import com.pvzlauncher.pvzlauncher.utils.GetWebSiteContent
+import com.pvzlauncher.pvzlauncher.utils.InitializeLauncherSettings
+import com.pvzlauncher.pvzlauncher.utils.LAUNCHERCONFIGNAME
+import com.pvzlauncher.pvzlauncher.utils.LauncherConfig
 import com.pvzlauncher.pvzlauncher.utils.MDR_FileName
 import com.pvzlauncher.pvzlauncher.utils.MDR_MDContent
 import com.pvzlauncher.pvzlauncher.utils.ManageConfigPath
 import com.pvzlauncher.pvzlauncher.utils.ManageIndex
 import com.pvzlauncher.pvzlauncher.utils.OpenUrl
 import com.pvzlauncher.pvzlauncher.utils.ReadJson
-import com.pvzlauncher.pvzlauncher.utils.SaveConfig
 import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
+import com.pvzlauncher.pvzlauncher.utils.TaskInformationList
+import com.pvzlauncher.pvzlauncher.utils.TaskList
+
 import com.pvzlauncher.pvzlauncher.utils.UpdateConfig
+import com.pvzlauncher.pvzlauncher.utils.WriteJson
 import com.pvzlauncher.pvzlauncher.utils.XW_GameInformationCard
 import com.pvzlauncher.pvzlauncher.utils.XW_Switch
 import com.pvzlauncher.pvzlauncher.utils.XW_ToastMessage
 import dev.jeziellago.compose.markdowntext.MarkdownText
+import java.io.File
 
 
 class MainActivity : ComponentActivity() {
@@ -97,7 +116,11 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun PvzLauncherAndroidApp() {
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HomePage) }
-
+    val config = PRDownloaderConfig.newBuilder()
+        .setReadTimeout(30000)
+        .setConnectTimeout(30000)
+        .build()
+    PRDownloader.initialize(LocalContext.current, config)
     NavigationSuiteScaffold(
         navigationSuiteItems = {
             AppDestinations.entries.forEach {
@@ -121,12 +144,31 @@ fun PvzLauncherAndroidApp() {
     ) {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             val pageModifier = Modifier.padding(innerPadding)
+            val LocalSettings = ReadJson<LauncherConfig>(File("${LocalContext.current.filesDir}/${LAUNCHERCONFIGNAME}").readText())
             when (currentDestination) {
                 AppDestinations.HomePage -> {
+                    if (!File("${LocalContext.current.filesDir}/${LAUNCHERCONFIGNAME}").exists())
+                    {
+                        InitializeLauncherSettings()
+                    }
                     Box(modifier = Modifier.fillMaxSize()){
-                        Image(painter = painterResource(id=R.drawable.ic_apptitle_zh),"123",
-                            alignment = Alignment.TopCenter, modifier = Modifier.padding(40.dp).fillMaxWidth())
-                        Column(modifier = Modifier.align(Alignment.BottomCenter).padding(40.dp), horizontalAlignment = Alignment.CenterHorizontally)
+                        if(LocalSettings.UseEnglishTitle)
+                        {
+                            Image(painter = painterResource(id=R.drawable.ic_apptitle_en),"123",
+                                alignment = Alignment.TopCenter, modifier = Modifier
+                                    .padding(40.dp)
+                                    .fillMaxWidth())
+                        }
+                        else
+                        {
+                            Image(painter = painterResource(id=R.drawable.ic_apptitle_zh),"123",
+                                alignment = Alignment.TopCenter, modifier = Modifier
+                                    .padding(40.dp)
+                                    .fillMaxWidth())
+                        }
+                        Column(modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(40.dp), horizontalAlignment = Alignment.CenterHorizontally)
                         {
                             Row(verticalAlignment = Alignment.CenterVertically)
                             {
@@ -138,7 +180,9 @@ fun PvzLauncherAndroidApp() {
                                     {
                                         Row(modifier = Modifier.padding(10.dp), verticalAlignment = Alignment.CenterVertically){
 
-                                            Icon(imageVector = Icons.Default.RocketLaunch,"", modifier = Modifier.padding(5.dp).size(24.dp))
+                                            Icon(imageVector = Icons.Default.RocketLaunch,"", modifier = Modifier
+                                                .padding(5.dp)
+                                                .size(24.dp))
                                             Text("启动游戏",modifier = Modifier.padding(5.dp), fontWeight = FontWeight.Bold, fontSize = 18.sp)
                                         }
 
@@ -146,7 +190,9 @@ fun PvzLauncherAndroidApp() {
                                 }
                                 Button(onClick = {
 
-                                }, modifier = Modifier.padding(5.dp).size(64.dp),contentPadding = PaddingValues(0.dp),
+                                }, modifier = Modifier
+                                    .padding(5.dp)
+                                    .size(64.dp),contentPadding = PaddingValues(0.dp),
                                     shape = CircleShape
                                 )
                                 {
@@ -165,12 +211,16 @@ fun PvzLauncherAndroidApp() {
                 }
                 AppDestinations.ManagePage -> {
                     Column(modifier = Modifier.padding(10.dp,35.dp)){
-                        Box(modifier = Modifier.fillMaxWidth().height(58.dp))
+                        Box(modifier = Modifier
+                            .fillMaxWidth()
+                            .height(58.dp))
                         {
                             Text(
                                 "管理",
                                 fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(5.dp).align(Alignment.CenterStart),
+                                modifier = Modifier
+                                    .padding(5.dp)
+                                    .align(Alignment.CenterStart),
                                 fontSize = 28.sp
                             )
                         }
@@ -181,10 +231,15 @@ fun PvzLauncherAndroidApp() {
                     Column(modifier = Modifier.padding(10.dp,35.dp)){
                         Box(modifier = Modifier.fillMaxWidth())
                         {
-                            Text("下载", fontWeight = FontWeight.Bold,modifier = Modifier.padding(5.dp).align(Alignment.CenterStart), fontSize = 28.sp)
+                            Text("下载", fontWeight = FontWeight.Bold,modifier = Modifier
+                                .padding(5.dp)
+                                .align(Alignment.CenterStart), fontSize = 28.sp)
                             Button(onClick = {
                                 currentDestination = AppDestinations.TaskPage
-                            }, modifier = Modifier.padding(5.dp).size(48.dp).align(Alignment.CenterEnd),contentPadding = PaddingValues(0.dp),
+                            }, modifier = Modifier
+                                .padding(5.dp)
+                                .size(48.dp)
+                                .align(Alignment.CenterEnd),contentPadding = PaddingValues(0.dp),
                                 shape = CircleShape
                             )
                             {
@@ -193,55 +248,85 @@ fun PvzLauncherAndroidApp() {
 
                             }
                         }
-                        Column(horizontalAlignment = Alignment.CenterHorizontally,modifier = Modifier.padding(2.dp).fillMaxSize())
+                        Column(horizontalAlignment = Alignment.CenterHorizontally,modifier = Modifier
+                            .padding(2.dp)
+                            .fillMaxSize())
                         {
                             val gameindex = ReadJson<GameListConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/PvzLauncher/PvzLauncher.Service.Android/raw/main/GameIndex.json"))
                             for(i in gameindex.GameIndex)
                             {
-                                currentDestination
-                                XW_GameInformationCard(headImage = i.GameImage,gametitle = i.GameName,gameversion = i.GameVersion,gamesize = i.GameSize,args = null)
+                                XW_GameInformationCard(i,{
+                                    currentDestination = AppDestinations.DownloadDetailPage
+                                },false,Icons.Default.ArrowRightAlt)
                             }
+
                         }
 
                     }
                 }
                 AppDestinations.SettingPage -> {
+                    var LocalSettings = ReadJson<LauncherConfig>(File("${LocalContext.current.filesDir}/${LAUNCHERCONFIGNAME}").readText())
+                    Log.d("Text",File("${LocalContext.current.filesDir}/${LAUNCHERCONFIGNAME}").readText())
+                    var lc = LocalContext.current
                     Column(modifier = Modifier.padding(10.dp,35.dp)){
-                        Box(modifier = Modifier.fillMaxWidth().height(58.dp))
+                        Box(modifier = Modifier
+                            .fillMaxWidth()
+                            .height(58.dp))
                         {
                             Text(
                                 "设置",
                                 fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(5.dp).align(Alignment.CenterStart),
+                                modifier = Modifier
+                                    .padding(5.dp)
+                                    .align(Alignment.CenterStart),
                                 fontSize = 28.sp
                             )
                         }
                         Column(modifier = Modifier.padding(10.dp,2.dp))
                         {
                             Text("主题设置", fontWeight = FontWeight.Bold,modifier = Modifier.padding(0.dp), fontSize = 18.sp)
-                            XW_Switch("自动切换主题", modifier = Modifier.padding(0.dp))
-                            XW_Switch("启用深色模式", modifier = Modifier.padding(0.dp))
+                            XW_Switch("自动切换主题", modifier = Modifier.padding(0.dp),LocalSettings.UseSystemTheme,{ isChecked ->
+                                LocalSettings.UseSystemTheme = isChecked
+
+                                WriteJson<LauncherConfig>(LAUNCHERCONFIGNAME,LocalSettings,lc)
+
+                            })
+                            XW_Switch("启用深色模式", modifier = Modifier.padding(0.dp),LocalSettings.UseDarkTheme,{  isChecked ->
+                                LocalSettings.UseDarkTheme = isChecked
+                                WriteJson<LauncherConfig>(LAUNCHERCONFIGNAME,LocalSettings,lc)
+                            })
                         }
                         Column(modifier = Modifier.padding(10.dp,2.dp))
                         {
                             Text("标题设置", fontWeight = FontWeight.Bold,modifier = Modifier.padding(0.dp), fontSize = 18.sp)
-                            XW_Switch("启用英文版标题", modifier = Modifier.padding(0.dp))
+                            XW_Switch("启用英文版标题", modifier = Modifier.padding(0.dp),LocalSettings.UseEnglishTitle,{  isChecked ->
+                                LocalSettings.UseEnglishTitle = isChecked
+                                WriteJson<LauncherConfig>(LAUNCHERCONFIGNAME,LocalSettings,lc)
+                            })
                         }
                     }
                 }
                 AppDestinations.AboutPage -> {
                     Column(modifier = Modifier.padding(10.dp,35.dp)){
-                        Box(modifier = Modifier.fillMaxWidth().height(58.dp))
+                        Box(modifier = Modifier
+                            .fillMaxWidth()
+                            .height(58.dp))
                         {
                             Text(
                                 "关于",
                                 fontWeight = FontWeight.Bold,
-                                modifier = Modifier.padding(5.dp).align(Alignment.CenterStart),
+                                modifier = Modifier
+                                    .padding(5.dp)
+                                    .align(Alignment.CenterStart),
                                 fontSize = 28.sp
                             )
                         }
-                        Card(Modifier.fillMaxWidth().padding(5.dp)){
-                            Column(Modifier.padding(10.dp).fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally)
+                        Card(Modifier
+                            .fillMaxWidth()
+                            .padding(5.dp)){
+                            Column(Modifier
+                                .padding(10.dp)
+                                .fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally)
                             {
 
                                     Image(
@@ -282,7 +367,9 @@ fun PvzLauncherAndroidApp() {
                                         {
                                             XW_ToastMessage("检测更新时遇到错误：${e.message}",context)
                                         }
-                                    }, modifier = Modifier.padding(5.dp).size(48.dp),contentPadding = PaddingValues(0.dp),
+                                    }, modifier = Modifier
+                                        .padding(5.dp)
+                                        .size(48.dp),contentPadding = PaddingValues(0.dp),
                                         shape = CircleShape
                                     )
                                     {
@@ -303,7 +390,10 @@ fun PvzLauncherAndroidApp() {
                                     }
 
                                     Button(onClick = {
-                                        OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/EULA.md",cont)
+                                        //OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/EULA.md",cont)
+                                        MDR_FileName = "许可协议"
+                                        MDR_MDContent = GetWebSiteContent("https://raw.giteeusercontent.com/PvzLauncher/PvzLauncher.Service.Android/raw/main/Files/EULA.md")
+                                        currentDestination = AppDestinations.MDReaderPage
 
                                     }, modifier = Modifier.padding(5.dp))
                                     {
@@ -312,7 +402,10 @@ fun PvzLauncherAndroidApp() {
                                     }
 
                                     Button(onClick = {
-                                        OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/QandA.md",cont)
+                                        //OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/QandA.md",cont)
+                                        MDR_FileName = "常见问题"
+                                        MDR_MDContent = GetWebSiteContent("https://raw.giteeusercontent.com/PvzLauncher/PvzLauncher.Service.Android/raw/main/Files/QandA.md")
+                                        currentDestination = AppDestinations.MDReaderPage
                                     }, modifier = Modifier.padding(5.dp))
                                     {
 
@@ -327,7 +420,9 @@ fun PvzLauncherAndroidApp() {
 
                         }
 
-                        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(5.dp).fillMaxWidth())
+                        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
+                            .padding(5.dp)
+                            .fillMaxWidth())
                         {
                             Text("开发者", fontWeight = FontWeight.Bold, modifier = Modifier.padding(2.dp))
                             Text("Xiaowang0229 - 主要开发人员", modifier = Modifier.padding(2.dp))
@@ -348,8 +443,8 @@ fun PvzLauncherAndroidApp() {
                     TopAppBar(
                         title = {
                             Text(
-                                text = current.GameName//"关于",
-                                ,fontWeight = FontWeight.Bold,
+                                text = "游戏信息",
+                                fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(5.dp),
                                 fontSize = 28.sp
                             )
@@ -357,7 +452,10 @@ fun PvzLauncherAndroidApp() {
                         navigationIcon = {
                             Button(onClick = {
                                 currentDestination = AppDestinations.ManagePage
-                            }, modifier = Modifier.padding(5.dp).size(64.dp).background(Color.Transparent),contentPadding = PaddingValues(0.dp),
+                            }, modifier = Modifier
+                                .padding(5.dp)
+                                .size(64.dp)
+                                .background(Color.Transparent),contentPadding = PaddingValues(0.dp),
                                 shape = CircleShape,colors = ButtonDefaults.buttonColors(
                                     containerColor = Color.Transparent,      // 默认状态下背景透明 // 文字/图标的颜色
                                     disabledContainerColor = Color.Transparent,// 禁用状态下背景透明
@@ -379,12 +477,11 @@ fun PvzLauncherAndroidApp() {
                 }
                 AppDestinations.DownloadDetailPage ->
                 {
-                    val all = ReadJson<GameListConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/PvzLauncher/PvzLauncher.Service.Android/raw/main/GameIndex.json"))
-                    val current = all.GameIndex[GameListIndex]
+                    var lc = LocalContext.current
                     TopAppBar(
                         title = {
                             Text(
-                                current.GameName,//"关于",
+                                "游戏信息",
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(5.dp),
                                 fontSize = 28.sp
@@ -393,7 +490,10 @@ fun PvzLauncherAndroidApp() {
                         navigationIcon = {
                             Button(onClick = {
                                 currentDestination = AppDestinations.DownloadPage
-                            }, modifier = Modifier.padding(5.dp).size(64.dp).background(Color.Transparent),contentPadding = PaddingValues(0.dp),
+                            }, modifier = Modifier
+                                .padding(5.dp)
+                                .size(64.dp)
+                                .background(Color.Transparent),contentPadding = PaddingValues(0.dp),
                                 shape = CircleShape,colors = ButtonDefaults.buttonColors(
                                     containerColor = Color.Transparent,      // 默认状态下背景透明 // 文字/图标的颜色
                                     disabledContainerColor = Color.Transparent,// 禁用状态下背景透明
@@ -412,6 +512,56 @@ fun PvzLauncherAndroidApp() {
                             }
                         }
                     )
+                    Column(modifier = Modifier
+                        .padding(0.dp, 85.dp, 0.dp, 0.dp)
+                        .fillMaxSize())
+                    {
+                        val scrollState = rememberScrollState()
+                        var lc = LocalContext.current
+                        Box(modifier = Modifier.padding(5.dp))
+                        {
+                            XW_GameInformationCard(DownloadConfig,{
+                                var pid = 0
+
+                                TaskInformationList.add(DownloadConfig)
+                                pid = PRDownloader.download(DownloadConfig.GameLink, "${lc.filesDir}/Temp/Apks","${DownloadConfig.GameName}.apk").build().start(object : OnDownloadListener {
+                                    override fun onDownloadComplete() {
+                                        TaskList.remove(pid)
+                                        TaskInformationList.remove(DownloadConfig)
+                                    }
+
+                                    override fun onError(p0: Error) {
+                                        XW_ToastMessage("${p0.connectionException.message}",lc)
+                                    }
+                                })
+
+
+                                TaskList.add(pid)
+
+
+
+
+                                XW_ToastMessage("成功创建下载任务",lc)
+                            },true,Icons.Default.Download)
+                        }
+                        Text("简介",fontSize = 22.sp, fontWeight = Bold,modifier = Modifier.padding(10.dp,5.dp))
+                        Text(DownloadConfig.GameDescription,fontSize = 14.sp,modifier = Modifier.padding(10.dp,5.dp))
+                        Text("游戏截图",fontSize = 22.sp, fontWeight = Bold,modifier = Modifier.padding(10.dp,5.dp))
+                        Row(modifier = Modifier
+                            .padding(5.dp)
+                            .horizontalScroll(scrollState))
+                        {
+
+                            for(i in DownloadConfig.ScreenShoot)
+                            {
+                                AsyncImage(model = i,"",modifier = Modifier
+                                    .height(200.dp)
+                                    .width(360.dp))
+                            }
+                        }
+
+
+                    }
                 }
                 AppDestinations.TaskPage ->
                 {
@@ -427,7 +577,10 @@ fun PvzLauncherAndroidApp() {
                         navigationIcon = {
                             Button(onClick = {
                                 currentDestination = AppDestinations.DownloadPage
-                            }, modifier = Modifier.padding(5.dp).size(64.dp).background(Color.Transparent),contentPadding = PaddingValues(0.dp),
+                            }, modifier = Modifier
+                                .padding(5.dp)
+                                .size(64.dp)
+                                .background(Color.Transparent),contentPadding = PaddingValues(0.dp),
                                 shape = CircleShape,colors = ButtonDefaults.buttonColors(
                                     containerColor = Color.Transparent,      // 默认状态下背景透明 // 文字/图标的颜色
                                     disabledContainerColor = Color.Transparent,// 禁用状态下背景透明
@@ -446,9 +599,53 @@ fun PvzLauncherAndroidApp() {
                             }
                         }
                     )
-                    Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally)
+                    Column(modifier = Modifier.fillMaxSize().padding(10.dp, 90.dp, 10.dp, 10.dp), horizontalAlignment = Alignment.CenterHorizontally)
                     {
+                        for(i in 0 until TaskList.count())
+                        {
+                            Card(modifier = Modifier.padding(5.dp).fillMaxWidth())
+                            {
+                                Box(modifier = Modifier.padding(5.dp).fillMaxWidth())
+                                {
+                                    Button(onClick = {
+                                        PRDownloader.cancel(TaskList[i])
+                                    }, modifier = Modifier
+                                        .padding(10.dp)
+                                        .size(48.dp).align(Alignment.TopEnd),
+                                        shape = CircleShape
+                                    )
+                                    {
 
+                                        Icon(imageVector = Icons.Default.Cancel,"检测更新", modifier = Modifier.size(32.dp))
+
+                                    }
+                                    Column(modifier = Modifier.align(Alignment.Center).fillMaxWidth())
+                                    {
+
+                                        Row(verticalAlignment = Alignment.CenterVertically,modifier = Modifier.padding(5.dp).fillMaxWidth())
+                                        {
+                                            AsyncImage(model = TaskInformationList[i].GameImage,"",modifier = Modifier.padding(5.dp).size(32.dp))
+                                            Column(Modifier.padding(2.dp))
+                                            {
+                                                Text("下载 ${TaskInformationList[i].GameName}", fontSize = 22.sp,modifier = Modifier.padding(2.dp), fontWeight = FontWeight.Bold)
+                                                Text("pid:${TaskList[i]}",fontSize = 14.sp,modifier = Modifier.padding(2.dp))
+                                            }
+                                        }
+                                        Box(modifier = Modifier.padding(5.dp).fillMaxWidth())
+                                        {
+                                            Text("下载中……",fontSize = 14.sp,modifier = Modifier.padding(2.dp).align(Alignment.CenterStart))
+                                            LinearProgressIndicator(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(16.dp))
+
+                                        }
+                                    }
+
+
+                                }
+                            }
+                        }
                     }
                 }
                 AppDestinations.MDReaderPage ->
@@ -465,7 +662,10 @@ fun PvzLauncherAndroidApp() {
                         navigationIcon = {
                             Button(onClick = {
                                 currentDestination = AppDestinations.AboutPage
-                            }, modifier = Modifier.padding(5.dp).size(64.dp).background(Color.Transparent),contentPadding = PaddingValues(0.dp),
+                            }, modifier = Modifier
+                                .padding(5.dp)
+                                .size(64.dp)
+                                .background(Color.Transparent),contentPadding = PaddingValues(0.dp),
                                 shape = CircleShape,colors = ButtonDefaults.buttonColors(
                                     containerColor = Color.Transparent,      // 默认状态下背景透明 // 文字/图标的颜色
                                     disabledContainerColor = Color.Transparent,// 禁用状态下背景透明
@@ -484,7 +684,9 @@ fun PvzLauncherAndroidApp() {
                             }
                         }
                     )
-                    MarkdownText(MDR_MDContent.trimIndent(),modifier = Modifier.padding(5.dp).fillMaxSize())
+                    MarkdownText(MDR_MDContent.trimIndent(),modifier = Modifier
+                        .padding(10.dp, 90.dp, 10.dp, 10.dp)
+                        .fillMaxSize())
                 }
 
             }

@@ -1,22 +1,28 @@
 package com.pvzlauncher.pvzlauncher.utils
 
+import com.downloader.request.DownloadRequest
 import okhttp3.internal.concurrent.Task
 
 const val APP_VERSION = "1.0.0-alpha.3"
+const val LAUNCHERCONFIGNAME = "LauncherConfig.json"
 
 //ManageDetailPageArgs
-val ManageConfigPath : String? = null
-val ManageIndex : Int = 0
+var ManageConfigPath : String? = null
+var ManageIndex : Int = 0
 
 //DownloadDetailPageArgs
-var DownloadConfig : GameConfig? = null
+var DownloadConfig : GameConfig = GameConfig("","","","","","",listOf(""))
 
 //TaskPageArgs
-val TaskList : List<Task>? = null
+val TaskList = mutableListOf<Int>()
+
+val TaskInformationList = mutableListOf<GameConfig>()
+
+
 
 //MDReaderPageArgs
-val MDR_FileName : String = ""
-val MDR_MDContent : String = ""
+var MDR_FileName : String = ""
+var MDR_MDContent : String = ""
 
 //SettingsPageArgs
-val LauncherConfigPath : String? = null
+var LauncherConfigPath : String? = null
