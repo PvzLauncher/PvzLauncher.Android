@@ -1,5 +1,6 @@
 package com.pvzlauncher.pvzlauncher.utils
 
+import androidx.compose.runtime.mutableStateListOf
 import com.downloader.request.DownloadRequest
 import okhttp3.internal.concurrent.Task
 
@@ -14,11 +15,19 @@ var ManageIndex : Int = 0
 var DownloadConfig : GameConfig = GameConfig("","","","","","",listOf(""))
 
 //TaskPageArgs
-val TaskList = mutableListOf<Int>()
-
-val TaskInformationList = mutableListOf<GameConfig>()
 
 
+val ProcessList =  mutableStateListOf<ProcessConfig>()
+val intProcessList = mutableStateListOf<Int>()
+
+val intProcessProgressList = mutableStateListOf<Float>()
+val sProcessProgressList = mutableStateListOf<String>()
+
+data class ProcessConfig(
+    var p_info : GameConfig,
+    var p_id : Int
+
+)
 
 //MDReaderPageArgs
 var MDR_FileName : String = ""
