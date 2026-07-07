@@ -25,8 +25,10 @@ import com.downloader.OnCancelListener
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowRightAlt
 import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Downloading
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.HomeRepairService
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.QuestionMark
@@ -732,15 +734,18 @@ fun PvzLauncherAndroidApp() {
 
 
                                     }, modifier = Modifier
-                                        .padding(10.dp)
-                                        .size(48.dp).align(Alignment.CenterEnd),
+                                        .padding(5.dp).align(Alignment.CenterEnd)
+                                        .size(48.dp),contentPadding = PaddingValues(0.dp),
                                         shape = CircleShape
                                     )
+
                                     {
 
-                                        Icon(imageVector = Icons.Default.Cancel,"检测更新", modifier = Modifier.size(32.dp))
+                                        Icon(imageVector = Icons.Default.Delete,"检测更新", modifier = Modifier.size(32.dp))
 
                                     }
+
+
                                     Column(modifier = Modifier.align(Alignment.Center).fillMaxWidth())
                                     {
 
