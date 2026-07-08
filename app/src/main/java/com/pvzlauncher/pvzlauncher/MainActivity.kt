@@ -46,6 +46,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -58,6 +59,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -277,36 +279,12 @@ fun PvzLauncherAndroidApp() {
                             var resultText by remember { mutableStateOf("") }
                             var llc = LocalContext.current
                             Button({
-                                var sl = ReadJson<SaveConfigList>(File("${lcc.filesDir}/${SAVECONFIGNAME}").readText())
-                                if(sl.GameIndex.none {it.PackageName == "com.popcap.pvz"} && isAppInstalled(llc,"com.popcap.pvz"))
-                                {
-                                    isDialogVisible = true
-
-
-                                }
-                            }, Modifier.padding(5.dp).align(Alignment.CenterEnd), enabled = false) {
+                                currentDestination = AppDestinations.ImportPage
+                            }, Modifier.padding(5.dp).align(Alignment.CenterEnd), ) {
                                 Text("导入已安装版本")
 
                             }
-                            XW_InputDialog(
-                                showDialog = isDialogVisible,
-                                title = "检测到有pvz游戏版本可以导入，请输入版本名称",
-                                placeholder = "版本名称",
-                                onDismiss = { isDialogVisible = false },
-                                onConfirm = { text ->
-                                    resultText = text
-                                    var aaa=ReadJson<SaveConfigList>(File("${llc.filesDir}/${LAUNCHERCONFIGNAME}").readText())
-                                    aaa.GameIndex += SaveConfig(
-                                        GameName =resultText,
-                                        PackageName = "com.popcap.pvz",
-                                        AddTime = ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")),
-                                        PlayTime = 0,
-                                        LaunchTimes = 0,
-                                        headImage = "https://raw.giteeusercontent.com/PvzLauncher/PvzLauncher.Service.Android/raw/main/GameAssets/Default.png",
-                                        gameversion = GetApkInfo("com.popcap.pvz",lcc).versionName ?: "1.0.0"             )
-                                    WriteJson<SaveConfigList>(SAVECONFIGNAME,aaa,lcc)
-                                }
-                            )
+
                         }
                         Column(Modifier.padding(5.dp).fillMaxSize()) {
                             for(i in ReadJson<SaveConfigList>(File("${lcc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex)
@@ -381,20 +359,7 @@ fun PvzLauncherAndroidApp() {
                                 fontSize = 28.sp
                             )
                         }
-                        Column(modifier = Modifier.padding(10.dp,2.dp))
-                        {
-                            Text("主题设置", fontWeight = Bold,modifier = Modifier.padding(0.dp), fontSize = 18.sp)
-                            XW_Switch("自动切换主题", modifier = Modifier.padding(0.dp),LocalSettings.UseSystemTheme,{ isChecked ->
-                                LocalSettings.UseSystemTheme = isChecked
 
-                                WriteJson<LauncherConfig>(LAUNCHERCONFIGNAME,LocalSettings,lc)
-
-                            })
-                            XW_Switch("启用深色模式", modifier = Modifier.padding(0.dp),LocalSettings.UseDarkTheme,{  isChecked ->
-                                LocalSettings.UseDarkTheme = isChecked
-                                WriteJson<LauncherConfig>(LAUNCHERCONFIGNAME,LocalSettings,lc)
-                            })
-                        }
                         Column(modifier = Modifier.padding(10.dp,2.dp))
                         {
                             Text("标题设置", fontWeight = Bold,modifier = Modifier.padding(0.dp), fontSize = 18.sp)
@@ -550,20 +515,11 @@ fun PvzLauncherAndroidApp() {
                                 },
                                 modifier = Modifier
                                     .padding(5.dp)
-                                    .size(64.dp)
+                                    .size(48.dp)
                                     .background(Color.Transparent),
                                 contentPadding = PaddingValues(0.dp),
-                                shape = CircleShape,
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color.Transparent,      // 默认状态下背景透明 // 文字/图标的颜色
-                                    disabledContainerColor = Color.Transparent,// 禁用状态下背景透明
-                                    // 如果需要，也可以把按下或聚焦时的颜色设为透明
-                                ),
-                                // 如果不想让透明按钮有阴影（浮起效果），可以将 elevation 设为 0
-                                elevation = ButtonDefaults.buttonElevation(
-                                    defaultElevation = 0.dp,
-                                    pressedElevation = 0.dp
-                                )
+                                shape = CircleShape
+
                             )
                             {
 
@@ -684,20 +640,11 @@ fun PvzLauncherAndroidApp() {
                                     },
                                     modifier = Modifier
                                         .padding(5.dp)
-                                        .size(64.dp)
+                                        .size(48.dp)
                                         .background(Color.Transparent),
                                     contentPadding = PaddingValues(0.dp),
-                                    shape = CircleShape,
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color.Transparent,      // 默认状态下背景透明 // 文字/图标的颜色
-                                        disabledContainerColor = Color.Transparent,// 禁用状态下背景透明
-                                        // 如果需要，也可以把按下或聚焦时的颜色设为透明
-                                    ),
-                                    // 如果不想让透明按钮有阴影（浮起效果），可以将 elevation 设为 0
-                                    elevation = ButtonDefaults.buttonElevation(
-                                        defaultElevation = 0.dp,
-                                        pressedElevation = 0.dp
-                                    )
+                                    shape = CircleShape
+
                                 )
 
                                 {
@@ -884,18 +831,10 @@ fun PvzLauncherAndroidApp() {
                                 currentDestination = AppDestinations.DownloadPage
                             }, modifier = Modifier
                                 .padding(5.dp)
-                                .size(64.dp)
+                                .size(48.dp)
                                 .background(Color.Transparent),contentPadding = PaddingValues(0.dp),
-                                shape = CircleShape,colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color.Transparent,      // 默认状态下背景透明 // 文字/图标的颜色
-                                    disabledContainerColor = Color.Transparent,// 禁用状态下背景透明
-                                    // 如果需要，也可以把按下或聚焦时的颜色设为透明
-                                ),
-                                // 如果不想让透明按钮有阴影（浮起效果），可以将 elevation 设为 0
-                                elevation = ButtonDefaults.buttonElevation(
-                                    defaultElevation = 0.dp,
-                                    pressedElevation = 0.dp
-                                )
+                                shape = CircleShape
+
                             )
                             {
 
@@ -995,18 +934,10 @@ fun PvzLauncherAndroidApp() {
                                 currentDestination = AppDestinations.AboutPage
                             }, modifier = Modifier
                                 .padding(5.dp)
-                                .size(64.dp)
+                                .size(48.dp)
                                 .background(Color.Transparent),contentPadding = PaddingValues(0.dp),
-                                shape = CircleShape,colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color.Transparent,      // 默认状态下背景透明 // 文字/图标的颜色
-                                    disabledContainerColor = Color.Transparent,// 禁用状态下背景透明
-                                    // 如果需要，也可以把按下或聚焦时的颜色设为透明
-                                ),
-                                // 如果不想让透明按钮有阴影（浮起效果），可以将 elevation 设为 0
-                                elevation = ButtonDefaults.buttonElevation(
-                                    defaultElevation = 0.dp,
-                                    pressedElevation = 0.dp
-                                )
+                                shape = CircleShape
+
                             )
                             {
 
@@ -1021,8 +952,92 @@ fun PvzLauncherAndroidApp() {
                 }
 
                 AppDestinations.ImportPage -> {
-                    Card(Modifier.padding(2.dp)) {
+                    var lc = LocalContext.current
+                    TopAppBar(
+                        title = {
+                            Text(
+                                "导入",
+                                fontWeight = Bold,
+                                modifier = Modifier.padding(5.dp),
+                                fontSize = 28.sp
+                            )
+                        },
+                        navigationIcon = {
+                            Button(onClick = {
+                                currentDestination = AppDestinations.ManagePage
+                            }, modifier = Modifier
+                                .padding(5.dp)
+                                .size(48.dp)
+                                ,contentPadding = PaddingValues(0.dp),
+                                shape = CircleShape
 
+                            )
+                            {
+
+                                Icon(imageVector = Icons.Default.ArrowBack,"返回", modifier = Modifier.size(32.dp))
+
+                            }
+                        }
+                    )
+                    Column(Modifier.padding(10.dp, 90.dp, 10.dp, 10.dp).fillMaxSize())
+                    {
+
+                        var gameindex = ReadJson<GameListConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/PvzLauncher/PvzLauncher.Service.Android/raw/main/GameIndex.json")).GameIndex.toMutableStateList()
+                        gameindex.forEach { i ->
+                            var tempname = i.GameName
+                            if(isAppInstalled(lc,i.PackageName) && ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex.none {it.PackageName == i.PackageName})
+                            {
+                                Card(Modifier.padding(2.dp).fillMaxWidth())
+                                {
+                                    Box(Modifier.padding(5.dp).fillMaxWidth())
+                                    {
+                                        Column(Modifier.align(Alignment.CenterStart))
+                                        {
+                                            Row(verticalAlignment = Alignment.CenterVertically)
+                                            {
+                                                AsyncImage(model = i.GameImage,"", modifier = Modifier.padding(10.dp,5.dp).size(48.dp),placeholder = painterResource(
+                                                    R.drawable.ic_unknown), error = painterResource(R.drawable.ic_unknown),onError = { state -> XW_ToastMessage("获取头图时发生错误：${state.result.throwable.message}",lc)})
+                                                Column(Modifier.padding(2.dp))
+                                                {
+                                                    Text("检测到 ${i.GameName}", fontWeight = Bold)
+                                                    Text("包名: ${i.PackageName}")
+                                                }
+                                            }
+                                            OutlinedTextField(label = { Text("请输入导入后的游戏名") }, onValueChange = { t-> tempname = t },value = i.GameName)
+                                        }
+
+                                        Button(onClick = {
+                                            var aaa=ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
+                                            aaa.GameIndex += SaveConfig(
+                                                GameName =tempname,
+                                                PackageName = i.PackageName,
+                                                AddTime = ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")),
+                                                PlayTime = 0,
+                                                LaunchTimes = 0,
+                                                headImage = "https://raw.giteeusercontent.com/PvzLauncher/PvzLauncher.Service.Android/raw/main/GameAssets/Default.png",
+                                                gameversion = GetApkInfo(i.PackageName,lcc).versionName ?: "1.0.0"             )
+                                            WriteJson<SaveConfigList>(SAVECONFIGNAME,aaa,lc)
+                                            gameindex.remove(i)
+                                            XW_ToastMessage("导入成功",lc)
+
+
+
+
+                                        }, modifier = Modifier
+                                            .padding(5.dp).align(Alignment.CenterEnd)
+                                            .size(48.dp),contentPadding = PaddingValues(0.dp),
+                                            shape = CircleShape
+                                        )
+
+                                        {
+
+                                            Icon(imageVector = Icons.Default.ArrowRightAlt,"检测更新", modifier = Modifier.size(32.dp))
+
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
 

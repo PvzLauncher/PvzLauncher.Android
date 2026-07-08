@@ -23,6 +23,7 @@ public data class UpdateConfig(
 
 @Serializable
 public data class GameConfig(
+    val PackageName: String,
     var GameName : String,
     val GameLink : String,
     val GameImage : String,
@@ -61,6 +62,8 @@ public data class LauncherConfig(
     var UseEnglishTitle : Boolean,
     var CurrentGameIndex : Int
 )
+
+
 
 
 public inline fun <reified T> ReadJson(jsonString : String) : T
