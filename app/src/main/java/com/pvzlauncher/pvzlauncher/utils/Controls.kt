@@ -18,6 +18,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowRightAlt
+import android.app.Dialog
+import android.view.WindowManager
+import android.widget.ProgressBar
+import android.widget.RelativeLayout
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
@@ -205,12 +209,13 @@ public fun XW_InputDialog(
     showDialog: Boolean,
     title: String = "输入内容",
     placeholder: String = "请输入...",
+    value : String,
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit
 ) {
     if (showDialog) {
         // 用于记录输入框中的文本
-        var inputText by remember { mutableStateOf("") }
+        var inputText by remember { mutableStateOf(value) }
 
         AlertDialog(
             onDismissRequest = {
@@ -249,5 +254,59 @@ public fun XW_InputDialog(
             }
         )
     }
+}
+
+fun XW_LoadingMask(context: Context): Dialog {
+    // 1. 创建一个干净的 Dialog，使用内置的无标题栏样式
+    val dialog = Dialog(context, android.R.style.Theme_Translucent_NoTitleBar)
+
+    // 2. 动态用代码创建一个全屏的居中进度条布局（省去写 XML 的麻烦）
+    val rootLayout = RelativeLayout(context).apply {
+        layoutParams = RelativeLayout.LayoutParams(
+            RelativeLayout.LayoutParams.MATCH_PARENT,
+            RelativeLayout.LayoutParams.MATCH_PARENT
+        )
+    }
+
+    // 创建原生圆形进度条（默认就是一直转的）
+    val progressBar = ProgressBar(context).apply {
+        isIndeterminate = true
+    }
+
+    // 将进度条居中放入布局
+    val layoutParams = RelativeLayout.LayoutParams(
+        RelativeLayout.LayoutParams.WRAP_CONTENT,
+        RelativeLayout.LayoutParams.WRAP_CONTENT
+    ).apply {
+        addRule(RelativeLayout.CENTER_IN_PARENT)
+    }
+    rootLayout.addView(progressBar, layoutParams)
+
+    // 3. 将布局塞入 Dialog
+    dialog.setContentView(rootLayout)
+
+    // 4. 【核心控制：硬核防御，杜绝所有除了代码以外的退出方式】
+    dialog.setCancelable(false)          // 禁用返回键
+    dialog.setCanceledOnTouchOutside(false) // 禁用点击遮罩外部消失
+
+    // 5. 配置遮罩的透明度与全屏属性
+    dialog.window?.apply {
+        // 启用暗化背景
+        addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND)
+        // 设置暗化透明度：0.0f（完全透明）到 1.0f（完全全黑）。0.5f 是最正常的半透明
+        attributes.dimAmount = 0.5f
+
+        // 确保填满全屏
+        setLayout(
+            WindowManager.LayoutParams.MATCH_PARENT,
+            WindowManager.LayoutParams.MATCH_PARENT
+        )
+    }
+
+    // 6. 显示遮罩
+    dialog.show()
+
+    // 返回这个实例，以便你在代码中手动控制它关闭
+    return dialog
 }
 

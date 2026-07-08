@@ -55,7 +55,7 @@ fun installApk(context: Context, apkFile: File) {
         // API 24+ 必须使用 FileProvider
         val apkUri: Uri = FileProvider.getUriForFile(
             context,
-            "${context.packageName}.fileprovider", // 需与 AndroidManifest 中的 authorities 一致
+            "com.pvzlauncher.pvzlauncher.fileprovider", // 需与 AndroidManifest 中的 authorities 一致
             apkFile
         )
         setDataAndType(apkUri, "application/vnd.android.package-archive")

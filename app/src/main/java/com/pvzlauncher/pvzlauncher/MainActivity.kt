@@ -108,13 +108,17 @@ import com.pvzlauncher.pvzlauncher.utils.UpdateConfig
 import com.pvzlauncher.pvzlauncher.utils.WriteJson
 import com.pvzlauncher.pvzlauncher.utils.XW_GameInformationCard
 import com.pvzlauncher.pvzlauncher.utils.XW_InputDialog
+import com.pvzlauncher.pvzlauncher.utils.XW_LoadingMask
 import com.pvzlauncher.pvzlauncher.utils.XW_ManageInformationCard
 import com.pvzlauncher.pvzlauncher.utils.XW_Switch
 import com.pvzlauncher.pvzlauncher.utils.XW_ToastMessage
+import com.pvzlauncher.pvzlauncher.utils.installApk
 import com.pvzlauncher.pvzlauncher.utils.intProcessList
 import com.pvzlauncher.pvzlauncher.utils.intProcessProgressList
 import com.pvzlauncher.pvzlauncher.utils.isAppInstalled
+import com.pvzlauncher.pvzlauncher.utils.launchApp
 import com.pvzlauncher.pvzlauncher.utils.sProcessProgressList
+import com.pvzlauncher.pvzlauncher.utils.uninstallApk
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import java.io.File
 import kotlinx.coroutines.*
@@ -157,6 +161,16 @@ fun PvzLauncherAndroidApp() {
         .setConnectTimeout(30000)
         .build()
     PRDownloader.initialize(LocalContext.current, config)
+    val jsondata = GetWebSiteContent("https://raw.giteeusercontent.com/PvzLauncher/PvzLauncher.Service.Android/raw/main/UpdateIndex.json")
+    val ConfigInline = ReadJson<UpdateConfig>(jsondata)
+    if(ConfigInline.LatestVersion == APP_VERSION)
+    {
+        XW_ToastMessage("当前版本已经是最新版本",lcc)
+    }
+    else
+    {
+        XW_ToastMessage("检测到新版本，请到关于页更新",lcc)
+    }
 
 
 
@@ -168,7 +182,7 @@ fun PvzLauncherAndroidApp() {
 
 
 
-    NavigationSuiteScaffold(
+        NavigationSuiteScaffold(
         navigationSuiteItems = {
             AppDestinations.entries.forEach {
                 if (it.icon == Icons.Default.QuestionMark) {
@@ -191,6 +205,7 @@ fun PvzLauncherAndroidApp() {
     ) {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             val pageModifier = Modifier.padding(innerPadding)
+            val lc = LocalContext.current
             val LocalSettings = ReadJson<LauncherConfig>(File("${LocalContext.current.filesDir}/${LAUNCHERCONFIGNAME}").readText())
             when (currentDestination) {
                 AppDestinations.HomePage -> {
@@ -217,6 +232,16 @@ fun PvzLauncherAndroidApp() {
                             Row(verticalAlignment = Alignment.CenterVertically)
                             {
                                 Button(onClick = {
+                                    if(ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex.count() != 0)
+                                    {
+                                        val current = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex[ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText()).CurrentGameIndex]
+
+
+                                        val new =  ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
+                                        new.GameIndex[ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText()).CurrentGameIndex].LaunchTimes += 1
+                                        WriteJson<SaveConfigList>(SAVECONFIGNAME,new,lc)
+                                        launchApp(lc,current.PackageName)
+                                    }
 
                                 }, modifier = Modifier.height(64.dp))
                                 {
@@ -232,18 +257,7 @@ fun PvzLauncherAndroidApp() {
 
                                     }
                                 }
-                                Button(onClick = {
 
-                                }, modifier = Modifier
-                                    .padding(5.dp)
-                                    .size(64.dp),contentPadding = PaddingValues(0.dp),
-                                    shape = CircleShape
-                                )
-                                {
-
-                                    Icon(imageVector = Icons.Default.HomeRepairService,"检测更新", modifier = Modifier.size(32.dp))
-
-                                }
                             }
                             Row()
                             {
@@ -424,7 +438,30 @@ fun PvzLauncherAndroidApp() {
                                             }
                                             else
                                             {
-                                                XW_ToastMessage("当前版本不是最新版本",context)
+                                                var loa = XW_LoadingMask(lc)
+                                                var dprogress = 0
+                                                var ltscfg = ReadJson<UpdateConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/PvzLauncher/PvzLauncher.Service.Android/raw/main/UpdateIndex.json"))
+                                                PRDownloader.download(
+                                                    ltscfg.LatestLink,
+                                                    lc.cacheDir.absolutePath,
+                                                    "${ltscfg.LatestVersion}.apk"
+                                                )
+                                                    .build()
+                                                    .start(object : OnDownloadListener {
+                                                        override fun onDownloadComplete()
+                                                        {
+                                                            installApk(lc,File("${lc.cacheDir.absolutePath}/${ltscfg.LatestVersion}.apk"))
+                                                            System.exit(0)
+                                                        }
+
+                                                        override fun onError(error: Error?) {
+                                                            // 下载失败
+                                                            XW_ToastMessage("下载出错: ${error?.serverErrorMessage}",lc)
+                                                            loa.dismiss()
+                                                        }
+
+
+                                                    })
                                             }
                                         }
                                         catch(e: Exception)
@@ -581,10 +618,11 @@ fun PvzLauncherAndroidApp() {
                                     title = "为防止误触，请重新输入“${current.GameName}”来确认删除",
                                     placeholder = "请输入",
                                     onDismiss = { isDialogVisible = false },
+                                    value = "",
                                     onConfirm = { text ->
                                         if(text == current.GameName)
                                         {
-
+                                            uninstallApk(lc,current.PackageName)
                                             var a2 = all.GameIndex.toMutableList()
                                             a2.removeAt(ManageIndex)
                                             all.GameIndex = a2.toList()
@@ -605,6 +643,7 @@ fun PvzLauncherAndroidApp() {
                                     title = "请输入新名字",
                                     placeholder = "请输入",
                                     onDismiss = { isDialogVisible2 = false },
+                                    value = "",
                                     onConfirm = { text ->
 
                                         all.GameIndex[ManageIndex].GameName = text
@@ -617,7 +656,6 @@ fun PvzLauncherAndroidApp() {
                             Column(Modifier.padding(5.dp))
                             {
                                 Text("入库时间:${current.AddTime}")
-                                Text("游玩时间:${current.PlayTime} 秒")
                                 Text("启动次数:${current.LaunchTimes}")
                             }
                         }
@@ -689,24 +727,19 @@ fun PvzLauncherAndroidApp() {
                             val scrollState = rememberScrollState()
                             var lc = LocalContext.current
                             var isDialogVisible by remember { mutableStateOf(false) }
-                            var resultText by remember { mutableStateOf("暂无输入") }
+                            var resultText by remember { mutableStateOf(DownloadConfig.GameName) }
                             XW_InputDialog(
                                 showDialog = isDialogVisible,
                                 title = "请输入游戏名",
                                 placeholder = "${DownloadConfig.GameName}",
-                                onDismiss = { isDialogVisible = false }, // 关闭方法
+                                onDismiss = { isDialogVisible = false },
+                                value = DownloadConfig.GameName,// 关闭方法
                                 onConfirm = { text ->
                                     // 这里处理你拿到的输入内容
                                     resultText = text
-                                }
-                            )
-                            Box(modifier = Modifier.padding(5.dp))
-                            {
-                                XW_GameInformationCard(DownloadConfig, {
                                     try
                                     {
 
-                                            isDialogVisible = true
 
                                         var dlc = DownloadConfig
                                         dlc.GameName = resultText
@@ -715,7 +748,7 @@ fun PvzLauncherAndroidApp() {
                                             p_id = pid,
                                             p_info = dlc,
 
-                                        )
+                                            )
                                         ProcessList.add(cprsc)
                                         intProcessList.add(pid)
                                         intProcessProgressList.add(0.toFloat())
@@ -723,10 +756,10 @@ fun PvzLauncherAndroidApp() {
 
 
 
-                                         pid = PRDownloader.download(
-                                             dlc.GameLink,
+                                        pid = PRDownloader.download(
+                                            dlc.GameLink,
                                             lc.cacheDir.absolutePath,
-                                             "${dlc.GameName}.apk"
+                                            "${dlc.GameName}.apk"
                                         )
                                             .build()
                                             .setOnProgressListener { progress ->
@@ -736,17 +769,27 @@ fun PvzLauncherAndroidApp() {
                                             .start(object : OnDownloadListener {
                                                 override fun onDownloadComplete() {
                                                     XW_ToastMessage("下载 ${ProcessList[intProcessList.indexOf(pid)].p_info.GameName} 完成",lc)
-                                                    var sl = ReadJson<SaveConfigList>(File("${lcc.filesDir}/${SAVECONFIGNAME}").readText())
-                                                    sl.GameIndex += SaveConfig(
-                                                                                                            GameName =ProcessList[intProcessList.indexOf(pid)].p_info.GameName,
-                                                                                                            PackageName = lc.packageManager.getPackageArchiveInfo("${lc.cacheDir.absolutePath}\${dlc.GameName}.apk",0)?.packageName ?: "com.unknown.unknown",
-                                                                                                            AddTime = ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")),
-                                                                                                            PlayTime = 0,
-                                                                                                            LaunchTimes = 0,
-                                                                                                            headImage = ProcessList[intProcessList.indexOf(pid)].p_info.GameImage,
-                                                                                                            gameversion = ProcessList[intProcessList.indexOf(pid)].p_info.GameVersion
-                                                                                                        )
-                                                    WriteJson<SaveConfigList>(SAVECONFIGNAME,sl,lcc)
+
+
+                                                    try {
+                                                        installApk(lc,File("${lc.cacheDir.absolutePath}/${dlc.GameName}.apk"))
+                                                        var sl = ReadJson<SaveConfigList>(File("${lcc.filesDir}/${SAVECONFIGNAME}").readText())
+                                                        sl.GameIndex += SaveConfig(
+                                                            GameName =ProcessList[intProcessList.indexOf(pid)].p_info.GameName,
+                                                            PackageName = lc.packageManager.getPackageArchiveInfo("${lc.cacheDir.absolutePath}\${dlc.GameName}.apk",0)?.packageName ?: "com.unknown.unknown",
+                                                            AddTime = ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")),
+                                                            PlayTime = 0,
+                                                            LaunchTimes = 0,
+                                                            headImage = ProcessList[intProcessList.indexOf(pid)].p_info.GameImage,
+                                                            gameversion = ProcessList[intProcessList.indexOf(pid)].p_info.GameVersion
+                                                        )
+                                                        WriteJson<SaveConfigList>(SAVECONFIGNAME,sl,lcc)
+
+                                                    }
+                                                    catch (e : Exception)
+                                                    {
+                                                        XW_ToastMessage("安装失败：${e.message}",lc)
+                                                    }
                                                     intProcessProgressList.removeAt(index = intProcessList.indexOf(pid))
                                                     sProcessProgressList.removeAt(intProcessList.indexOf(pid))
                                                     ProcessList.removeAt(index = intProcessList.indexOf(pid))
@@ -776,6 +819,13 @@ fun PvzLauncherAndroidApp() {
                                         XW_ToastMessage("${e.message}",lc)
                                     }
                                     XW_ToastMessage("成功创建下载任务", lc)
+                                }
+                            )
+                            Box(modifier = Modifier.padding(5.dp))
+                            {
+                                XW_GameInformationCard(DownloadConfig, {
+                                    isDialogVisible = true
+
                                 }, true, Icons.Default.Download)
                             }
                             Text(
