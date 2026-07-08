@@ -44,6 +44,22 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.pvzlauncher.pvzlauncher.AppDestinations
 import java.util.Objects
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+
+import androidx.compose.ui.unit.dp
+import java.io.File
 
 @Composable
 public fun XW_Switch(text : String,modifier: Modifier,isEnabled : Boolean,OnChanged : (isChecked : Boolean) -> Unit) {
@@ -120,7 +136,7 @@ public fun XW_GameInformationCard(args : GameConfig,onBack: () -> Unit,Disablebu
 
 
 @Composable
-public fun XW_ManageInformationCard(headImage : String,gametitle : String,gameversion : String,gamesize : String,args : Objects?,)
+public fun XW_ManageInformationCard(args : SaveConfig,onBack: () -> Unit, IsButtonEnable :  Boolean)
 {
     return Card(modifier = Modifier.padding(5.dp).fillMaxWidth())
     {
@@ -129,11 +145,11 @@ public fun XW_ManageInformationCard(headImage : String,gametitle : String,gameve
             Row(modifier = Modifier.align(Alignment.CenterStart).padding(10.dp), verticalAlignment = Alignment.CenterVertically)
             {
                 val cont = LocalContext.current
-                AsyncImage(model = headImage,"", modifier = Modifier.padding(10.dp,5.dp).size(48.dp),placeholder = painterResource(
+                AsyncImage(model = args.headImage,"", modifier = Modifier.padding(10.dp,5.dp).size(48.dp),placeholder = painterResource(
                     R.drawable.ic_unknown), error = painterResource(R.drawable.ic_unknown),onError = { state -> XW_ToastMessage("获取头图时发生错误：${state.result.throwable.message}",cont)})
                 Column()
                 {
-                    Text(gametitle,modifier = Modifier.padding(2.dp), fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                    Text(args.GameName,modifier = Modifier.padding(2.dp), fontWeight = FontWeight.Bold, fontSize = 18.sp)
                     Row(modifier = Modifier.padding(2.dp), verticalAlignment = Alignment.CenterVertically)
                     {
                         Box(modifier = Modifier
@@ -142,26 +158,36 @@ public fun XW_ManageInformationCard(headImage : String,gametitle : String,gameve
                         )
 
                         {
-                            Text(gameversion)
+                            Text(args.gameversion)
                         }
                         Box(modifier = Modifier.padding(2.5.dp)) { }
-                        Box(modifier = Modifier.background(Color(0xFF31A9A9), RoundedCornerShape(7.5.dp))
-                            .padding(4.dp,2.dp))
+                        val rj =  ReadJson<SaveConfigList>(File("${cont.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex
+                        if(rj.indexOf(args) == ReadJson<LauncherConfig>(File("${cont.filesDir}/${LAUNCHERCONFIGNAME}").readText()).CurrentGameIndex)
                         {
-                            Text(gamesize)
+                            Box(modifier = Modifier.background(Color.Red, RoundedCornerShape(7.5.dp))
+                                .padding(4.dp,2.dp))
+                            {
+                                Text("活动")
+                            }
                         }
+
+
                     }
                 }
             }
-            Button(onClick = {
-
-            }, modifier = Modifier.align(Alignment.CenterEnd).padding(5.dp).size(48.dp),contentPadding = PaddingValues(0.dp),
-                shape = CircleShape
-            )
+            if(IsButtonEnable)
             {
+                Button(onClick = {
+                    onBack()
+                }, modifier = Modifier.align(Alignment.CenterEnd).padding(5.dp).size(48.dp),contentPadding = PaddingValues(0.dp),
+                    shape = CircleShape
+                )
+                {
 
-                Icon(imageVector = Icons.Default.ArrowRightAlt,"检测更新", modifier = Modifier.size(32.dp))
+                    Icon(imageVector = Icons.Default.ArrowRightAlt,"检测更新", modifier = Modifier.size(32.dp))
 
+
+                }
             }
 
 
@@ -169,10 +195,59 @@ public fun XW_ManageInformationCard(headImage : String,gametitle : String,gameve
     }
 }
 
-public fun XW_ToastMessage(message:String,context: Context) {
+public fun XW_ToastMessage(message:String,context: Context)
+{
+    Toast.makeText(context, message, Toast.LENGTH_SHORT,).show()
+}
 
-        Toast.makeText(context, message, Toast.LENGTH_SHORT,).show()
+@Composable
+public fun XW_InputDialog(
+    showDialog: Boolean,
+    title: String = "输入内容",
+    placeholder: String = "请输入...",
+    onDismiss: () -> Unit,
+    onConfirm: (String) -> Unit
+) {
+    if (showDialog) {
+        // 用于记录输入框中的文本
+        var inputText by remember { mutableStateOf("") }
 
-
+        AlertDialog(
+            onDismissRequest = {
+                onDismiss()
+            },
+            title = {
+                Text(text = title)
+            },
+            text = {
+                Column {
+                    Text(text = "请在下方输入：")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    TextField(
+                        value = inputText,
+                        onValueChange = { inputText = it },
+                        placeholder = { Text(placeholder) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onConfirm(inputText) // 传回输入的数据
+                        onDismiss()          // 关闭对话框
+                    }
+                ) {
+                    Text("确定")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { onDismiss() }) {
+                    Text("取消")
+                }
+            }
+        )
+    }
 }
 

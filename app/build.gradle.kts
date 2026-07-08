@@ -44,6 +44,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material3.adaptive.navigation.suite)
     implementation("com.github.amitshekhariitbhu:PRDownloader:1.0.2")
+    implementation("com.jakewharton.threetenabp:threetenabp:1.4.7")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
     implementation("com.github.jeziellago:compose-markdown:0.5.0")
     implementation("androidx.compose.material:material-icons-extended")

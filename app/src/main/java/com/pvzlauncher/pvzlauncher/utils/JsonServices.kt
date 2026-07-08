@@ -3,6 +3,7 @@ package com.pvzlauncher.pvzlauncher.utils
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.platform.LocalContext
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
@@ -22,7 +23,7 @@ public data class UpdateConfig(
 
 @Serializable
 public data class GameConfig(
-    val GameName : String,
+    var GameName : String,
     val GameLink : String,
     val GameImage : String,
     val GameSize : String,
@@ -38,17 +39,19 @@ public data class GameListConfig(
 
 @Serializable
 public data class SaveConfig(
-    val GameName : String,
-    val GamePackageName : String,
+    val headImage: String,
+    val gameversion : String,
+    var GameName : String,
+    val PackageName : String,
     val AddTime : String,
-    val PlayTime : String,
-    val LaunchTimes : String
+    var PlayTime : Long,
+    var LaunchTimes : Long
 
 )
 
 @Serializable
 public data class SaveConfigList(
-    val GameIndex : List<SaveConfig>
+    var GameIndex : List<SaveConfig>
 )
 
 @Serializable
@@ -56,6 +59,7 @@ public data class LauncherConfig(
     var UseSystemTheme: Boolean,
     var UseDarkTheme : Boolean,
     var UseEnglishTitle : Boolean,
+    var CurrentGameIndex : Int
 )
 
 
@@ -79,7 +83,13 @@ public fun InitializeLauncherSettings()
     WriteJson<LauncherConfig>(LAUNCHERCONFIGNAME, LauncherConfig(
         UseSystemTheme = true,
         UseDarkTheme = false,
-        UseEnglishTitle = false
+        UseEnglishTitle = false,
+        CurrentGameIndex = 0
     ), LocalContext.current
     )
+}
+@Composable
+public fun InitializeSaveLists()
+{
+    WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(emptyList<SaveConfig>()),LocalContext.current)
 }
