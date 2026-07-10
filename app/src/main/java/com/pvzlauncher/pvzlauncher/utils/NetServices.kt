@@ -42,30 +42,32 @@ public fun CheckUpdate(lc : Context)
         }
         else
         {
-            var loa = XW_LoadingMask(lc)
-            var dprogress = 0
-            var ltscfg = ReadJson<UpdateConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json"))
-            PRDownloader.download(
-                ltscfg.LatestLink,
-                lc.cacheDir.absolutePath,
-                "${ltscfg.LatestVersion}.apk"
-            )
-                .build()
-                .start(object : OnDownloadListener {
-                    override fun onDownloadComplete()
-                    {
-                        installApk(lc,File("${lc.cacheDir.absolutePath}/${ltscfg.LatestVersion}.apk"))
-                        System.exit(0)
-                    }
+            XW_simpledialog("更新可用","当前版本:${APP_VERSION}\r\n最新版本:${ConfigInline.LatestVersion}\r\n更新日志:\r\n${ConfigInline.LatestDescription}\r\n请问是否现在就要更新？",{
+                var loa = XW_LoadingMask(lc)
+                var dprogress = 0
+                var ltscfg = ReadJson<UpdateConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json"))
+                PRDownloader.download(
+                    ltscfg.LatestLink,
+                    lc.cacheDir.absolutePath,
+                    "${ltscfg.LatestVersion}.apk"
+                )
+                    .build()
+                    .start(object : OnDownloadListener {
+                        override fun onDownloadComplete()
+                        {
+                            installApk(lc,File("${lc.cacheDir.absolutePath}/${ltscfg.LatestVersion}.apk"))
+                            System.exit(0)
+                        }
 
-                    override fun onError(error: Error?) {
-                        // 下载失败
-                        XW_ToastMessage("下载出错: ${error?.serverErrorMessage}",lc)
-                        loa.dismiss()
-                    }
+                        override fun onError(error: Error?) {
+                            // 下载失败
+                            XW_ToastMessage("下载出错: ${error?.serverErrorMessage}",lc)
+                            loa.dismiss()
+                        }
 
 
-                })
+                    })
+            },{},lc)
         }
     }
     catch(e: Exception)

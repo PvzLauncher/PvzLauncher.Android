@@ -69,16 +69,30 @@ public data class LauncherConfig(
 
 public inline fun <reified T> ReadJson(jsonString : String) : T
 {
-    return Json.decodeFromString<T>(jsonString)
+    return try {
+        Json.decodeFromString<T>(jsonString)
+    } catch (e: Exception) {
+        XW_ToastMessage("读配置失败,${e.message}", globalContext)
+
+        try {
+            T::class.java.getDeclaredConstructor().newInstance()
+        } catch (reflectEx: Exception) {
+            throw IllegalStateException("类 ${T::class.java.simpleName} 没有无参构造函数，无法自动创建空对象！", reflectEx)
+        }
+    }
 }
 
 public inline fun <reified T> WriteJson(fileName: String, data: T,context: Context)
 {
-    val writepath = context.filesDir
-    val jsonString = Json.encodeToString(data)
-    Log.d("FilePathTest", "${jsonString}")
-    File("${writepath}/${fileName}").writeText(jsonString, Charsets.UTF_8)
-    Log.d("FilePathTest", "文件绝对路径是: ${File("${writepath}/${fileName}").absolutePath}")
+    try{
+        val writepath = context.filesDir
+        val jsonString = Json.encodeToString(data)
+        File("${writepath}/${fileName}").writeText(jsonString, Charsets.UTF_8)
+    }
+    catch(e:Exception)
+    {
+        XW_ToastMessage("写配置失败,${e.message}",context)
+    }
 }
 
 @Composable

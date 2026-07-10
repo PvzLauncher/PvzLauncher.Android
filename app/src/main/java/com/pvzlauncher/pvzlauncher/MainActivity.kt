@@ -139,6 +139,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import com.pvzlauncher.pvzlauncher.utils.CheckUpdate
+import com.pvzlauncher.pvzlauncher.utils.globalContext
 
 
 class MainActivity : ComponentActivity() {
@@ -164,6 +165,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun PvzLauncherAndroidApp() {
     var lcc = LocalContext.current
+    globalContext = LocalContext.current
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HomePage) }
     var startupcheckupdate by rememberSaveable { mutableStateOf(false) }
     var requestappinstall by rememberSaveable { mutableStateOf(false) }
@@ -264,24 +266,7 @@ fun PvzLauncherAndroidApp() {
     {
         if(ReadJson<LauncherConfig>(File("${LocalContext.current.filesDir}/${LAUNCHERCONFIGNAME}").readText()).StartUpCheckUpdate == true)
         {
-            try{
-                val jsondata = GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json")
-                val ConfigInline = ReadJson<UpdateConfig>(jsondata)
-                if(ConfigInline.LatestVersion == APP_VERSION)
-                {
-                    startupcheckupdate = true
-                }
-                else
-                {
-
-                    startupcheckupdate = true
-
-                }
-            }
-            catch(e : Exception)
-            {
-                XW_ToastMessage("无法检测更新,${e.message}",lcc)
-            }
+            CheckUpdate(lcc)
         }
     }
 
@@ -577,7 +562,7 @@ fun PvzLauncherAndroidApp() {
                                     Image(
                                         painter = painterResource(id = R.drawable.ic_appicon_vector),
                                         contentDescription = "AppIcon",
-                                        modifier = Modifier.size(200.dp),
+                                        modifier = Modifier.size(150.dp),
 
                                         )
                                     Row()
