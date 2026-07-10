@@ -51,7 +51,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -86,6 +85,7 @@ import com.pvzlauncher.pvzlauncher.ui.theme.PvzLauncherAndroidTheme
 import com.pvzlauncher.pvzlauncher.utils.APP_VERSION
 
 import com.pvzlauncher.pvzlauncher.utils.DownloadConfig
+import com.pvzlauncher.pvzlauncher.utils.GameConfig
 import com.pvzlauncher.pvzlauncher.utils.GameListConfig
 import com.pvzlauncher.pvzlauncher.utils.GetApkInfo
 import com.pvzlauncher.pvzlauncher.utils.GetWebSiteContent
@@ -112,6 +112,7 @@ import com.pvzlauncher.pvzlauncher.utils.XW_LoadingMask
 import com.pvzlauncher.pvzlauncher.utils.XW_ManageInformationCard
 import com.pvzlauncher.pvzlauncher.utils.XW_Switch
 import com.pvzlauncher.pvzlauncher.utils.XW_ToastMessage
+import com.pvzlauncher.pvzlauncher.utils.XW_simpledialog
 import com.pvzlauncher.pvzlauncher.utils.installApk
 import com.pvzlauncher.pvzlauncher.utils.intProcessList
 import com.pvzlauncher.pvzlauncher.utils.intProcessProgressList
@@ -125,6 +126,18 @@ import kotlinx.coroutines.*
 import org.threeten.bp.ZonedDateTime
 import org.threeten.bp.ZoneId
 import org.threeten.bp.format.DateTimeFormatter
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+
 
 
 class MainActivity : ComponentActivity() {
@@ -137,6 +150,9 @@ class MainActivity : ComponentActivity() {
                 PvzLauncherAndroidApp()
             }
         }
+
+
+
     }
 }
 
@@ -146,8 +162,75 @@ class MainActivity : ComponentActivity() {
 @PreviewScreenSizes
 @Composable
 fun PvzLauncherAndroidApp() {
+    var lcc = LocalContext.current
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HomePage) }
     var startupcheckupdate by rememberSaveable { mutableStateOf(false) }
+    var requestappinstall by rememberSaveable { mutableStateOf(false) }
+    if(!requestappinstall)
+    {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        {
+            if(!lcc.packageManager.canRequestPackageInstalls())
+            {
+                val settingLauncher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.StartActivityForResult()
+                ) { _ ->
+                    if (!lcc.packageManager.canRequestPackageInstalls()) {
+                        XW_simpledialog(
+                            "警告",
+                            "警告,您未开启此权限，程序可能无法正常使用！是否前往打开此权限？",
+                            {
+                                val intent =
+                                    Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                                        data = Uri.parse("package:${lcc.packageName}")
+                                    }
+                                // 启动跳转
+
+                            },
+                            {},
+                            lcc
+                        )
+                    }
+
+                }
+
+                XW_simpledialog(
+                    "提示",
+                    "本程序需要申请“应用内安装应用”权限来帮助您安装各版本Pvz和提供游戏，自身升级包，请您同意此权限来使用此程序",
+                    {
+
+                        val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                            data = Uri.parse("package:${lcc.packageName}")
+                        }
+                        // 启动跳转
+                        settingLauncher.launch(intent)
+
+                    },
+                    {
+                        XW_simpledialog(
+                            "警告",
+                            "警告,您未开启此权限，程序可能无法正常使用！是否前往打开此权限？",
+                            {
+                                val intent =
+                                    Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                                        data = Uri.parse("package:${lcc.packageName}")
+                                    }
+                                // 启动跳转
+                                settingLauncher.launch(intent)
+                            },
+                            {},
+                            lcc
+                        )
+                    },
+                    lcc
+                )
+            }
+        }
+
+
+    }
+
+
     if (!File("${LocalContext.current.filesDir}/${LAUNCHERCONFIGNAME}").exists())
     {
         InitializeLauncherSettings()
@@ -156,7 +239,6 @@ fun PvzLauncherAndroidApp() {
     {
         InitializeSaveLists()
     }
-    var lcc = LocalContext.current
     val config = PRDownloaderConfig.newBuilder()
         .setReadTimeout(30000)
         .setConnectTimeout(30000)
@@ -164,17 +246,34 @@ fun PvzLauncherAndroidApp() {
     PRDownloader.initialize(LocalContext.current, config)
     if(startupcheckupdate == false)
     {
-        val jsondata = GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json")
-        val ConfigInline = ReadJson<UpdateConfig>(jsondata)
-        if(ConfigInline.LatestVersion == APP_VERSION)
-        {
-            startupcheckupdate = true
-        }
-        else
-        {
-            XW_ToastMessage("检测到新版本，请到关于页更新",lcc)
-            startupcheckupdate = true
 
+        try{
+            GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json")
+        }
+        catch(e:Exception){
+            XW_simpledialog("警告！","您未连接网络，此程序可能随时崩溃，是否重新联网？",{},{System.exit(0)},lcc)
+        }
+
+    }
+    if(startupcheckupdate == false)
+    {
+        try{
+            val jsondata = GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json")
+            val ConfigInline = ReadJson<UpdateConfig>(jsondata)
+            if(ConfigInline.LatestVersion == APP_VERSION)
+            {
+                startupcheckupdate = true
+            }
+            else
+            {
+                XW_ToastMessage("检测到新版本，请到关于页更新",lcc)
+                startupcheckupdate = true
+
+            }
+        }
+        catch(e : Exception)
+        {
+            XW_ToastMessage("无法检测更新,${e.message}",lcc)
         }
     }
 
@@ -300,13 +399,17 @@ fun PvzLauncherAndroidApp() {
                             var llc = LocalContext.current
                             Button({
                                 currentDestination = AppDestinations.ImportPage
-                            }, Modifier.padding(5.dp).align(Alignment.CenterEnd), ) {
+                            }, Modifier
+                                .padding(5.dp)
+                                .align(Alignment.CenterEnd), ) {
                                 Text("导入已安装版本")
 
                             }
 
                         }
-                        Column(Modifier.padding(5.dp).fillMaxSize()) {
+                        Column(Modifier
+                            .padding(5.dp)
+                            .fillMaxSize()) {
                             for(i in ReadJson<SaveConfigList>(File("${lcc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex)
                             {
                                 XW_ManageInformationCard(
@@ -349,8 +452,16 @@ fun PvzLauncherAndroidApp() {
                             .padding(2.dp)
                             .fillMaxSize())
                         {
-                            val gameindex = ReadJson<GameListConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameIndex.json"))
-                            for(i in gameindex.GameIndex)
+                            var gameindex = emptyList<GameConfig>()
+                            try {
+                                gameindex = ReadJson<GameListConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameIndex.json")).GameIndex
+
+                            }
+                            catch (e : Exception)
+                            {
+                                XW_ToastMessage("无法获取到游戏索引,${e.message}",lc)
+                            }
+                            for(i in gameindex)
                             {
                                 XW_GameInformationCard(i,{
                                     currentDestination = AppDestinations.DownloadDetailPage
@@ -498,9 +609,16 @@ fun PvzLauncherAndroidApp() {
 
                                     Button(onClick = {
                                         //OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/EULA.md",cont)
-                                        MDR_FileName = "许可协议"
-                                        MDR_MDContent = GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/Files/EULA.md")
-                                        currentDestination = AppDestinations.MDReaderPage
+                                        try
+                                        {
+                                            MDR_FileName = "许可协议"
+                                            MDR_MDContent = GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/Files/EULA.md")
+                                            currentDestination = AppDestinations.MDReaderPage
+                                        }
+                                        catch(e:Exception)
+                                        {
+                                            XW_ToastMessage("无法读取EULA信息,${e.message}",lc)
+                                        }
 
                                     }, modifier = Modifier.padding(2.dp))
                                     {
@@ -510,9 +628,16 @@ fun PvzLauncherAndroidApp() {
 
                                     Button(onClick = {
                                         //OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/QandA.md",cont)
-                                        MDR_FileName = "常见问题"
-                                        MDR_MDContent = GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/Files/QandA.md")
-                                        currentDestination = AppDestinations.MDReaderPage
+                                        try{
+                                            MDR_FileName = "常见问题"
+                                            MDR_MDContent =
+                                                GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/Files/QandA.md")
+                                            currentDestination = AppDestinations.MDReaderPage
+                                        }
+                                        catch(e:Exception)
+                                        {
+                                            XW_ToastMessage("无法读取EULA信息,${e.message}",lc)
+                                        }
                                     }, modifier = Modifier.padding(2.dp))
                                     {
 
@@ -586,7 +711,9 @@ fun PvzLauncherAndroidApp() {
                             .fillMaxSize())
                         {
                             var lc = LocalContext.current
-                            Row(modifier = Modifier.padding(2.dp).fillMaxWidth())
+                            Row(modifier = Modifier
+                                .padding(2.dp)
+                                .fillMaxWidth())
                             {
 
                                 XW_ManageInformationCard(
@@ -597,7 +724,9 @@ fun PvzLauncherAndroidApp() {
                                     , IsButtonEnable = false
                                 )
                             }
-                            Row(Modifier.padding(2.dp).fillMaxWidth())
+                            Row(Modifier
+                                .padding(2.dp)
+                                .fillMaxWidth())
                             {
                                 var isDialogVisible by remember { mutableStateOf(false) }
 
@@ -782,7 +911,7 @@ fun PvzLauncherAndroidApp() {
                                                         var sl = ReadJson<SaveConfigList>(File("${lcc.filesDir}/${SAVECONFIGNAME}").readText())
                                                         sl.GameIndex += SaveConfig(
                                                             GameName =ProcessList[intProcessList.indexOf(pid)].p_info.GameName,
-                                                            PackageName = lc.packageManager.getPackageArchiveInfo("${lc.cacheDir.absolutePath}\${dlc.GameName}.apk",0)?.packageName ?: "com.unknown.unknown",
+                                                            PackageName = ProcessList[intProcessList.indexOf(pid)].p_info.PackageName,
                                                             AddTime = ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")),
                                                             PlayTime = 0,
                                                             LaunchTimes = 0,
@@ -906,9 +1035,13 @@ fun PvzLauncherAndroidApp() {
                     {
                         ProcessList.forEach {
                             procfg ->
-                            Card(modifier = Modifier.padding(5.dp).fillMaxWidth())
+                            Card(modifier = Modifier
+                                .padding(5.dp)
+                                .fillMaxWidth())
                             {
-                                Box(modifier = Modifier.padding(5.dp).fillMaxWidth())
+                                Box(modifier = Modifier
+                                    .padding(5.dp)
+                                    .fillMaxWidth())
                                 {
                                     val scope = rememberCoroutineScope()
                                     Button(onClick = {
@@ -928,7 +1061,8 @@ fun PvzLauncherAndroidApp() {
 
 
                                     }, modifier = Modifier
-                                        .padding(5.dp).align(Alignment.CenterEnd)
+                                        .padding(5.dp)
+                                        .align(Alignment.CenterEnd)
                                         .size(48.dp),contentPadding = PaddingValues(0.dp),
                                         shape = CircleShape
                                     )
@@ -940,19 +1074,27 @@ fun PvzLauncherAndroidApp() {
                                     }
 
 
-                                    Column(modifier = Modifier.align(Alignment.Center).fillMaxWidth())
+                                    Column(modifier = Modifier
+                                        .align(Alignment.Center)
+                                        .fillMaxWidth())
                                     {
 
-                                        Row(verticalAlignment = Alignment.CenterVertically,modifier = Modifier.padding(5.dp).fillMaxWidth())
+                                        Row(verticalAlignment = Alignment.CenterVertically,modifier = Modifier
+                                            .padding(5.dp)
+                                            .fillMaxWidth())
                                         {
-                                            AsyncImage(model = procfg.p_info.GameImage,"",modifier = Modifier.padding(5.dp).size(32.dp))
+                                            AsyncImage(model = procfg.p_info.GameImage,"",modifier = Modifier
+                                                .padding(5.dp)
+                                                .size(32.dp))
                                             Column(Modifier.padding(2.dp))
                                             {
                                                 Text("下载 ${procfg.p_info.GameName}", fontSize = 22.sp,modifier = Modifier.padding(2.dp), fontWeight = FontWeight.Bold)
                                                 Text("pid:${procfg.p_id}",fontSize = 14.sp,modifier = Modifier.padding(2.dp))
                                             }
                                         }
-                                        Column (modifier = Modifier.padding(5.dp).fillMaxWidth())
+                                        Column (modifier = Modifier
+                                            .padding(5.dp)
+                                            .fillMaxWidth())
                                         {
                                             Row(Modifier.fillMaxWidth()) {
                                                 Text("下载中……")
@@ -1035,23 +1177,40 @@ fun PvzLauncherAndroidApp() {
                             }
                         }
                     )
-                    Column(Modifier.padding(10.dp, 90.dp, 10.dp, 10.dp).fillMaxSize())
+                    Column(Modifier
+                        .padding(10.dp, 90.dp, 10.dp, 10.dp)
+                        .fillMaxSize())
                     {
+                        var gameindex = emptyList<GameConfig>().toMutableList()
+                       try{
+                          gameindex = ReadJson<GameListConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameIndex.json")).GameIndex.toMutableStateList()
 
-                        var gameindex = ReadJson<GameListConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameIndex.json")).GameIndex.toMutableStateList()
+
+                       }
+                       catch(e:Exception)
+                       {
+                           XW_ToastMessage("无法获取到游戏索引,${e.message}",lc)
+                       }
+
                         gameindex.forEach { i ->
                             var tempname = i.GameName
                             if(isAppInstalled(lc,i.PackageName) && ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex.none {it.PackageName == i.PackageName})
                             {
-                                Card(Modifier.padding(2.dp).fillMaxWidth())
+                                Card(Modifier
+                                    .padding(2.dp)
+                                    .fillMaxWidth())
                                 {
-                                    Box(Modifier.padding(5.dp).fillMaxWidth())
+                                    Box(Modifier
+                                        .padding(5.dp)
+                                        .fillMaxWidth())
                                     {
                                         Column(Modifier.align(Alignment.CenterStart))
                                         {
                                             Row(verticalAlignment = Alignment.CenterVertically)
                                             {
-                                                AsyncImage(model = i.GameImage,"", modifier = Modifier.padding(10.dp,5.dp).size(48.dp),placeholder = painterResource(
+                                                AsyncImage(model = i.GameImage,"", modifier = Modifier
+                                                    .padding(10.dp, 5.dp)
+                                                    .size(48.dp),placeholder = painterResource(
                                                     R.drawable.ic_unknown), error = painterResource(R.drawable.ic_unknown),onError = { state -> XW_ToastMessage("获取头图时发生错误：${state.result.throwable.message}",lc)})
                                                 Column(Modifier.padding(2.dp))
                                                 {
@@ -1071,7 +1230,7 @@ fun PvzLauncherAndroidApp() {
                                                 PlayTime = 0,
                                                 LaunchTimes = 0,
                                                 headImage = "https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameAssets/Default.png",
-                                                gameversion = GetApkInfo(i.PackageName,lcc).versionName ?: "1.0.0"             )
+                                                gameversion = GetApkInfo(i.PackageName,lcc).versionName ?: "1.0.0")
                                             WriteJson<SaveConfigList>(SAVECONFIGNAME,aaa,lc)
                                             gameindex.remove(i)
                                             XW_ToastMessage("导入成功",lc)
@@ -1080,7 +1239,8 @@ fun PvzLauncherAndroidApp() {
 
 
                                         }, modifier = Modifier
-                                            .padding(5.dp).align(Alignment.CenterEnd)
+                                            .padding(5.dp)
+                                            .align(Alignment.CenterEnd)
                                             .size(48.dp),contentPadding = PaddingValues(0.dp),
                                             shape = CircleShape
                                         )

@@ -37,6 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.appcompat.app.AlertDialog
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -53,6 +54,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -63,7 +65,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 
 import androidx.compose.ui.unit.dp
+import androidx.appcompat.view.ContextThemeWrapper
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.io.File
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
+
 
 @Composable
 public fun XW_Switch(text : String,modifier: Modifier,isEnabled : Boolean,OnChanged : (isChecked : Boolean) -> Unit) {
@@ -309,4 +316,27 @@ fun XW_LoadingMask(context: Context): Dialog {
     // 返回这个实例，以便你在代码中手动控制它关闭
     return dialog
 }
+
+public fun XW_simpledialog(title: String,content:String,onConfirm: () -> Unit,onDismiss: () -> Unit,context : Context)
+{
+    val m3Context = ContextThemeWrapper(
+        context,
+        com.google.android.material.R.style.Theme_Material3_DayNight_Dialog
+    )
+
+    MaterialAlertDialogBuilder(m3Context)
+        .setTitle(title)
+        .setMessage(content)
+        .setPositiveButton("确定") { dialog, which ->
+            onConfirm()
+        }
+        .setNegativeButton("取消") { dialog, which ->
+            onDismiss()
+        }
+        .setCancelable(false)
+        .show()
+}
+
+
+
 

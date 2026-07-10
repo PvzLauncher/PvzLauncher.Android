@@ -1,5 +1,6 @@
 package com.pvzlauncher.pvzlauncher.utils
 
+import android.R
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -19,14 +20,11 @@ public fun OpenUrl(url : String,context : Context)
     context.startActivity(intent)
 }
 
+
 public fun GetWebSiteContent(url : String): String {
-    try {
+
         return URL(url).readText(Charsets.UTF_8)
-    }
-    catch (e : Exception)
-    {
-        return ""
-    }
+
 }
 
 

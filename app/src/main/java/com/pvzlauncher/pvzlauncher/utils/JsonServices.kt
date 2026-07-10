@@ -60,7 +60,8 @@ public data class LauncherConfig(
     var UseSystemTheme: Boolean,
     var UseDarkTheme : Boolean,
     var UseEnglishTitle : Boolean,
-    var CurrentGameIndex : Int
+    var CurrentGameIndex : Int,
+    var StartUpCheckUpdate : Boolean
 )
 
 
@@ -87,7 +88,8 @@ public fun InitializeLauncherSettings()
         UseSystemTheme = true,
         UseDarkTheme = false,
         UseEnglishTitle = false,
-        CurrentGameIndex = 0
+        CurrentGameIndex = 0,
+        true
     ), LocalContext.current
     )
 }
