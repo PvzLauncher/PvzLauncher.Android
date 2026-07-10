@@ -32,5 +32,8 @@ build/
 **/build/
 local.properties
 
+**/app/release/*
+
 # IntelliJ IDEA
 .idea/
+

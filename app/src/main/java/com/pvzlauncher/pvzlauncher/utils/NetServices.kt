@@ -20,7 +20,13 @@ public fun OpenUrl(url : String,context : Context)
 }
 
 public fun GetWebSiteContent(url : String): String {
-    return URL(url).readText(Charsets.UTF_8)
+    try {
+        return URL(url).readText(Charsets.UTF_8)
+    }
+    catch (e : Exception)
+    {
+        return ""
+    }
 }
 
 

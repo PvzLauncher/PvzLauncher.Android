@@ -147,6 +147,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun PvzLauncherAndroidApp() {
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HomePage) }
+    var startupcheckupdate by rememberSaveable { mutableStateOf(false) }
     if (!File("${LocalContext.current.filesDir}/${LAUNCHERCONFIGNAME}").exists())
     {
         InitializeLauncherSettings()
@@ -161,15 +162,20 @@ fun PvzLauncherAndroidApp() {
         .setConnectTimeout(30000)
         .build()
     PRDownloader.initialize(LocalContext.current, config)
-    val jsondata = GetWebSiteContent("https://raw.giteeusercontent.com/PvzLauncher/PvzLauncher.Service.Android/raw/main/UpdateIndex.json")
-    val ConfigInline = ReadJson<UpdateConfig>(jsondata)
-    if(ConfigInline.LatestVersion == APP_VERSION)
+    if(startupcheckupdate == false)
     {
-        XW_ToastMessage("当前版本已经是最新版本",lcc)
-    }
-    else
-    {
-        XW_ToastMessage("检测到新版本，请到关于页更新",lcc)
+        val jsondata = GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json")
+        val ConfigInline = ReadJson<UpdateConfig>(jsondata)
+        if(ConfigInline.LatestVersion == APP_VERSION)
+        {
+            startupcheckupdate = true
+        }
+        else
+        {
+            XW_ToastMessage("检测到新版本，请到关于页更新",lcc)
+            startupcheckupdate = true
+
+        }
     }
 
 
@@ -343,7 +349,7 @@ fun PvzLauncherAndroidApp() {
                             .padding(2.dp)
                             .fillMaxSize())
                         {
-                            val gameindex = ReadJson<GameListConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/PvzLauncher/PvzLauncher.Service.Android/raw/main/GameIndex.json"))
+                            val gameindex = ReadJson<GameListConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameIndex.json"))
                             for(i in gameindex.GameIndex)
                             {
                                 XW_GameInformationCard(i,{
@@ -416,7 +422,7 @@ fun PvzLauncherAndroidApp() {
                                     Row()
                                     {
                                         Text("PvzLauncher for Android", fontSize = 24.sp, fontWeight = Bold)
-                                        Text("Post-Reset", fontSize = 10.sp,modifier= Modifier.padding(2.dp))
+
                                     }
 
                                 Row(verticalAlignment = Alignment.CenterVertically)
@@ -430,7 +436,7 @@ fun PvzLauncherAndroidApp() {
                                     val context = LocalContext.current
                                     Button(onClick = {
                                         try {
-                                            val jsondata = GetWebSiteContent("https://raw.giteeusercontent.com/PvzLauncher/PvzLauncher.Service.Android/raw/main/UpdateIndex.json")
+                                            val jsondata = GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json")
                                             val ConfigInline = ReadJson<UpdateConfig>(jsondata)
                                             if(ConfigInline.LatestVersion == APP_VERSION)
                                             {
@@ -440,7 +446,7 @@ fun PvzLauncherAndroidApp() {
                                             {
                                                 var loa = XW_LoadingMask(lc)
                                                 var dprogress = 0
-                                                var ltscfg = ReadJson<UpdateConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/PvzLauncher/PvzLauncher.Service.Android/raw/main/UpdateIndex.json"))
+                                                var ltscfg = ReadJson<UpdateConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json"))
                                                 PRDownloader.download(
                                                     ltscfg.LatestLink,
                                                     lc.cacheDir.absolutePath,
@@ -484,7 +490,7 @@ fun PvzLauncherAndroidApp() {
                                     val cont = LocalContext.current
                                     Button(onClick = {
                                         OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/issues/new",cont)
-                                    }, modifier = Modifier.padding(5.dp))
+                                    }, modifier = Modifier.padding(2.dp))
                                     {
 
                                         Text("反馈漏洞")
@@ -493,10 +499,10 @@ fun PvzLauncherAndroidApp() {
                                     Button(onClick = {
                                         //OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/EULA.md",cont)
                                         MDR_FileName = "许可协议"
-                                        MDR_MDContent = GetWebSiteContent("https://raw.giteeusercontent.com/PvzLauncher/PvzLauncher.Service.Android/raw/main/Files/EULA.md")
+                                        MDR_MDContent = GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/Files/EULA.md")
                                         currentDestination = AppDestinations.MDReaderPage
 
-                                    }, modifier = Modifier.padding(5.dp))
+                                    }, modifier = Modifier.padding(2.dp))
                                     {
 
                                         Text("许可协议")
@@ -505,9 +511,9 @@ fun PvzLauncherAndroidApp() {
                                     Button(onClick = {
                                         //OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/QandA.md",cont)
                                         MDR_FileName = "常见问题"
-                                        MDR_MDContent = GetWebSiteContent("https://raw.giteeusercontent.com/PvzLauncher/PvzLauncher.Service.Android/raw/main/Files/QandA.md")
+                                        MDR_MDContent = GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/Files/QandA.md")
                                         currentDestination = AppDestinations.MDReaderPage
-                                    }, modifier = Modifier.padding(5.dp))
+                                    }, modifier = Modifier.padding(2.dp))
                                     {
 
                                         Text("常见问题")
@@ -1032,7 +1038,7 @@ fun PvzLauncherAndroidApp() {
                     Column(Modifier.padding(10.dp, 90.dp, 10.dp, 10.dp).fillMaxSize())
                     {
 
-                        var gameindex = ReadJson<GameListConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/PvzLauncher/PvzLauncher.Service.Android/raw/main/GameIndex.json")).GameIndex.toMutableStateList()
+                        var gameindex = ReadJson<GameListConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameIndex.json")).GameIndex.toMutableStateList()
                         gameindex.forEach { i ->
                             var tempname = i.GameName
                             if(isAppInstalled(lc,i.PackageName) && ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex.none {it.PackageName == i.PackageName})
@@ -1064,7 +1070,7 @@ fun PvzLauncherAndroidApp() {
                                                 AddTime = ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")),
                                                 PlayTime = 0,
                                                 LaunchTimes = 0,
-                                                headImage = "https://raw.giteeusercontent.com/PvzLauncher/PvzLauncher.Service.Android/raw/main/GameAssets/Default.png",
+                                                headImage = "https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameAssets/Default.png",
                                                 gameversion = GetApkInfo(i.PackageName,lcc).versionName ?: "1.0.0"             )
                                             WriteJson<SaveConfigList>(SAVECONFIGNAME,aaa,lc)
                                             gameindex.remove(i)
