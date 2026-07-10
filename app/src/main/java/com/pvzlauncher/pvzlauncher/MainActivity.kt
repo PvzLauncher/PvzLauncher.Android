@@ -266,7 +266,7 @@ fun PvzLauncherAndroidApp() {
     {
         if(ReadJson<LauncherConfig>(File("${LocalContext.current.filesDir}/${LAUNCHERCONFIGNAME}").readText()).StartUpCheckUpdate == true)
         {
-            CheckUpdate(lcc)
+            CheckUpdate(lcc,true)
         }
     }
 
@@ -507,6 +507,11 @@ fun PvzLauncherAndroidApp() {
                                         LocalSettings.UseDarkTheme = isChecked
                                         WriteJson<LauncherConfig>(LAUNCHERCONFIGNAME,LocalSettings,lc)
                                     })
+                                    Button(modifier = Modifier.padding(5.dp),onClick = {
+
+                                    }){
+                                        Text("选择主题色")
+                                    }
                                 }
                             }
                             Column(modifier = Modifier.padding(10.dp,2.dp))
@@ -596,7 +601,7 @@ fun PvzLauncherAndroidApp() {
                                         val context = LocalContext.current
                                         Button(
                                             onClick = {
-                                                CheckUpdate(context)
+                                                CheckUpdate(context,false)
                                             }, modifier = Modifier
                                                 .padding(5.dp)
                                                 .size(48.dp), contentPadding = PaddingValues(0.dp),

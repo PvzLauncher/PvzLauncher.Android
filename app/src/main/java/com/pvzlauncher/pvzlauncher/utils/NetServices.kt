@@ -31,12 +31,12 @@ public fun GetWebSiteContent(url : String): String {
 
 }
 
-public fun CheckUpdate(lc : Context)
+public fun CheckUpdate(lc : Context,isSilent : Boolean)
 {
     try {
         val jsondata = GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json")
         val ConfigInline = ReadJson<UpdateConfig>(jsondata)
-        if(ConfigInline.LatestVersion == APP_VERSION)
+        if(ConfigInline.LatestVersion == APP_VERSION && !isSilent)
         {
             XW_ToastMessage("当前版本已经是最新版本",lc)
         }
