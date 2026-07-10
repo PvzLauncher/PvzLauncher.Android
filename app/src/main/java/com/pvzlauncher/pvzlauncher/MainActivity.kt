@@ -258,7 +258,7 @@ fun PvzLauncherAndroidApp() {
             GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json")
         }
         catch(e:Exception){
-            XW_simpledialog("警告！","您未连接网络，此程序可能随时崩溃，是否重新联网？",{},{System.exit(0)},lcc)
+            XW_simpledialog("警告！","您未连接网络，此程序可能随时崩溃，是否退出程序？",{System.exit(0)},{},lcc)
         }
         checkinternetconnect = true
     }
