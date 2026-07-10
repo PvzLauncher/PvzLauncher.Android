@@ -133,11 +133,12 @@ import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-
+import com.pvzlauncher.pvzlauncher.utils.CheckUpdate
 
 
 class MainActivity : ComponentActivity() {
@@ -166,6 +167,7 @@ fun PvzLauncherAndroidApp() {
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HomePage) }
     var startupcheckupdate by rememberSaveable { mutableStateOf(false) }
     var requestappinstall by rememberSaveable { mutableStateOf(false) }
+    var checkinternetconnect by rememberSaveable { mutableStateOf(false) }
     if(!requestappinstall)
     {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
@@ -226,6 +228,9 @@ fun PvzLauncherAndroidApp() {
                 )
             }
         }
+        else{
+            requestappinstall = true
+        }
 
 
     }
@@ -244,7 +249,7 @@ fun PvzLauncherAndroidApp() {
         .setConnectTimeout(30000)
         .build()
     PRDownloader.initialize(LocalContext.current, config)
-    if(startupcheckupdate == false)
+    if(checkinternetconnect == false)
     {
 
         try{
@@ -253,27 +258,30 @@ fun PvzLauncherAndroidApp() {
         catch(e:Exception){
             XW_simpledialog("警告！","您未连接网络，此程序可能随时崩溃，是否重新联网？",{},{System.exit(0)},lcc)
         }
-
+        checkinternetconnect = true
     }
     if(startupcheckupdate == false)
     {
-        try{
-            val jsondata = GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json")
-            val ConfigInline = ReadJson<UpdateConfig>(jsondata)
-            if(ConfigInline.LatestVersion == APP_VERSION)
-            {
-                startupcheckupdate = true
-            }
-            else
-            {
-                XW_ToastMessage("检测到新版本，请到关于页更新",lcc)
-                startupcheckupdate = true
-
-            }
-        }
-        catch(e : Exception)
+        if(ReadJson<LauncherConfig>(File("${LocalContext.current.filesDir}/${LAUNCHERCONFIGNAME}").readText()).StartUpCheckUpdate == true)
         {
-            XW_ToastMessage("无法检测更新,${e.message}",lcc)
+            try{
+                val jsondata = GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json")
+                val ConfigInline = ReadJson<UpdateConfig>(jsondata)
+                if(ConfigInline.LatestVersion == APP_VERSION)
+                {
+                    startupcheckupdate = true
+                }
+                else
+                {
+
+                    startupcheckupdate = true
+
+                }
+            }
+            catch(e : Exception)
+            {
+                XW_ToastMessage("无法检测更新,${e.message}",lcc)
+            }
         }
     }
 
@@ -407,9 +415,11 @@ fun PvzLauncherAndroidApp() {
                             }
 
                         }
+                        val scrollState = rememberScrollState()
                         Column(Modifier
                             .padding(5.dp)
-                            .fillMaxSize()) {
+                            .fillMaxSize()
+                            .verticalScroll(scrollState)) {
                             for(i in ReadJson<SaveConfigList>(File("${lcc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex)
                             {
                                 XW_ManageInformationCard(
@@ -448,9 +458,11 @@ fun PvzLauncherAndroidApp() {
 
                             }
                         }
+                        val scrollState = rememberScrollState()
                         Column(horizontalAlignment = Alignment.CenterHorizontally,modifier = Modifier
                             .padding(2.dp)
-                            .fillMaxSize())
+                            .fillMaxSize()
+                            .verticalScroll(scrollState))
                         {
                             var gameindex = emptyList<GameConfig>()
                             try {
@@ -490,14 +502,44 @@ fun PvzLauncherAndroidApp() {
                                 fontSize = 28.sp
                             )
                         }
-
-                        Column(modifier = Modifier.padding(10.dp,2.dp))
+                        val scrollState = rememberScrollState()
+                        Column(Modifier.fillMaxSize().verticalScroll(scrollState))
                         {
-                            Text("标题设置", fontWeight = Bold,modifier = Modifier.padding(0.dp), fontSize = 18.sp)
-                            XW_Switch("启用英文版标题", modifier = Modifier.padding(0.dp),LocalSettings.UseEnglishTitle,{  isChecked ->
-                                LocalSettings.UseEnglishTitle = isChecked
-                                WriteJson<LauncherConfig>(LAUNCHERCONFIGNAME,LocalSettings,lc)
-                            })
+                            if(false)
+                            {
+                                Column(modifier = Modifier
+                                    .padding(10.dp, 2.dp)
+                                )
+                                {
+                                    Text("主题设置", fontWeight = FontWeight.Bold,modifier = Modifier.padding(0.dp), fontSize = 18.sp)
+                                    XW_Switch("自动切换主题", modifier = Modifier.padding(0.dp),LocalSettings.UseSystemTheme,{ isChecked ->
+                                        LocalSettings.UseSystemTheme = isChecked
+
+                                        WriteJson<LauncherConfig>(LAUNCHERCONFIGNAME,LocalSettings,lc)
+
+                                    })
+                                    XW_Switch("启用深色模式", modifier = Modifier.padding(0.dp),LocalSettings.UseDarkTheme,{  isChecked ->
+                                        LocalSettings.UseDarkTheme = isChecked
+                                        WriteJson<LauncherConfig>(LAUNCHERCONFIGNAME,LocalSettings,lc)
+                                    })
+                                }
+                            }
+                            Column(modifier = Modifier.padding(10.dp,2.dp))
+                            {
+                                Text("标题设置", fontWeight = Bold,modifier = Modifier.padding(0.dp), fontSize = 18.sp)
+                                XW_Switch("启用英文版标题", modifier = Modifier.padding(0.dp),LocalSettings.UseEnglishTitle,{  isChecked ->
+                                    LocalSettings.UseEnglishTitle = isChecked
+                                    WriteJson<LauncherConfig>(LAUNCHERCONFIGNAME,LocalSettings,lc)
+                                })
+                            }
+                            Column(modifier = Modifier.padding(10.dp,2.dp))
+                            {
+                                Text("更新设置", fontWeight = Bold,modifier = Modifier.padding(0.dp), fontSize = 18.sp)
+                                XW_Switch("启动时检测更新", modifier = Modifier.padding(0.dp),LocalSettings.StartUpCheckUpdate,{  isChecked ->
+                                    LocalSettings.StartUpCheckUpdate = isChecked
+                                    WriteJson<LauncherConfig>(LAUNCHERCONFIGNAME,LocalSettings,lc)
+                                })
+                            }
                         }
                     }
                 }
@@ -516,154 +558,155 @@ fun PvzLauncherAndroidApp() {
                                 fontSize = 28.sp
                             )
                         }
-                        Card(Modifier
-                            .fillMaxWidth()
-                            .padding(5.dp)){
-                            Column(Modifier
-                                .padding(10.dp)
-                                .fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally)
-                            {
+                        val scrollState = rememberScrollState()
+                        Column(Modifier.fillMaxSize().verticalScroll(scrollState))
+                        {
+                            Card(
+                                Modifier
+                                    .fillMaxWidth()
+                                    .padding(5.dp)
+                            ) {
+                                Column(
+                                    Modifier
+                                        .padding(10.dp)
+                                        .fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                )
+                                {
 
                                     Image(
-                                        painter = painterResource(id=R.drawable.ic_appicon_vector),
+                                        painter = painterResource(id = R.drawable.ic_appicon_vector),
                                         contentDescription = "AppIcon",
                                         modifier = Modifier.size(200.dp),
 
                                         )
                                     Row()
                                     {
-                                        Text("PvzLauncher for Android", fontSize = 24.sp, fontWeight = Bold)
+                                        Text(
+                                            "PvzLauncher for Android",
+                                            fontSize = 24.sp,
+                                            fontWeight = Bold
+                                        )
 
                                     }
 
-                                Row(verticalAlignment = Alignment.CenterVertically)
-                                {
+                                    Row(verticalAlignment = Alignment.CenterVertically)
+                                    {
+                                        Row()
+                                        {
+
+                                            Text(
+                                                "版本：",
+                                                fontSize = 14.sp,
+                                                fontWeight = FontWeight.Normal,
+                                                modifier = Modifier.padding(2.dp)
+                                            )
+                                            Text(
+                                                text = APP_VERSION,
+                                                fontSize = 14.sp,
+                                                fontWeight = Bold,
+                                                modifier = Modifier.padding(2.dp)
+                                            )
+                                        }
+                                        val context = LocalContext.current
+                                        Button(
+                                            onClick = {
+                                                CheckUpdate(context)
+                                            }, modifier = Modifier
+                                                .padding(5.dp)
+                                                .size(48.dp), contentPadding = PaddingValues(0.dp),
+                                            shape = CircleShape
+                                        )
+                                        {
+
+                                            Icon(
+                                                imageVector = Icons.Default.Upload,
+                                                "检测更新",
+                                                modifier = Modifier.size(32.dp)
+                                            )
+
+                                        }
+                                    }
                                     Row()
                                     {
+                                        val cont = LocalContext.current
+                                        Button(onClick = {
+                                            OpenUrl(
+                                                "https://github.com/PvzLauncher/PvzLauncher.Android/issues/new",
+                                                cont
+                                            )
+                                        }, modifier = Modifier.padding(2.dp))
+                                        {
 
-                                        Text("版本：",fontSize=14.sp, fontWeight = FontWeight.Normal, modifier = Modifier.padding(2.dp))
-                                        Text(text = APP_VERSION, fontSize = 14.sp, fontWeight = Bold, modifier = Modifier.padding(2.dp))
-                                    }
-                                    val context = LocalContext.current
-                                    Button(onClick = {
-                                        try {
-                                            val jsondata = GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json")
-                                            val ConfigInline = ReadJson<UpdateConfig>(jsondata)
-                                            if(ConfigInline.LatestVersion == APP_VERSION)
-                                            {
-                                                XW_ToastMessage("当前版本已经是最新版本",context)
+                                            Text("反馈漏洞")
+                                        }
+
+                                        Button(onClick = {
+                                            //OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/EULA.md",cont)
+                                            try {
+                                                MDR_FileName = "许可协议"
+                                                MDR_MDContent =
+                                                    GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/Files/EULA.md")
+                                                currentDestination = AppDestinations.MDReaderPage
+                                            } catch (e: Exception) {
+                                                XW_ToastMessage("无法读取EULA信息,${e.message}", lc)
                                             }
-                                            else
-                                            {
-                                                var loa = XW_LoadingMask(lc)
-                                                var dprogress = 0
-                                                var ltscfg = ReadJson<UpdateConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json"))
-                                                PRDownloader.download(
-                                                    ltscfg.LatestLink,
-                                                    lc.cacheDir.absolutePath,
-                                                    "${ltscfg.LatestVersion}.apk"
-                                                )
-                                                    .build()
-                                                    .start(object : OnDownloadListener {
-                                                        override fun onDownloadComplete()
-                                                        {
-                                                            installApk(lc,File("${lc.cacheDir.absolutePath}/${ltscfg.LatestVersion}.apk"))
-                                                            System.exit(0)
-                                                        }
 
-                                                        override fun onError(error: Error?) {
-                                                            // 下载失败
-                                                            XW_ToastMessage("下载出错: ${error?.serverErrorMessage}",lc)
-                                                            loa.dismiss()
-                                                        }
+                                        }, modifier = Modifier.padding(2.dp))
+                                        {
 
+                                            Text("许可协议")
+                                        }
 
-                                                    })
+                                        Button(onClick = {
+                                            //OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/QandA.md",cont)
+                                            try {
+                                                MDR_FileName = "常见问题"
+                                                MDR_MDContent =
+                                                    GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/Files/QandA.md")
+                                                currentDestination = AppDestinations.MDReaderPage
+                                            } catch (e: Exception) {
+                                                XW_ToastMessage("无法读取EULA信息,${e.message}", lc)
                                             }
-                                        }
-                                        catch(e: Exception)
+                                        }, modifier = Modifier.padding(2.dp))
                                         {
-                                            XW_ToastMessage("检测更新时遇到错误：${e.message}",context)
-                                        }
-                                    }, modifier = Modifier
-                                        .padding(5.dp)
-                                        .size(48.dp),contentPadding = PaddingValues(0.dp),
-                                        shape = CircleShape
-                                    )
-                                    {
 
-                                        Icon(imageVector = Icons.Default.Upload,"检测更新", modifier = Modifier.size(32.dp))
-
-                                    }
-                                }
-                                Row()
-                                {
-                                    val cont = LocalContext.current
-                                    Button(onClick = {
-                                        OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/issues/new",cont)
-                                    }, modifier = Modifier.padding(2.dp))
-                                    {
-
-                                        Text("反馈漏洞")
-                                    }
-
-                                    Button(onClick = {
-                                        //OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/EULA.md",cont)
-                                        try
-                                        {
-                                            MDR_FileName = "许可协议"
-                                            MDR_MDContent = GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/Files/EULA.md")
-                                            currentDestination = AppDestinations.MDReaderPage
-                                        }
-                                        catch(e:Exception)
-                                        {
-                                            XW_ToastMessage("无法读取EULA信息,${e.message}",lc)
+                                            Text("常见问题")
                                         }
 
-                                    }, modifier = Modifier.padding(2.dp))
-                                    {
 
-                                        Text("许可协议")
-                                    }
-
-                                    Button(onClick = {
-                                        //OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/QandA.md",cont)
-                                        try{
-                                            MDR_FileName = "常见问题"
-                                            MDR_MDContent =
-                                                GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/Files/QandA.md")
-                                            currentDestination = AppDestinations.MDReaderPage
-                                        }
-                                        catch(e:Exception)
-                                        {
-                                            XW_ToastMessage("无法读取EULA信息,${e.message}",lc)
-                                        }
-                                    }, modifier = Modifier.padding(2.dp))
-                                    {
-
-                                        Text("常见问题")
                                     }
 
 
                                 }
-
 
                             }
 
-                        }
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier
+                                    .padding(5.dp)
+                                    .fillMaxWidth()
+                            )
+                            {
+                                Text("开发者", fontWeight = Bold, modifier = Modifier.padding(2.dp))
+                                Text(
+                                    "Xiaowang0229 - 主要开发人员",
+                                    modifier = Modifier.padding(2.dp)
+                                )
+                                Text("版权方", fontWeight = Bold, modifier = Modifier.padding(2.dp))
+                                Text(
+                                    "ishuamouren - 启动器版权方",
+                                    modifier = Modifier.padding(2.dp)
+                                )
+                                Text("贡献者", fontWeight = Bold, modifier = Modifier.padding(2.dp))
+                                Text(
+                                    "衷心感谢支持PvzLauncher的每一名用户！",
+                                    modifier = Modifier.padding(2.dp)
+                                )
 
-                        Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
-                            .padding(5.dp)
-                            .fillMaxWidth())
-                        {
-                            Text("开发者", fontWeight = Bold, modifier = Modifier.padding(2.dp))
-                            Text("Xiaowang0229 - 主要开发人员", modifier = Modifier.padding(2.dp))
-                            Text("版权方", fontWeight = Bold, modifier = Modifier.padding(2.dp))
-                            Text("ishuamouren - 启动器版权方", modifier = Modifier.padding(2.dp))
-                            Text("贡献者", fontWeight = Bold, modifier = Modifier.padding(2.dp))
-                            Text("衷心感谢支持PvzLauncher的每一名用户！", modifier = Modifier.padding(2.dp))
 
-
+                            }
                         }
                     }
                 }
