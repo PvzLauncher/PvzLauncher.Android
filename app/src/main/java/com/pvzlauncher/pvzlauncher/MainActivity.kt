@@ -213,14 +213,14 @@ fun PvzLauncherAndroidApp() {
                     {
                         XW_simpledialog(
                             "警告",
-                            "警告,您未开启此权限，程序可能无法正常使用！是否前往打开此权限？",
+                            "警告,如果您还不开启此权限，程序可能无法正常使用！是否前往打开此权限？",
                             {
                                 val intent =
                                     Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
                                         data = Uri.parse("package:${lcc.packageName}")
                                     }
                                 // 启动跳转
-                                settingLauncher.launch(intent)
+                                lcc.startActivity(intent)
                             },
                             {},
                             lcc
@@ -656,7 +656,7 @@ fun PvzLauncherAndroidApp() {
                                                     GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/Files/QandA.md")
                                                 currentDestination = AppDestinations.MDReaderPage
                                             } catch (e: Exception) {
-                                                XW_ToastMessage("无法读取EULA信息,${e.message}", lc)
+                                                XW_ToastMessage("无法读取常见问题信息,${e.message}", lc)
                                             }
                                         }, modifier = Modifier.padding(2.dp))
                                         {
