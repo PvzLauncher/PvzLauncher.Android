@@ -66,6 +66,8 @@ import androidx.compose.runtime.setValue
 
 import androidx.compose.ui.unit.dp
 import androidx.appcompat.view.ContextThemeWrapper
+import androidx.compose.material3.RadioButton
+import androidx.compose.runtime.saveable.rememberSaveable
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.io.File
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -88,14 +90,14 @@ public fun XW_Switch(text : String,modifier: Modifier,isEnabled : Boolean,OnChan
 }
 
 @Composable
-public fun XW_GameInformationCard(args : GameConfig,onBack: () -> Unit,Disablebuttonwhenclick : Boolean,Icon: ImageVector)
+public fun XW_GameInformationCard(args : GameConfig,onBack: () -> Unit,Disablebuttonwhenclick : Boolean,Icon: ImageVector,ischooseindex : Boolean)
 {
     var isEnabled by remember { mutableStateOf(true) }
     return Card(modifier = Modifier.padding(5.dp).fillMaxWidth())
     {
         Box(modifier = Modifier.padding(5.dp).fillMaxWidth())
         {
-            Row(modifier = Modifier.align(Alignment.CenterStart).padding(10.dp), verticalAlignment = Alignment.CenterVertically)
+            Row(modifier = Modifier.align(Alignment.CenterStart).padding(10.dp,10.dp,64.dp,10.dp), verticalAlignment = Alignment.CenterVertically)
             {
                 val cont = LocalContext.current
                 AsyncImage(model = args.GameImage,"", modifier = Modifier.padding(10.dp,5.dp).size(48.dp),placeholder = painterResource(
@@ -122,14 +124,29 @@ public fun XW_GameInformationCard(args : GameConfig,onBack: () -> Unit,Disablebu
                     }
                 }
             }
-
-            Button(onClick = {
+            var isvisible by rememberSaveable { mutableStateOf(false) }
+            RadioDialog(isvisible,args.GameLink,{isvisible = false},{ i -> DownloadCount = i
+                isvisible = false
                 DownloadConfig = args
                 if(Disablebuttonwhenclick)
                 {
                     isEnabled = false
                 }
-                onBack()
+                onBack()})
+            Button(onClick = {
+                if(!ischooseindex)
+                {
+                    DownloadConfig = args
+                    if(Disablebuttonwhenclick)
+                    {
+                        isEnabled = false
+                    }
+                    onBack()
+                }
+                else
+                {
+                    isvisible = true
+                }
             }, modifier = Modifier.align(Alignment.CenterEnd).padding(5.dp).size(48.dp),contentPadding = PaddingValues(0.dp),
                 shape = CircleShape, enabled = isEnabled
             )
@@ -149,11 +166,12 @@ public fun XW_GameInformationCard(args : GameConfig,onBack: () -> Unit,Disablebu
 @Composable
 public fun XW_ManageInformationCard(args : SaveConfig,onBack: () -> Unit, IsButtonEnable :  Boolean)
 {
+
     return Card(modifier = Modifier.padding(5.dp).fillMaxWidth())
     {
         Box(modifier = Modifier.padding(5.dp).fillMaxWidth())
         {
-            Row(modifier = Modifier.align(Alignment.CenterStart).padding(10.dp), verticalAlignment = Alignment.CenterVertically)
+            Row(modifier = Modifier.align(Alignment.CenterStart).padding(10.dp,10.dp,64.dp,10.dp), verticalAlignment = Alignment.CenterVertically)
             {
                 val cont = LocalContext.current
                 AsyncImage(model = args.headImage,"", modifier = Modifier.padding(10.dp,5.dp).size(48.dp),placeholder = painterResource(
@@ -186,6 +204,9 @@ public fun XW_ManageInformationCard(args : SaveConfig,onBack: () -> Unit, IsButt
                     }
                 }
             }
+
+
+
             if(IsButtonEnable)
             {
                 Button(onClick = {
@@ -335,6 +356,70 @@ public fun XW_simpledialog(title: String,content:String,onConfirm: () -> Unit,on
         }
         .setCancelable(false)
         .show()
+}
+
+@Composable
+private fun RadioDialog(visible : Boolean,content : List<VersionConfig>,onDismiss: () -> Unit,onConfirm: (Int) -> Unit)
+{
+    if(visible)
+    {
+        var oncheckeditem by rememberSaveable { mutableStateOf(0) }
+
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text("选择版本", fontWeight = FontWeight.Bold) },
+            text = { Column(
+            ){
+                for(i in 0 until content.count())
+                {
+                    Row(Modifier.padding(2.dp), verticalAlignment = Alignment.CenterVertically)
+                    {
+
+                        if(i == oncheckeditem)
+                        {
+                            RadioButton(
+                                selected = true,
+                                onClick = {
+                                    oncheckeditem = i
+                                },
+
+                                )
+
+                        }
+                        else{
+                            RadioButton(
+                                selected = false,
+                                onClick = {
+                                    oncheckeditem = i
+                                },
+
+                                )
+                        }
+                        Text(content[i].VersionName)
+                    }
+                }
+            } },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+
+                        onConfirm(oncheckeditem)
+                    }
+                ) {
+                    Text("确定")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        onDismiss()
+                    }
+                ) {
+                    Text("取消")
+                }
+            }
+        )
+    }
 }
 
 

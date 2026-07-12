@@ -4,8 +4,10 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <queries>
         <package android:name="com.popcap.pvz" />
+        <package android:name="com.ea.game.pvz2_row" />
         <package android:name="com.popcap.pvz2cthdbk" />
         <package android:name="com.ea.gp.pvzn3xt" />
+        <package android:name="com.tran.pvztv" />
     </queries>
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />

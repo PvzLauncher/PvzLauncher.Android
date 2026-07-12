@@ -139,11 +139,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import com.pvzlauncher.pvzlauncher.utils.CheckUpdate
+import com.pvzlauncher.pvzlauncher.utils.DownloadCount
 import com.pvzlauncher.pvzlauncher.utils.globalContext
 
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        android.os.StrictMode.setThreadPolicy(android.os.StrictMode.ThreadPolicy.Builder().permitAll().build())
         super.onCreate(savedInstanceState)
         AndroidThreeTen.init(this)
         enableEdgeToEdge()
@@ -258,7 +261,7 @@ fun PvzLauncherAndroidApp() {
             GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json")
         }
         catch(e:Exception){
-            XW_simpledialog("警告！","您未连接网络，此程序可能随时崩溃，是否退出程序？",{System.exit(0)},{},lcc)
+            XW_simpledialog("警告！","无法访问上游数据库，将无法进行游戏的下载与安装，是否退出程序？\r\n错误信息：${e.stackTraceToString()}",{System.exit(0)},{},lcc)
         }
         checkinternetconnect = true
     }
@@ -462,7 +465,7 @@ fun PvzLauncherAndroidApp() {
                             {
                                 XW_GameInformationCard(i,{
                                     currentDestination = AppDestinations.DownloadDetailPage
-                                },false,Icons.Default.ArrowRightAlt)
+                                },false,Icons.Default.ArrowRightAlt,false)
                             }
 
                         }
@@ -620,16 +623,7 @@ fun PvzLauncherAndroidApp() {
                                     Row()
                                     {
                                         val cont = LocalContext.current
-                                        Button(onClick = {
-                                            OpenUrl(
-                                                "https://github.com/PvzLauncher/PvzLauncher.Android/issues/new",
-                                                cont
-                                            )
-                                        }, modifier = Modifier.padding(2.dp))
-                                        {
 
-                                            Text("反馈漏洞")
-                                        }
 
                                         Button(onClick = {
                                             //OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/EULA.md",cont)
@@ -739,9 +733,10 @@ fun PvzLauncherAndroidApp() {
                                 fontSize = 28.sp
                             )
                         }
+                        val scrollState = rememberScrollState()
                         Column(modifier = Modifier
                             .padding(0.dp, 65.dp, 0.dp, 0.dp)
-                            .fillMaxSize())
+                            .fillMaxSize().verticalScroll(scrollState))
                         {
                             var lc = LocalContext.current
                             Row(modifier = Modifier
@@ -885,11 +880,11 @@ fun PvzLauncherAndroidApp() {
 
                             }
                         }
-
+                    val scrollState = rememberScrollState()
                         Column(
                             modifier = Modifier
                                 .padding(0.dp, 85.dp, 0.dp, 0.dp)
-                                .fillMaxSize()
+                                .fillMaxWidth().verticalScroll(scrollState)
                         )
                         {
                             val scrollState = rememberScrollState()
@@ -901,7 +896,7 @@ fun PvzLauncherAndroidApp() {
                                 title = "请输入游戏名",
                                 placeholder = "${DownloadConfig.GameName}",
                                 onDismiss = { isDialogVisible = false },
-                                value = DownloadConfig.GameName,// 关闭方法
+                                value = DownloadConfig.GameName + DownloadConfig.GameLink[DownloadCount].VersionName,
                                 onConfirm = { text ->
                                     // 这里处理你拿到的输入内容
                                     resultText = text
@@ -925,7 +920,7 @@ fun PvzLauncherAndroidApp() {
 
 
                                         pid = PRDownloader.download(
-                                            dlc.GameLink,
+                                            dlc.GameLink[DownloadCount].VersionLink,
                                             lc.cacheDir.absolutePath,
                                             "${dlc.GameName}.apk"
                                         )
@@ -994,7 +989,7 @@ fun PvzLauncherAndroidApp() {
                                 XW_GameInformationCard(DownloadConfig, {
                                     isDialogVisible = true
 
-                                }, true, Icons.Default.Download)
+                                }, true, Icons.Default.Download,true)
                             }
                             Text(
                                 "简介",
@@ -1062,9 +1057,10 @@ fun PvzLauncherAndroidApp() {
                         }
                     )
                     var lc = LocalContext.current
+                    val scrollState = rememberScrollState()
                     Column(modifier = Modifier
-                        .fillMaxSize()
-                        .padding(10.dp, 90.dp, 10.dp, 10.dp), horizontalAlignment = Alignment.CenterHorizontally)
+                        .fillMaxWidth()
+                        .padding(10.dp, 90.dp, 10.dp, 10.dp).verticalScroll(scrollState), horizontalAlignment = Alignment.CenterHorizontally)
                     {
                         ProcessList.forEach {
                             procfg ->
@@ -1210,9 +1206,10 @@ fun PvzLauncherAndroidApp() {
                             }
                         }
                     )
+                    val scrollState = rememberScrollState()
                     Column(Modifier
                         .padding(10.dp, 90.dp, 10.dp, 10.dp)
-                        .fillMaxSize())
+                        .fillMaxSize().verticalScroll(scrollState))
                     {
                         var gameindex = emptyList<GameConfig>().toMutableList()
                        try{

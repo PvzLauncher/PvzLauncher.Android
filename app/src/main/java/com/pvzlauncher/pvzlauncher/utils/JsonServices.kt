@@ -25,12 +25,18 @@ public data class UpdateConfig(
 public data class GameConfig(
     val PackageName: String,
     var GameName : String,
-    val GameLink : String,
+    val GameLink : List<VersionConfig>,
     val GameImage : String,
     val GameSize : String,
     val GameVersion : String,
     val GameDescription : String,
     val ScreenShoot : List<String>
+)
+
+@Serializable
+public data class VersionConfig(
+    val VersionName :String,
+    val VersionLink:String
 )
 
 @Serializable
