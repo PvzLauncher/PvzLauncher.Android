@@ -763,7 +763,7 @@ fun PvzLauncherAndroidApp() {
                                 Button(onClick = {
                                     var kk = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText())
                                     kk.CurrentGameIndex = ManageIndex
-                                    WriteJson("${lc.filesDir}/${LAUNCHERCONFIGNAME}",kk,lc)
+                                    WriteJson("${LAUNCHERCONFIGNAME}",kk,lc)
                                     XW_ToastMessage("操作成功",lc)
                                     currentDestination = AppDestinations.ManagePage
                                 },Modifier.padding(5.dp)) {
