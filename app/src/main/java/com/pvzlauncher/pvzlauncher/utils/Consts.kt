@@ -5,7 +5,7 @@ import com.downloader.request.DownloadRequest
 import okhttp3.internal.concurrent.Task
 import android.content.Context
 
-const val APP_VERSION = "1.0.0-RC.2 “Upload”"
+const val APP_VERSION = "1.0.0-RC.2 “BugFix-2”"
 const val LAUNCHERCONFIGNAME = "LauncherConfig.json"
 const val SAVECONFIGNAME = "SaveConfig.json"
 lateinit var globalContext: Context

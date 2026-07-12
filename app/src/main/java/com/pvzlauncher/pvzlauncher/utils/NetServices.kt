@@ -1,6 +1,5 @@
 package com.pvzlauncher.pvzlauncher.utils
 
-import android.R
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
