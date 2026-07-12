@@ -678,9 +678,9 @@ fun PvzLauncherAndroidApp() {
                                     "Xiaowang0229 - 主要开发人员",
                                     modifier = Modifier.padding(2.dp)
                                 )
-                                Text("版权方", fontWeight = Bold, modifier = Modifier.padding(2.dp))
+                                Text("原作者", fontWeight = Bold, modifier = Modifier.padding(2.dp))
                                 Text(
-                                    "ishuamouren - 启动器版权方",
+                                    "ishuamouren - 启动器原作者",
                                     modifier = Modifier.padding(2.dp)
                                 )
                                 Text("贡献者", fontWeight = Bold, modifier = Modifier.padding(2.dp))

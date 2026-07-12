@@ -128,19 +128,13 @@ public fun XW_GameInformationCard(args : GameConfig,onBack: () -> Unit,Disablebu
             RadioDialog(isvisible,args.GameLink,{isvisible = false},{ i -> DownloadCount = i
                 isvisible = false
                 DownloadConfig = args
-                if(Disablebuttonwhenclick)
-                {
-                    isEnabled = false
-                }
+
                 onBack()})
             Button(onClick = {
                 if(!ischooseindex)
                 {
                     DownloadConfig = args
-                    if(Disablebuttonwhenclick)
-                    {
-                        isEnabled = false
-                    }
+
                     onBack()
                 }
                 else
