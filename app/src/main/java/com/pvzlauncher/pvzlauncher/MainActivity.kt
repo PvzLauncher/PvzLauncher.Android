@@ -128,6 +128,7 @@ import org.threeten.bp.ZoneId
 import org.threeten.bp.format.DateTimeFormatter
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ApplicationInfo
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
@@ -138,6 +139,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import coil3.compose.rememberAsyncImagePainter
 import com.pvzlauncher.pvzlauncher.utils.CheckUpdate
 import com.pvzlauncher.pvzlauncher.utils.DownloadCount
 import com.pvzlauncher.pvzlauncher.utils.globalContext
@@ -1218,9 +1220,9 @@ fun PvzLauncherAndroidApp() {
                         .padding(10.dp, 90.dp, 10.dp, 10.dp)
                         .fillMaxSize().verticalScroll(scrollState))
                     {
-                        var gameindex = emptyList<GameConfig>().toMutableList()
+                        var gameindex = emptyList<android.content.pm.PackageInfo>().toMutableList()
                        try{
-                          gameindex = ReadJson<GameListConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameIndex.json")).GameIndex.toMutableStateList()
+                          gameindex = lc.packageManager.getInstalledPackages(0)
 
 
                        }
@@ -1230,70 +1232,72 @@ fun PvzLauncherAndroidApp() {
                        }
 
 
-
                         gameindex.forEach { i ->
-                            i.GameLink.forEach { j ->
-                                var tempname = i.GameName + j.VersionName
-                                if(isAppInstalled(lc,j.PackageName) && ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex.none {it.PackageName == j.PackageName})
+
+                                if((lc.packageManager.getApplicationInfo(i.packageName,0).flags and ApplicationInfo.FLAG_SYSTEM) == 0)
                                 {
-                                    Card(Modifier
-                                        .padding(2.dp)
-                                        .fillMaxWidth())
+                                    var tempname = lc.packageManager.getApplicationLabel(lc.packageManager.getApplicationInfo(i.packageName,0)).toString()
+                                    if(isAppInstalled(lc,i.packageName) && ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex.none {it.PackageName == i.packageName})
                                     {
-                                        Box(Modifier
-                                            .padding(5.dp)
+                                        Card(Modifier
+                                            .padding(2.dp)
                                             .fillMaxWidth())
                                         {
-                                            Column(Modifier.align(Alignment.CenterStart))
-                                            {
-                                                Row(verticalAlignment = Alignment.CenterVertically)
-                                                {
-                                                    AsyncImage(model = i.GameImage,"", modifier = Modifier
-                                                        .padding(10.dp, 5.dp)
-                                                        .size(48.dp),placeholder = painterResource(
-                                                        R.drawable.ic_unknown), error = painterResource(R.drawable.ic_unknown),onError = { state -> XW_ToastMessage("获取头图时发生错误：${state.result.throwable.message}",lc)})
-                                                    Column(Modifier.padding(2.dp))
-                                                    {
-                                                        Text("检测到 ${i.GameName + j.VersionName}", fontWeight = Bold)
-                                                        Text("包名: ${j.PackageName}")
-                                                    }
-                                                }
-                                                OutlinedTextField(label = { Text("请输入导入后的游戏名") }, onValueChange = { t-> tempname = t },value = i.GameName)
-                                            }
-
-                                            Button(onClick = {
-                                                var aaa=ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
-                                                aaa.GameIndex += SaveConfig(
-                                                    GameName =tempname,
-                                                    PackageName = j.PackageName,
-                                                    AddTime = ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")),
-                                                    PlayTime = 0,
-                                                    LaunchTimes = 0,
-                                                    headImage = "https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameAssets/Default.png",
-                                                    gameversion = GetApkInfo(j.PackageName,lcc).versionName ?: "1.0.0")
-                                                WriteJson<SaveConfigList>(SAVECONFIGNAME,aaa,lc)
-                                                gameindex.remove(i)
-                                                XW_ToastMessage("导入成功",lc)
-
-
-
-
-                                            }, modifier = Modifier
+                                            Box(Modifier
                                                 .padding(5.dp)
-                                                .align(Alignment.CenterEnd)
-                                                .size(48.dp),contentPadding = PaddingValues(0.dp),
-                                                shape = CircleShape
-                                            )
-
+                                                .fillMaxWidth())
                                             {
+                                                Column(Modifier.align(Alignment.CenterStart).padding(10.dp,10.dp,64.dp,10.dp))
+                                                {
+                                                    Row(verticalAlignment = Alignment.CenterVertically)
+                                                    {
+                                                        AsyncImage(model = lc.packageManager.getApplicationIcon(i.packageName),"", modifier = Modifier.padding(10.dp,5.dp).size(48.dp),placeholder = painterResource(
+                                                            R.drawable.ic_unknown), error = painterResource(R.drawable.ic_unknown),onError = { state -> XW_ToastMessage("获取头图时发生错误：${state.result.throwable.message}",lc)})
 
-                                                Icon(imageVector = Icons.Default.ArrowRightAlt,"检测更新", modifier = Modifier.size(32.dp))
 
+                                                        Column(Modifier.padding(2.dp))
+                                                        {
+                                                            Text(lc.packageManager.getApplicationLabel(lc.packageManager.getApplicationInfo(i.packageName,0)).toString(), fontWeight = Bold)
+                                                            Text("包名: ${i.packageName}")
+                                                        }
+                                                    }
+                                                    OutlinedTextField(label = { Text("请输入导入后的游戏名") }, onValueChange = { t-> tempname = t },value = lc.packageManager.getApplicationLabel(lc.packageManager.getApplicationInfo(i.packageName,0)).toString())
+                                                }
+
+                                                Button(onClick = {
+                                                    var aaa=ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
+                                                    aaa.GameIndex += SaveConfig(
+                                                        GameName =tempname ,
+                                                        PackageName = i.packageName,
+                                                        AddTime = ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")),
+                                                        PlayTime = 0,
+                                                        LaunchTimes = 0,
+                                                        headImage = lc.packageManager.getApplicationIcon(i.packageName),
+                                                        gameversion = GetApkInfo(i.packageName,lcc).versionName ?: "1.0.0")
+                                                    WriteJson<SaveConfigList>(SAVECONFIGNAME,aaa,lc)
+                                                    gameindex.remove(i)
+                                                    XW_ToastMessage("导入成功",lc)
+
+
+
+
+                                                }, modifier = Modifier
+                                                    .padding(5.dp)
+                                                    .align(Alignment.CenterEnd)
+                                                    .size(48.dp),contentPadding = PaddingValues(0.dp),
+                                                    shape = CircleShape
+                                                )
+
+                                                {
+
+                                                    Icon(imageVector = Icons.Default.ArrowRightAlt,"检测更新", modifier = Modifier.size(32.dp))
+
+                                                }
                                             }
                                         }
                                     }
                                 }
-                            }
+
                         }
                     }
                 }

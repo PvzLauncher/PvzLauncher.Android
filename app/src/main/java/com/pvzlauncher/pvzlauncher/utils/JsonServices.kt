@@ -46,7 +46,8 @@ public data class GameListConfig(
 
 @Serializable
 public data class SaveConfig(
-    val headImage: String,
+    @Contextual
+    val headImage: Any,
     val gameversion : String,
     var GameName : String,
     val PackageName : String,
