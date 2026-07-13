@@ -565,11 +565,11 @@ fun PvzLauncherAndroidApp() {
                             Card(
                                 Modifier
                                     .fillMaxWidth()
-                                    .padding(5.dp)
+                                    .padding(2.dp)
                             ) {
                                 Column(
                                     Modifier
-                                        .padding(10.dp)
+                                        .padding(2.dp)
                                         .fillMaxWidth(),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 )
@@ -581,6 +581,10 @@ fun PvzLauncherAndroidApp() {
                                         modifier = Modifier.size(150.dp),
 
                                         )
+                                    Box(Modifier.fillMaxWidth())
+                                    {
+                                        Text("Post-Reset",Modifier.padding(0.dp,2.dp).align(Alignment.CenterEnd),fontSize = 12.sp)
+                                    }
                                     Row()
                                     {
                                         Text(
@@ -590,6 +594,7 @@ fun PvzLauncherAndroidApp() {
                                         )
 
                                     }
+
 
                                     Row(verticalAlignment = Alignment.CenterVertically)
                                     {
@@ -631,7 +636,13 @@ fun PvzLauncherAndroidApp() {
                                     Row()
                                     {
                                         val cont = LocalContext.current
+                                        Button(onClick = {
+                                            OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/issues/new",cont)
+                                        }, modifier = Modifier.padding(2.dp))
+                                        {
 
+                                            Text("反馈漏洞")
+                                        }
 
                                         Button(onClick = {
                                             //OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/EULA.md",cont)
@@ -774,15 +785,15 @@ fun PvzLauncherAndroidApp() {
                                     WriteJson("${LAUNCHERCONFIGNAME}",kk,lc)
                                     XW_ToastMessage("操作成功",lc)
                                     currentDestination = AppDestinations.ManagePage
-                                },Modifier.padding(5.dp)) {
-                                    Text("设为启动项")
+                                },Modifier.padding(2.dp)) {
+                                    Text("设为活动")
                                 }
                                 Button(onClick = {
                                     isDialogVisible = true
 
 
-                                },Modifier.padding(5.dp)) {
-                                    Text("删除游戏")
+                                },Modifier.padding(2.dp)) {
+                                    Text("删除游戏", color = Color.Red)
                                 }
                                 XW_InputDialog(
                                     showDialog = isDialogVisible,
@@ -806,7 +817,7 @@ fun PvzLauncherAndroidApp() {
                                 )
                                 Button(onClick = {
                                     isDialogVisible2 = true
-                                },Modifier.padding(5.dp)) {
+                                },Modifier.padding(2.dp)) {
                                     Text("更改名称")
                                 }
                                 XW_InputDialog(
@@ -1258,7 +1269,7 @@ fun PvzLauncherAndroidApp() {
                                                         Column(Modifier.padding(2.dp))
                                                         {
                                                             Text(lc.packageManager.getApplicationLabel(lc.packageManager.getApplicationInfo(i.packageName,0)).toString(), fontWeight = Bold)
-                                                            Text("包名: ${i.packageName}")
+
                                                         }
                                                     }
                                                     OutlinedTextField(label = { Text("请输入导入后的游戏名") }, onValueChange = { t-> tempname = t },value = lc.packageManager.getApplicationLabel(lc.packageManager.getApplicationInfo(i.packageName,0)).toString())
@@ -1272,7 +1283,7 @@ fun PvzLauncherAndroidApp() {
                                                         AddTime = ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")),
                                                         PlayTime = 0,
                                                         LaunchTimes = 0,
-                                                        headImage = lc.packageManager.getApplicationIcon(i.packageName),
+                                                        headImage = "https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameAssets/Import.png",
                                                         gameversion = GetApkInfo(i.packageName,lcc).versionName ?: "1.0.0")
                                                     WriteJson<SaveConfigList>(SAVECONFIGNAME,aaa,lc)
                                                     gameindex.remove(i)

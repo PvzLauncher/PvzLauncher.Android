@@ -195,8 +195,7 @@ public fun XW_ManageInformationCard(args : SaveConfig,onBack: () -> Unit, IsButt
             {
                 val cont = LocalContext.current
 
-                    AsyncImage(model = args.headImage,"", modifier = Modifier.padding(10.dp,5.dp).size(48.dp),placeholder = painterResource(
-                        R.drawable.ic_unknown), error = painterResource(R.drawable.ic_unknown),onError = { state -> XW_ToastMessage("获取头图时发生错误：${state.result.throwable.message}",cont)})
+                    AsyncImage(model = args.headImage,"", modifier = Modifier.padding(10.dp,5.dp).size(48.dp),placeholder = painterResource(R.drawable.ic_unknown), error = painterResource(R.drawable.ic_unknown),onError = { state -> XW_ToastMessage("获取头图时发生错误：${state.result.throwable.message}",cont)})
 
                 Column()
                 {
@@ -211,6 +210,7 @@ public fun XW_ManageInformationCard(args : SaveConfig,onBack: () -> Unit, IsButt
                         {
                             Text(args.gameversion)
                         }
+                        Row(Modifier.padding(2.dp)){}
 //                        Box(modifier = Modifier.background(Color(0xFF31A9A9), RoundedCornerShape(7.5.dp))
 //                            .padding(4.dp,2.dp))
 //                        {
@@ -422,6 +422,7 @@ private fun RadioDialog(visible : Boolean,content : List<VersionConfig>,onDismis
                                 )
                         }
                         Text(content[i].VersionName)
+                        Row(Modifier.padding(2.dp)){}
                         Box(modifier = Modifier
                             .background(Color(0xFFA9A9A9), RoundedCornerShape(7.5.dp))
                             .padding(4.dp,2.dp)
@@ -430,6 +431,7 @@ private fun RadioDialog(visible : Boolean,content : List<VersionConfig>,onDismis
                         {
                             Text(content[i].VersionVer)
                         }
+                        Row(Modifier.padding(2.dp)){}
                         Box(modifier = Modifier.background(Color(0xFF31A9A9), RoundedCornerShape(7.5.dp))
                             .padding(4.dp,2.dp))
                         {
