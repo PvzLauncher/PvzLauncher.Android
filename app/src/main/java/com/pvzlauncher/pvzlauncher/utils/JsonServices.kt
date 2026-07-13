@@ -23,12 +23,9 @@ public data class UpdateConfig(
 
 @Serializable
 public data class GameConfig(
-    val PackageName: String,
     var GameName : String,
     val GameLink : List<VersionConfig>,
     val GameImage : String,
-    val GameSize : String,
-    val GameVersion : String,
     val GameDescription : String,
     val ScreenShoot : List<String>
 )
@@ -36,7 +33,10 @@ public data class GameConfig(
 @Serializable
 public data class VersionConfig(
     val VersionName :String,
-    val VersionLink:String
+    val VersionLink:String,
+    val VersionSize:String,
+    val VersionVer : String,
+    val PackageName: String
 )
 
 @Serializable
@@ -52,7 +52,7 @@ public data class SaveConfig(
     val PackageName : String,
     val AddTime : String,
     var PlayTime : Long,
-    var LaunchTimes : Long
+    var LaunchTimes : Long,
 
 )
 

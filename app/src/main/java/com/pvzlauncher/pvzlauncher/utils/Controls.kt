@@ -113,13 +113,39 @@ public fun XW_GameInformationCard(args : GameConfig,onBack: () -> Unit,Disablebu
                         )
 
                         {
-                            Text(args.GameVersion)
+                            //Text(args.GameVersion)
+                            Column(){
+                                for(i in 0 until args.GameLink.count())
+                                {
+                                    if(i != (args.GameLink.count()-1))
+                                    {
+                                        Text("${args.GameLink[i].VersionVer}/")
+                                    }
+                                    else
+                                    {
+                                        Text(args.GameLink[i].VersionVer)
+                                    }
+                                }
+                            }
                         }
                         Box(modifier = Modifier.padding(2.5.dp)) { }
                         Box(modifier = Modifier.background(Color(0xFF31A9A9), RoundedCornerShape(7.5.dp))
                             .padding(4.dp,2.dp))
                         {
-                            Text(args.GameSize)
+                            //Text(args.GameSize)
+                            Column() {
+                                for(i in 0 until args.GameLink.count())
+                                {
+                                    if(i != (args.GameLink.count()-1))
+                                    {
+                                        Text("${args.GameLink[i].VersionSize}/")
+                                    }
+                                    else
+                                    {
+                                        Text(args.GameLink[i].VersionSize)
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -183,7 +209,11 @@ public fun XW_ManageInformationCard(args : SaveConfig,onBack: () -> Unit, IsButt
                         {
                             Text(args.gameversion)
                         }
-                        Box(modifier = Modifier.padding(2.5.dp)) { }
+//                        Box(modifier = Modifier.background(Color(0xFF31A9A9), RoundedCornerShape(7.5.dp))
+//                            .padding(4.dp,2.dp))
+//                        {
+//                            Text(args.GameSize)
+//                        }
                         val rj =  ReadJson<SaveConfigList>(File("${cont.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex
                         if(rj.indexOf(args) == ReadJson<LauncherConfig>(File("${cont.filesDir}/${LAUNCHERCONFIGNAME}").readText()).CurrentGameIndex)
                         {
@@ -390,6 +420,19 @@ private fun RadioDialog(visible : Boolean,content : List<VersionConfig>,onDismis
                                 )
                         }
                         Text(content[i].VersionName)
+                        Box(modifier = Modifier
+                            .background(Color(0xFFA9A9A9), RoundedCornerShape(7.5.dp))
+                            .padding(4.dp,2.dp)
+                        )
+
+                        {
+                            Text(content[i].VersionVer)
+                        }
+                        Box(modifier = Modifier.background(Color(0xFF31A9A9), RoundedCornerShape(7.5.dp))
+                            .padding(4.dp,2.dp))
+                        {
+                            Text(content[i].VersionSize)
+                        }
                     }
                 }
             } },
