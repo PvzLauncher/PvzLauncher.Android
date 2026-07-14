@@ -581,10 +581,7 @@ fun PvzLauncherAndroidApp() {
                                         modifier = Modifier.size(150.dp),
 
                                         )
-                                    Box(Modifier.fillMaxWidth())
-                                    {
-                                        Text("Post-Reset",Modifier.padding(0.dp,2.dp).align(Alignment.CenterEnd),fontSize = 12.sp)
-                                    }
+
                                     Row()
                                     {
                                         Text(
@@ -1231,9 +1228,9 @@ fun PvzLauncherAndroidApp() {
                         .padding(10.dp, 90.dp, 10.dp, 10.dp)
                         .fillMaxSize().verticalScroll(scrollState))
                     {
-                        var gameindex = emptyList<android.content.pm.PackageInfo>().toMutableList()
+                        var gameindex = emptyList<android.content.pm.PackageInfo>().toMutableStateList()
                        try{
-                          gameindex = lc.packageManager.getInstalledPackages(0)
+                          gameindex = lc.packageManager.getInstalledPackages(0).toMutableStateList()
 
 
                        }
