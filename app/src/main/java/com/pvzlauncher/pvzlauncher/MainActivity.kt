@@ -937,7 +937,7 @@ fun PvzLauncherAndroidApp() {
 
                                         pid = PRDownloader.download(
                                             dlc.GameLink[DownloadCount].VersionLink,
-                                            lc.cacheDir.absolutePath,
+                                            "${lc.filesDir}",
                                             "${dlc.GameName}.apk"
                                         )
                                             .build()
@@ -951,11 +951,11 @@ fun PvzLauncherAndroidApp() {
 
 
                                                     try {
-                                                        installApk(lc,File("${lc.cacheDir.absolutePath}/${dlc.GameName}.apk"))
+                                                        installApk(lc,File("${lc.filesDir}/${dlc.GameName}.apk"))
                                                         var sl = ReadJson<SaveConfigList>(File("${lcc.filesDir}/${SAVECONFIGNAME}").readText())
                                                         sl.GameIndex += SaveConfig(
                                                             GameName =ProcessList[intProcessList.indexOf(pid)].p_info.GameName,
-                                                            PackageName = ProcessList[intProcessList.indexOf(pid)].p_info.GameLink[DownloadCount].PackageName,
+                                                            PackageName = "${lc.packageManager.getPackageArchiveInfo("${lc.filesDir}/${dlc.GameName}.apk",0)?.packageName}",
                                                             AddTime = ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")),
                                                             PlayTime = 0,
                                                             LaunchTimes = 0,

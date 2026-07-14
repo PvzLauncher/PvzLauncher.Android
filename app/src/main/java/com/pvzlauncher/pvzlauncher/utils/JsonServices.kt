@@ -35,8 +35,7 @@ public data class VersionConfig(
     val VersionName :String,
     val VersionLink:String,
     val VersionSize:String,
-    val VersionVer : String,
-    val PackageName: String
+    val VersionVer : String
 )
 
 @Serializable
