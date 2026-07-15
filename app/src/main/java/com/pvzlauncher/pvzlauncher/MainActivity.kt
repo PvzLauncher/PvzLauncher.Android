@@ -32,6 +32,7 @@ import androidx.compose.material.icons.filled.Downloading
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.HomeRepairService
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.filled.QuestionMark
 import androidx.compose.material.icons.filled.Rocket
 import androidx.compose.material.icons.filled.RocketLaunch
@@ -474,6 +475,59 @@ fun PvzLauncherAndroidApp() {
                                 XW_GameInformationCard(i,{
                                     currentDestination = AppDestinations.DownloadDetailPage
                                 },false,Icons.Default.ArrowRightAlt,false)
+                            }
+                            if(gameindex.count() != 0)
+                            {
+                                Card(modifier = Modifier.padding(5.dp).fillMaxWidth())
+                                {
+                                    Box(modifier = Modifier.padding(5.dp).fillMaxWidth())
+                                    {
+                                        Row(modifier = Modifier.align(Alignment.CenterStart).padding(10.dp,10.dp,64.dp,10.dp), verticalAlignment = Alignment.CenterVertically)
+                                        {
+                                            val cont = LocalContext.current
+                                            AsyncImage(model = "https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameAssets/Origin.png","", modifier = Modifier.padding(10.dp,5.dp).size(48.dp),placeholder = painterResource(
+                                                R.drawable.ic_unknown), error = painterResource(R.drawable.ic_unknown),onError = { state -> XW_ToastMessage("获取头图时发生错误：${state.result.throwable.message}",cont)})
+                                            Column()
+                                            {
+                                                Text("更多游戏",modifier = Modifier.padding(2.dp), fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                                                Row(modifier = Modifier.padding(2.dp), verticalAlignment = Alignment.CenterVertically)
+                                                {
+                                                    Box(modifier = Modifier
+                                                        .background(Color(0xFFA9A9A9), RoundedCornerShape(7.5.dp))
+                                                        .padding(4.dp,2.dp)
+                                                    )
+
+                                                    {
+                                                        Text("200+个版本")
+
+                                                    }
+                                                    Box(modifier = Modifier.padding(2.5.dp)) { }
+                                                    Box(modifier = Modifier.background(Color(0xFF31A9A9), RoundedCornerShape(7.5.dp))
+                                                        .padding(4.dp,2.dp))
+                                                    {
+                                                        Text("55.42GB")
+
+                                                    }
+                                                }
+                                            }
+                                        }
+
+
+                                        Button(onClick = {
+                                            XW_simpledialog("提示","游戏库中的游戏需要您手动下载并在管理页面导入，即将跳转至浏览器完成下一步操作，请确保您可以通过小飞机网盘进行版本下载！",{OpenUrl("https://share.feijipan.com/s/Tfef8jNo",lc)},{},lc)
+
+                                        }, modifier = Modifier.align(Alignment.CenterEnd).padding(5.dp).size(48.dp),contentPadding = PaddingValues(0.dp),
+                                            shape = CircleShape
+                                        )
+                                        {
+
+                                            Icon(imageVector = Icons.Default.ArrowRightAlt,"检测更新", modifier = Modifier.size(32.dp))
+
+                                        }
+
+
+                                    }
+                                }
                             }
 
                         }
