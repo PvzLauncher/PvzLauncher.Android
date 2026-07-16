@@ -24,7 +24,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import com.downloader.OnCancelListener
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowRightAlt
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Download
@@ -120,7 +120,6 @@ import com.pvzlauncher.pvzlauncher.utils.intProcessProgressList
 import com.pvzlauncher.pvzlauncher.utils.isAppInstalled
 import com.pvzlauncher.pvzlauncher.utils.launchApp
 import com.pvzlauncher.pvzlauncher.utils.sProcessProgressList
-import com.pvzlauncher.pvzlauncher.utils.uninstallApk
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import java.io.File
 import kotlinx.coroutines.*
@@ -135,19 +134,36 @@ import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.Task
+import androidx.compose.material.icons.filled.Title
+import androidx.compose.material.icons.filled.Update
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import coil3.compose.rememberAsyncImagePainter
 import com.pvzlauncher.pvzlauncher.utils.CheckUpdate
 import com.pvzlauncher.pvzlauncher.utils.DownloadCount
 import com.pvzlauncher.pvzlauncher.utils.globalContext
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 
 
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         android.os.StrictMode.setThreadPolicy(android.os.StrictMode.ThreadPolicy.Builder().permitAll().build())
         super.onCreate(savedInstanceState)
@@ -158,26 +174,16 @@ class MainActivity : ComponentActivity() {
                 PvzLauncherAndroidApp()
             }
         }
-
-
-
-
     }
 }
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @PreviewScreenSizes
 @Composable
 fun PvzLauncherAndroidApp() {
-
     var lcc = LocalContext.current
-
     globalContext = LocalContext.current
-
     APP_VERSION = (lcc.packageManager.getPackageInfo(lcc.packageName,0).versionName ?: "1.0.0")
-
     var currentDestination by rememberSaveable { mutableStateOf(AppDestinations.HomePage) }
     var startupcheckupdate by rememberSaveable { mutableStateOf(false) }
     var requestappinstall by rememberSaveable { mutableStateOf(false) }
@@ -245,11 +251,7 @@ fun PvzLauncherAndroidApp() {
         else{
             requestappinstall = true
         }
-
-
     }
-
-
     if (!File("${LocalContext.current.filesDir}/${LAUNCHERCONFIGNAME}").exists())
     {
         InitializeLauncherSettings()
@@ -280,18 +282,8 @@ fun PvzLauncherAndroidApp() {
         {
             CheckUpdate(lcc,true)
         }
+        startupcheckupdate = true
     }
-
-
-
-
-
-
-
-
-
-
-
         NavigationSuiteScaffold(
         navigationSuiteItems = {
             AppDestinations.entries.forEach {
@@ -313,344 +305,527 @@ fun PvzLauncherAndroidApp() {
             }
         }
     ) {
+
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+
             val pageModifier = Modifier.padding(innerPadding)
             val lc = LocalContext.current
             val LocalSettings = ReadJson<LauncherConfig>(File("${LocalContext.current.filesDir}/${LAUNCHERCONFIGNAME}").readText())
-            when (currentDestination) {
-                AppDestinations.HomePage -> {
+            AnimatedContent(
+                targetState = currentDestination,
+                modifier = Modifier
+                    .fillMaxSize(),
+                transitionSpec = {
+                    val enterAnim = slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec = tween(350)
+                    ) + fadeIn(animationSpec = tween(350))
+                    val exitAnim = ExitTransition.None
+                    enterAnim togetherWith exitAnim
+                },
+                label = "PageTransition"
+            ) { targetPage ->
+                when (targetPage) {
+                    AppDestinations.HomePage -> {
 
-                    Box(modifier = Modifier.fillMaxSize()){
-                        if(LocalSettings.UseEnglishTitle)
-                        {
-                            Image(painter = painterResource(id=R.drawable.ic_apptitle_en),"123",
-                                alignment = Alignment.TopCenter, modifier = Modifier
-                                    .padding(40.dp)
-                                    .fillMaxWidth())
-                        }
-                        else
-                        {
-                            Image(painter = painterResource(id=R.drawable.ic_apptitle_zh),"123",
-                                alignment = Alignment.TopCenter, modifier = Modifier
-                                    .padding(40.dp)
-                                    .fillMaxWidth())
-                        }
-                        Column(modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(40.dp), horizontalAlignment = Alignment.CenterHorizontally)
-                        {
-                            Row(verticalAlignment = Alignment.CenterVertically)
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            if (LocalSettings.UseEnglishTitle) {
+                                Image(
+                                    painter = painterResource(id = R.drawable.ic_apptitle_en),
+                                    "123",
+                                    alignment = Alignment.TopCenter,
+                                    modifier = Modifier
+                                        .padding(40.dp)
+                                        .fillMaxWidth()
+                                )
+                            } else {
+                                Image(
+                                    painter = painterResource(id = R.drawable.ic_apptitle_zh),
+                                    "123",
+                                    alignment = Alignment.TopCenter,
+                                    modifier = Modifier
+                                        .padding(40.dp)
+                                        .fillMaxWidth()
+                                )
+                            }
+                            Column(
+                                modifier = Modifier
+                                    .align(Alignment.BottomCenter)
+                                    .padding(40.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            )
                             {
-                                Button(onClick = {
-                                    if(ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex.count() != 0)
-                                    {
-                                        val current = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex[ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText()).CurrentGameIndex]
-
-
-                                        val new =  ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
-                                        new.GameIndex[ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText()).CurrentGameIndex].LaunchTimes += 1
-                                        WriteJson<SaveConfigList>(SAVECONFIGNAME,new,lc)
-                                        launchApp(lc,current.PackageName)
-                                    }
-
-                                }, modifier = Modifier.height(64.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically)
                                 {
-                                    Column()
-                                    {
-                                        Row(modifier = Modifier.padding(10.dp), verticalAlignment = Alignment.CenterVertically){
+                                    Button(onClick = {
+                                        if (ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex.count() != 0) {
+                                            val current =
+                                                ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex[ReadJson<LauncherConfig>(
+                                                    File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText()
+                                                ).CurrentGameIndex]
 
-                                            Icon(imageVector = Icons.Default.RocketLaunch,"", modifier = Modifier
-                                                .padding(5.dp)
-                                                .size(24.dp))
-                                            Text("启动游戏",modifier = Modifier.padding(5.dp), fontWeight = Bold, fontSize = 18.sp)
+
+                                            val new =
+                                                ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
+                                            new.GameIndex[ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText()).CurrentGameIndex].LaunchTimes += 1
+                                            WriteJson<SaveConfigList>(SAVECONFIGNAME, new, lc)
+                                            launchApp(lc, current.PackageName)
                                         }
 
-                                    }
-                                }
-
-                            }
-                            Row()
-                            {
-                                Text("当前游戏：" , fontSize = 14.sp)
-                                if(ReadJson<SaveConfigList>(File("${LocalContext.current.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex.count() != 0)
-                                {
-                                    val current = ReadJson<SaveConfigList>(File("${LocalContext.current.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex[ReadJson<LauncherConfig>(File("${LocalContext.current.filesDir}/${LAUNCHERCONFIGNAME}").readText()).CurrentGameIndex]
-                                    Text("${current.GameName}", fontSize = 14.sp, fontWeight = Bold)
-                                }
-                                else{
-                                    Text("请先下载游戏", fontSize = 14.sp, fontWeight = Bold)
-                                }
-
-                            }
-                        }
-                    }
-                }
-                AppDestinations.ManagePage -> {
-                    Column(modifier = Modifier.padding(10.dp,35.dp)){
-                        Box(modifier = Modifier
-                            .fillMaxWidth()
-                            .height(58.dp))
-                        {
-                            Text(
-                                "管理",
-                                fontWeight = Bold,
-                                modifier = Modifier
-                                    .padding(5.dp)
-                                    .align(Alignment.CenterStart),
-                                fontSize = 28.sp
-                            )
-                            var isDialogVisible by remember { mutableStateOf(false) }
-                            var resultText by remember { mutableStateOf("") }
-                            var llc = LocalContext.current
-                            Button({
-                                currentDestination = AppDestinations.ImportPage
-                            }, Modifier
-                                .padding(5.dp)
-                                .align(Alignment.CenterEnd), ) {
-                                Text("导入已安装版本")
-
-                            }
-
-                        }
-                        val scrollState = rememberScrollState()
-                        Column(Modifier
-                            .padding(5.dp)
-                            .fillMaxSize()
-                            .verticalScroll(scrollState)) {
-                            for(i in ReadJson<SaveConfigList>(File("${lcc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex)
-                            {
-                                XW_ManageInformationCard(
-                                    args = i,
-                                    onBack = {
-                                        ManageIndex = ReadJson<SaveConfigList>(File("${lcc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex.indexOf(i)
-                                        currentDestination = AppDestinations.ManageDetailPage
-                                    },
-                                    IsButtonEnable = true,
-
-                                )
-
-                            }
-                        }
-
-                    }
-                }
-                AppDestinations.DownloadPage -> {
-                    Column(modifier = Modifier.padding(10.dp,35.dp)){
-                        Box(modifier = Modifier.fillMaxWidth())
-                        {
-                            Text("下载", fontWeight = Bold,modifier = Modifier
-                                .padding(5.dp)
-                                .align(Alignment.CenterStart), fontSize = 28.sp)
-                            Button(onClick = {
-                                currentDestination = AppDestinations.TaskPage
-                            }, modifier = Modifier
-                                .padding(5.dp)
-                                .size(48.dp)
-                                .align(Alignment.CenterEnd),contentPadding = PaddingValues(0.dp),
-                                shape = CircleShape
-                            )
-                            {
-
-                                Icon(imageVector = Icons.Default.Downloading,"检测更新", modifier = Modifier.size(32.dp))
-
-                            }
-                        }
-                        val scrollState = rememberScrollState()
-                        Column(horizontalAlignment = Alignment.CenterHorizontally,modifier = Modifier
-                            .padding(2.dp)
-                            .fillMaxSize()
-                            .verticalScroll(scrollState))
-                        {
-                            var gameindex = emptyList<GameConfig>()
-                            try {
-                                gameindex = ReadJson<GameListConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameIndex.json")).GameIndex
-
-                            }
-                            catch (e : Exception)
-                            {
-                                XW_ToastMessage("无法获取到游戏索引,${e.message}",lc)
-                            }
-                            for(i in gameindex)
-                            {
-                                XW_GameInformationCard(i,{
-                                    currentDestination = AppDestinations.DownloadDetailPage
-                                },false,Icons.Default.ArrowRightAlt,false)
-                            }
-                            if(gameindex.count() != 0)
-                            {
-                                Card(modifier = Modifier.padding(5.dp).fillMaxWidth())
-                                {
-                                    Box(modifier = Modifier.padding(5.dp).fillMaxWidth())
+                                    })
                                     {
-                                        Row(modifier = Modifier.align(Alignment.CenterStart).padding(10.dp,10.dp,64.dp,10.dp), verticalAlignment = Alignment.CenterVertically)
+
+                                        Row(
+                                            modifier = Modifier.padding(5.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+
+                                            Icon(
+                                                imageVector = Icons.Default.RocketLaunch,
+                                                "",
+                                                modifier = Modifier
+                                                    .padding(5.dp)
+                                                    .size(32.dp),tint = Color.White
+                                            )
+                                            Text(
+                                                "启动游戏",
+                                                modifier = Modifier.padding(5.dp),
+                                                fontWeight = Bold,
+                                                fontSize = 18.sp,color = Color.White
+                                            )
+                                        }
+
+
+                                    }
+
+                                }
+                                Row()
+                                {
+                                    Text("当前游戏：", fontSize = 14.sp)
+                                    if (ReadJson<SaveConfigList>(File("${LocalContext.current.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex.count() != 0) {
+                                        val current =
+                                            ReadJson<SaveConfigList>(File("${LocalContext.current.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex[ReadJson<LauncherConfig>(
+                                                File("${LocalContext.current.filesDir}/${LAUNCHERCONFIGNAME}").readText()
+                                            ).CurrentGameIndex]
+                                        Text(
+                                            "${current.GameName}",
+                                            fontSize = 14.sp,
+                                            fontWeight = Bold
+                                        )
+                                    } else {
+                                        Text("请先下载游戏", fontSize = 14.sp, fontWeight = Bold)
+                                    }
+
+                                }
+                            }
+                        }
+                    }
+
+                    AppDestinations.ManagePage -> {
+                        Column(modifier = Modifier.padding(10.dp, 35.dp, 10.dp, 5.dp)) {
+                            Box(modifier = Modifier.fillMaxWidth())
+                            {
+                                Text(
+                                    "管理",
+                                    fontWeight = Bold,
+                                    modifier = Modifier
+                                        .padding(5.dp)
+                                        .align(Alignment.CenterStart),
+                                    fontSize = 24.sp
+                                )
+                                var isDialogVisible by remember { mutableStateOf(false) }
+                                var resultText by remember { mutableStateOf("") }
+                                var llc = LocalContext.current
+
+                                TextButton(
+                                    onClick = {
+                                        currentDestination = AppDestinations.ImportPage
+                                    },
+                                    modifier = Modifier
+                                        .padding(5.dp)
+                                        .size(32.dp)
+                                        .align(Alignment.CenterEnd),
+                                    contentPadding = PaddingValues(0.dp),
+                                    shape = CircleShape
+                                )
+                                {
+
+                                    Icon(
+                                        imageVector = Icons.Default.Add,
+                                        "检测更新",
+                                        modifier = Modifier.size(32.dp)
+                                    )
+
+                                }
+
+                            }
+                            val scrollState = rememberScrollState()
+                            Column(
+                                Modifier
+
+                                    .fillMaxSize()
+                                    .verticalScroll(scrollState)
+                            ) {
+                                for (i in ReadJson<SaveConfigList>(File("${lcc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex) {
+                                    XW_ManageInformationCard(
+                                        args = i,
+                                        onBack = {
+                                            ManageIndex =
+                                                ReadJson<SaveConfigList>(File("${lcc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex.indexOf(
+                                                    i
+                                                )
+                                            currentDestination = AppDestinations.ManageDetailPage
+                                        },
+                                        IsButtonEnable = true,
+
+                                        )
+
+                                }
+                            }
+
+                        }
+                    }
+
+                    AppDestinations.DownloadPage -> {
+                        Column(modifier = Modifier.padding(10.dp, 35.dp, 10.dp, 5.dp)) {
+                            Box(modifier = Modifier.fillMaxWidth())
+                            {
+                                Text(
+                                    "下载", fontWeight = Bold, modifier = Modifier
+                                        .padding(5.dp)
+                                        .align(Alignment.CenterStart), fontSize = 24.sp
+                                )
+                                TextButton(
+                                    onClick = {
+                                        currentDestination = AppDestinations.TaskPage
+                                    },
+                                    modifier = Modifier
+                                        .padding(5.dp)
+                                        .size(32.dp)
+                                        .align(Alignment.CenterEnd),
+                                    contentPadding = PaddingValues(0.dp),
+                                    shape = CircleShape
+                                )
+                                {
+
+                                    Icon(
+                                        imageVector = Icons.Default.Task,
+                                        "检测更新",
+                                        modifier = Modifier.size(32.dp)
+                                    )
+
+                                }
+                            }
+                            val scrollState = rememberScrollState()
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                modifier = Modifier
+
+                                    .fillMaxSize()
+                                    .verticalScroll(scrollState)
+                            )
+                            {
+                                var gameindex = emptyList<GameConfig>()
+                                try {
+                                    gameindex =
+                                        ReadJson<GameListConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameIndex.json")).GameIndex
+
+                                } catch (e: Exception) {
+                                    XW_ToastMessage("无法获取到游戏索引,${e.message}", lc)
+                                }
+                                for (i in gameindex) {
+                                    XW_GameInformationCard(i, {
+                                        currentDestination = AppDestinations.DownloadDetailPage
+                                    }, false, Icons.Default.ArrowForward, false)
+                                }
+                                if (gameindex.count() != 0) {
+                                    OutlinedCard(modifier = Modifier.padding(5.dp).fillMaxWidth())
+                                    {
+                                        Box(modifier = Modifier.padding(5.dp).fillMaxWidth())
                                         {
-                                            val cont = LocalContext.current
-                                            AsyncImage(model = "https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameAssets/Origin.png","", modifier = Modifier.padding(10.dp,5.dp).size(48.dp),placeholder = painterResource(
-                                                R.drawable.ic_unknown), error = painterResource(R.drawable.ic_unknown),onError = { state -> XW_ToastMessage("获取头图时发生错误：${state.result.throwable.message}",cont)})
-                                            Column()
+                                            Row(
+                                                modifier = Modifier.align(Alignment.CenterStart)
+                                                    .padding(10.dp, 10.dp, 64.dp, 10.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            )
                                             {
-                                                Text("更多游戏",modifier = Modifier.padding(2.dp), fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                                                Row(modifier = Modifier.padding(2.dp), verticalAlignment = Alignment.CenterVertically)
+                                                val cont = LocalContext.current
+                                                AsyncImage(
+                                                    model = "https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameAssets/Origin.png",
+                                                    "",
+                                                    modifier = Modifier.padding(10.dp, 5.dp)
+                                                        .size(48.dp),
+                                                    placeholder = painterResource(
+                                                        R.drawable.ic_unknown
+                                                    ),
+                                                    error = painterResource(R.drawable.ic_unknown),
+                                                    onError = { state ->
+                                                        XW_ToastMessage(
+                                                            "获取头图时发生错误：${state.result.throwable.message}",
+                                                            cont
+                                                        )
+                                                    })
+                                                Column()
                                                 {
-                                                    Box(modifier = Modifier
-                                                        .background(Color(0xFFA9A9A9), RoundedCornerShape(7.5.dp))
-                                                        .padding(4.dp,2.dp)
+                                                    Text(
+                                                        "更多游戏",
+                                                        modifier = Modifier.padding(2.dp),
+                                                        fontWeight = FontWeight.Bold,
+                                                        fontSize = 18.sp
                                                     )
-
+                                                    Column(modifier = Modifier.padding(2.dp))
                                                     {
-                                                        Text("200+个版本")
+                                                        Box(
+                                                            modifier = Modifier
+                                                                .background(
+                                                                    Color(0xFFA9A9A9),
+                                                                    RoundedCornerShape(7.5.dp)
+                                                                )
+                                                                .padding(4.dp, 2.dp)
+                                                        )
 
-                                                    }
-                                                    Box(modifier = Modifier.padding(2.5.dp)) { }
-                                                    Box(modifier = Modifier.background(Color(0xFF31A9A9), RoundedCornerShape(7.5.dp))
-                                                        .padding(4.dp,2.dp))
-                                                    {
-                                                        Text("55.42GB")
+                                                        {
+                                                            Text(
+                                                                "200+个版本",
+                                                                color = Color.White,
+                                                                fontSize = 14.sp
+                                                            )
 
+                                                        }
+                                                        Box(modifier = Modifier.padding(2.5.dp)) { }
+                                                        Box(
+                                                            modifier = Modifier.background(
+                                                                Color(
+                                                                    0xFF31A9A9
+                                                                ), RoundedCornerShape(7.5.dp)
+                                                            )
+                                                                .padding(4.dp, 2.dp)
+                                                        )
+                                                        {
+                                                            Text(
+                                                                "55.42GB",
+                                                                color = Color.White,
+                                                                fontSize = 14.sp
+                                                            )
+
+                                                        }
                                                     }
                                                 }
                                             }
+
+
+                                            TextButton(
+                                                onClick = {
+                                                    XW_simpledialog(
+                                                        "提示",
+                                                        "游戏库中的游戏为较冷门改版，需要您手动下载并在管理页面导入，即将跳转至浏览器完成下一步操作，请确保您可以通过小飞机网盘进行版本下载！",
+                                                        {
+                                                            OpenUrl(
+                                                                "https://share.feijipan.com/s/Tfef8jNo",
+                                                                lc
+                                                            )
+                                                        },
+                                                        {},
+                                                        lc
+                                                    )
+
+                                                },
+                                                modifier = Modifier.align(Alignment.CenterEnd)
+                                                    .padding(5.dp).size(48.dp),
+                                                contentPadding = PaddingValues(0.dp),
+                                                shape = CircleShape
+                                            )
+                                            {
+
+                                                Icon(
+                                                    imageVector = Icons.Default.ArrowForward,
+                                                    "检测更新",
+                                                    modifier = Modifier.size(32.dp)
+                                                )
+
+                                            }
+
+
                                         }
-
-
-                                        Button(onClick = {
-                                            XW_simpledialog("提示","游戏库中的游戏需要您手动下载并在管理页面导入，即将跳转至浏览器完成下一步操作，请确保您可以通过小飞机网盘进行版本下载！",{OpenUrl("https://share.feijipan.com/s/Tfef8jNo",lc)},{},lc)
-
-                                        }, modifier = Modifier.align(Alignment.CenterEnd).padding(5.dp).size(48.dp),contentPadding = PaddingValues(0.dp),
-                                            shape = CircleShape
-                                        )
-                                        {
-
-                                            Icon(imageVector = Icons.Default.ArrowRightAlt,"检测更新", modifier = Modifier.size(32.dp))
-
-                                        }
-
-
                                     }
                                 }
+
                             }
 
-                        }
-
-                    }
-                }
-                AppDestinations.SettingPage -> {
-                    var LocalSettings = ReadJson<LauncherConfig>(File("${LocalContext.current.filesDir}/${LAUNCHERCONFIGNAME}").readText())
-                    Log.d("Text",File("${LocalContext.current.filesDir}/${LAUNCHERCONFIGNAME}").readText())
-                    var lc = LocalContext.current
-                    Column(modifier = Modifier.padding(10.dp,35.dp)){
-                        Box(modifier = Modifier
-                            .fillMaxWidth()
-                            .height(58.dp))
-                        {
-                            Text(
-                                "设置",
-                                fontWeight = Bold,
-                                modifier = Modifier
-                                    .padding(5.dp)
-                                    .align(Alignment.CenterStart),
-                                fontSize = 28.sp
-                            )
-                        }
-                        val scrollState = rememberScrollState()
-                        Column(Modifier.fillMaxSize().verticalScroll(scrollState))
-                        {
-                            if(false)
-                            {
-                                Column(modifier = Modifier
-                                    .padding(10.dp, 2.dp)
-                                )
-                                {
-                                    Text("主题设置", fontWeight = FontWeight.Bold,modifier = Modifier.padding(0.dp), fontSize = 18.sp)
-                                    XW_Switch("自动切换主题", modifier = Modifier.padding(0.dp),LocalSettings.UseSystemTheme,{ isChecked ->
-                                        LocalSettings.UseSystemTheme = isChecked
-
-                                        WriteJson<LauncherConfig>(LAUNCHERCONFIGNAME,LocalSettings,lc)
-
-                                    })
-                                    XW_Switch("启用深色模式", modifier = Modifier.padding(0.dp),LocalSettings.UseDarkTheme,{  isChecked ->
-                                        LocalSettings.UseDarkTheme = isChecked
-                                        WriteJson<LauncherConfig>(LAUNCHERCONFIGNAME,LocalSettings,lc)
-                                    })
-                                    Button(modifier = Modifier.padding(5.dp),onClick = {
-
-                                    }){
-                                        Text("选择主题色")
-                                    }
-                                }
-                            }
-                            Column(modifier = Modifier.padding(10.dp,2.dp))
-                            {
-                                Text("标题设置", fontWeight = Bold,modifier = Modifier.padding(0.dp), fontSize = 18.sp)
-                                XW_Switch("启用英文版标题", modifier = Modifier.padding(0.dp),LocalSettings.UseEnglishTitle,{  isChecked ->
-                                    LocalSettings.UseEnglishTitle = isChecked
-                                    WriteJson<LauncherConfig>(LAUNCHERCONFIGNAME,LocalSettings,lc)
-                                })
-                            }
-                            Column(modifier = Modifier.padding(10.dp,2.dp))
-                            {
-                                Text("更新设置", fontWeight = Bold,modifier = Modifier.padding(0.dp), fontSize = 18.sp)
-                                XW_Switch("启动时检测更新", modifier = Modifier.padding(0.dp),LocalSettings.StartUpCheckUpdate,{  isChecked ->
-                                    LocalSettings.StartUpCheckUpdate = isChecked
-                                    WriteJson<LauncherConfig>(LAUNCHERCONFIGNAME,LocalSettings,lc)
-                                })
-                            }
                         }
                     }
-                }
-                AppDestinations.AboutPage -> {
-                    Column(modifier = Modifier.padding(10.dp,35.dp)){
-                        Box(modifier = Modifier
-                            .fillMaxWidth()
-                            .height(58.dp))
-                        {
-                            Text(
-                                "关于",
-                                fontWeight = Bold,
-                                modifier = Modifier
-                                    .padding(5.dp)
-                                    .align(Alignment.CenterStart),
-                                fontSize = 28.sp
-                            )
-                        }
-                        val scrollState = rememberScrollState()
-                        Column(Modifier.fillMaxSize().verticalScroll(scrollState))
-                        {
-                            Card(
-                                Modifier
-                                    .fillMaxWidth()
-                                    .padding(2.dp)
-                            ) {
-                                Column(
-                                    Modifier
-                                        .padding(2.dp)
-                                        .fillMaxWidth(),
-                                    horizontalAlignment = Alignment.CenterHorizontally
+
+                    AppDestinations.SettingPage -> {
+                        var LocalSettings =
+                            ReadJson<LauncherConfig>(File("${LocalContext.current.filesDir}/${LAUNCHERCONFIGNAME}").readText())
+                        Log.d(
+                            "Text",
+                            File("${LocalContext.current.filesDir}/${LAUNCHERCONFIGNAME}").readText()
+                        )
+                        var lc = LocalContext.current
+                        Column(modifier = Modifier.padding(10.dp, 35.dp)) {
+                            Box(modifier = Modifier.fillMaxWidth())
+                            {
+                                Text(
+                                    "设置",
+                                    fontWeight = Bold,
+                                    modifier = Modifier
+                                        .padding(5.dp)
+                                        .align(Alignment.CenterStart),
+                                    fontSize = 24.sp
                                 )
-                                {
-
-                                    Image(
-                                        painter = painterResource(id = R.drawable.ic_appicon_vector),
-                                        contentDescription = "AppIcon",
-                                        modifier = Modifier.size(150.dp),
-
-                                        )
-
-                                    Row()
+                            }
+                            val scrollState = rememberScrollState()
+                            Column(Modifier.fillMaxSize().verticalScroll(scrollState))
+                            {
+                                if (false) {
+                                    Column(
+                                        modifier = Modifier
+                                            .padding(10.dp, 2.dp)
+                                    )
                                     {
                                         Text(
-                                            "PvzLauncher for Android",
-                                            fontSize = 24.sp,
-                                            fontWeight = Bold
+                                            "主题设置",
+                                            fontWeight = FontWeight.Bold,
+                                            modifier = Modifier.padding(0.dp),
+                                            fontSize = 18.sp
                                         )
+                                        XW_Switch(
+                                            Icons.Default.LightMode,
+                                            "自动切换主题",
+                                            "",
+                                            modifier = Modifier.padding(0.dp),
+                                            LocalSettings.UseSystemTheme,
+                                            { isChecked ->
+                                                LocalSettings.UseSystemTheme = isChecked
 
+                                                WriteJson<LauncherConfig>(
+                                                    LAUNCHERCONFIGNAME,
+                                                    LocalSettings,
+                                                    lc
+                                                )
+
+                                            })
+                                        XW_Switch(
+                                            Icons.Default.DarkMode,
+                                            "启用深色模式",
+                                            "",
+                                            modifier = Modifier.padding(0.dp),
+                                            LocalSettings.UseDarkTheme,
+                                            { isChecked ->
+                                                LocalSettings.UseDarkTheme = isChecked
+                                                WriteJson<LauncherConfig>(
+                                                    LAUNCHERCONFIGNAME,
+                                                    LocalSettings,
+                                                    lc
+                                                )
+                                            })
+                                        Button(modifier = Modifier.padding(5.dp), onClick = {
+
+                                        }) {
+                                            Text("选择主题色")
+                                        }
                                     }
+                                }
+                                Column(modifier = Modifier.padding(10.dp, 2.dp))
+                                {
+                                    Text(
+                                        "标题设置",
+                                        fontWeight = Bold,
+                                        modifier = Modifier.padding(0.dp),
+                                        fontSize = 18.sp
+                                    )
+                                    XW_Switch(
+                                        Icons.Default.Title,
+                                        "启用英文版标题",
+                                        "使用“Plants Vs. Zombies”字样而不是“植物大战僵尸”作为标题",
+                                        modifier = Modifier.padding(0.dp),
+                                        LocalSettings.UseEnglishTitle,
+                                        { isChecked ->
+                                            LocalSettings.UseEnglishTitle = isChecked
+                                            WriteJson<LauncherConfig>(
+                                                LAUNCHERCONFIGNAME,
+                                                LocalSettings,
+                                                lc
+                                            )
+                                        })
+                                }
+                                Column(modifier = Modifier.padding(10.dp, 2.dp))
+                                {
+                                    Text(
+                                        "更新设置",
+                                        fontWeight = Bold,
+                                        modifier = Modifier.padding(0.dp),
+                                        fontSize = 18.sp
+                                    )
+                                    XW_Switch(
+                                        Icons.Default.Update,
+                                        "启动时检测更新",
+                                        "当程序启动时自动检测是否可以更新，如有更新将会弹窗通知",
+                                        modifier = Modifier.padding(0.dp),
+                                        LocalSettings.StartUpCheckUpdate,
+                                        { isChecked ->
+                                            LocalSettings.StartUpCheckUpdate = isChecked
+                                            WriteJson<LauncherConfig>(
+                                                LAUNCHERCONFIGNAME,
+                                                LocalSettings,
+                                                lc
+                                            )
+                                        })
+                                }
+                            }
+                        }
+                    }
 
-
-                                    Row(verticalAlignment = Alignment.CenterVertically)
+                    AppDestinations.AboutPage -> {
+                        Column(modifier = Modifier.padding(10.dp, 35.dp)) {
+                            Box(modifier = Modifier.fillMaxWidth())
+                            {
+                                Text(
+                                    "关于",
+                                    fontWeight = Bold,
+                                    modifier = Modifier
+                                        .padding(5.dp)
+                                        .align(Alignment.CenterStart),
+                                    fontSize = 24.sp
+                                )
+                            }
+                            val scrollState = rememberScrollState()
+                            Column(Modifier.fillMaxSize().verticalScroll(scrollState))
+                            {
+                                Card(
+                                    Modifier
+                                        .fillMaxWidth()
+                                        .padding(2.dp)
+                                ) {
+                                    Column(
+                                        Modifier
+                                            .padding(2.dp)
+                                            .fillMaxWidth(),
+                                        horizontalAlignment = Alignment.CenterHorizontally
+                                    )
                                     {
+
+                                        Image(
+                                            painter = painterResource(id = R.drawable.ic_appicon_vector),
+                                            contentDescription = "AppIcon",
+                                            modifier = Modifier.size(150.dp),
+
+                                            )
+
                                         Row()
                                         {
+                                            Text(
+                                                "PvzLauncher for Android",
+                                                fontSize = 22.sp,
+                                                fontWeight = Bold
+                                            )
+
+                                        }
+
+                                        Row(verticalAlignment = Alignment.CenterVertically)
+                                        {
+
 
                                             Text(
                                                 "版本：",
@@ -664,260 +839,155 @@ fun PvzLauncherAndroidApp() {
                                                 fontWeight = Bold,
                                                 modifier = Modifier.padding(2.dp)
                                             )
-                                        }
-                                        val context = LocalContext.current
-                                        Button(
-                                            onClick = {
-                                                CheckUpdate(context,false)
-                                            }, modifier = Modifier
-                                                .padding(5.dp)
-                                                .size(48.dp), contentPadding = PaddingValues(0.dp),
-                                            shape = CircleShape
-                                        )
-                                        {
+                                            TextButton(
+                                                onClick = {
+                                                    CheckUpdate(lc, false)
+                                                }, modifier = Modifier
 
-                                            Icon(
-                                                imageVector = Icons.Default.Upload,
-                                                "检测更新",
-                                                modifier = Modifier.size(32.dp)
+
                                             )
+                                            {
 
-                                        }
-                                    }
-                                    Row()
-                                    {
-                                        val cont = LocalContext.current
-                                        Button(onClick = {
-                                            OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/issues/new",cont)
-                                        }, modifier = Modifier.padding(2.dp))
-                                        {
 
-                                            Text("反馈漏洞")
-                                        }
+                                                Text(
+                                                    "检测更新",
+                                                    fontSize = 14.sp,
+                                                    fontWeight = FontWeight.Bold
+                                                )
 
-                                        Button(onClick = {
-                                            //OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/EULA.md",cont)
-                                            try {
-                                                MDR_FileName = "许可协议"
-                                                MDR_MDContent =
-                                                    GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/Files/EULA.md")
-                                                currentDestination = AppDestinations.MDReaderPage
-                                            } catch (e: Exception) {
-                                                XW_ToastMessage("无法读取EULA信息,${e.message}", lc)
+
                                             }
 
-                                        }, modifier = Modifier.padding(2.dp))
-                                        {
 
-                                            Text("许可协议")
                                         }
 
-                                        Button(onClick = {
-                                            //OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/QandA.md",cont)
-                                            try {
-                                                MDR_FileName = "常见问题"
-                                                MDR_MDContent =
-                                                    GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/Files/QandA.md")
-                                                currentDestination = AppDestinations.MDReaderPage
-                                            } catch (e: Exception) {
-                                                XW_ToastMessage("无法读取常见问题信息,${e.message}", lc)
-                                            }
-                                        }, modifier = Modifier.padding(2.dp))
+                                        Row()
                                         {
+                                            val cont = LocalContext.current
+                                            OutlinedButton(onClick = {
+                                                OpenUrl(
+                                                    "https://github.com/PvzLauncher/PvzLauncher.Android/issues/new",
+                                                    cont
+                                                )
+                                            }, modifier = Modifier.padding(2.dp))
+                                            {
 
-                                            Text("常见问题")
+                                                Text("反馈漏洞")
+                                            }
+
+                                            OutlinedButton(onClick = {
+                                                //OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/EULA.md",cont)
+                                                try {
+                                                    MDR_FileName = "许可协议"
+                                                    MDR_MDContent =
+                                                        GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/Files/EULA.md")
+                                                    currentDestination =
+                                                        AppDestinations.MDReaderPage
+                                                } catch (e: Exception) {
+                                                    XW_ToastMessage(
+                                                        "无法读取EULA信息,${e.message}",
+                                                        lc
+                                                    )
+                                                }
+
+                                            }, modifier = Modifier.padding(2.dp))
+                                            {
+
+                                                Text("许可协议")
+                                            }
+
+                                            OutlinedButton(onClick = {
+                                                //OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/QandA.md",cont)
+                                                try {
+                                                    MDR_FileName = "常见问题"
+                                                    MDR_MDContent =
+                                                        GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/Files/QandA.md")
+                                                    currentDestination =
+                                                        AppDestinations.MDReaderPage
+                                                } catch (e: Exception) {
+                                                    XW_ToastMessage(
+                                                        "无法读取常见问题信息,${e.message}",
+                                                        lc
+                                                    )
+                                                }
+                                            }, modifier = Modifier.padding(2.dp))
+                                            {
+
+                                                Text("常见问题")
+                                            }
+
+
                                         }
 
 
                                     }
-
 
                                 }
 
-                            }
-
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier
-                                    .padding(5.dp)
-                                    .fillMaxWidth()
-                            )
-                            {
-                                Text("开发者", fontWeight = Bold, modifier = Modifier.padding(2.dp))
-                                Text(
-                                    "Xiaowang0229 - 主要开发人员",
-                                    modifier = Modifier.padding(2.dp)
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier
+                                        .padding(5.dp)
+                                        .fillMaxWidth()
                                 )
-                                Text("原作者", fontWeight = Bold, modifier = Modifier.padding(2.dp))
-                                Text(
-                                    "ishuamouren - 启动器原作者",
-                                    modifier = Modifier.padding(2.dp)
-                                )
-                                Text("贡献者", fontWeight = Bold, modifier = Modifier.padding(2.dp))
-                                Text(
-                                    "衷心感谢支持PvzLauncher的每一名用户！",
-                                    modifier = Modifier.padding(2.dp)
-                                )
+                                {
+                                    Text(
+                                        "开发者",
+                                        fontWeight = Bold,
+                                        modifier = Modifier.padding(2.dp)
+                                    )
+                                    Text(
+                                        "Xiaowang0229 - 主要开发人员",
+                                        modifier = Modifier.padding(2.dp)
+                                    )
+                                    Text(
+                                        "原作者",
+                                        fontWeight = Bold,
+                                        modifier = Modifier.padding(2.dp)
+                                    )
+                                    Text(
+                                        "ishuamouren - 启动器原作者",
+                                        modifier = Modifier.padding(2.dp)
+                                    )
+                                    Text(
+                                        "贡献者",
+                                        fontWeight = Bold,
+                                        modifier = Modifier.padding(2.dp)
+                                    )
+                                    Text(
+                                        "衷心感谢支持PvzLauncher的每一名用户！",
+                                        modifier = Modifier.padding(2.dp)
+                                    )
 
 
+                                }
                             }
                         }
                     }
-                }
 
-                AppDestinations.ManageDetailPage ->
-                {
-                    val all = ReadJson<SaveConfigList>(File("${LocalContext.current.filesDir}/${SAVECONFIGNAME}").readText())
-                    val current = all.GameIndex[ManageIndex]
-                    Box(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp, 20.dp, 10.dp, 20.dp))
-                    {
-                        Row(Modifier.align(Alignment.TopStart),verticalAlignment = Alignment.CenterVertically){
-                            Button(
-                                onClick = {
-                                    currentDestination = AppDestinations.ManagePage
-                                },
-                                modifier = Modifier
-                                    .padding(5.dp)
-                                    .size(48.dp)
-                                    .background(Color.Transparent),
-                                contentPadding = PaddingValues(0.dp),
-                                shape = CircleShape
-
-                            )
-                            {
-
-                                Icon(
-                                    imageVector = Icons.Default.ArrowBack,
-                                    "返回",
-                                    modifier = Modifier.size(32.dp)
+                    AppDestinations.ManageDetailPage -> {
+                        TopAppBar(
+                            title = {
+                                Text(
+                                    "管理游戏",
+                                    fontWeight = Bold,
+                                    modifier = Modifier.padding(5.dp),
+                                    fontSize = 24.sp
                                 )
-
-                            }
-                            Text(
-                                "游戏信息",
-                                fontWeight = Bold,
-                                modifier = Modifier
-                                    .padding(5.dp),
-                                fontSize = 28.sp
-                            )
-                        }
-                        val scrollState = rememberScrollState()
-                        Column(modifier = Modifier
-                            .padding(0.dp, 65.dp, 0.dp, 0.dp)
-                            .fillMaxSize().verticalScroll(scrollState))
-                        {
-                            var lc = LocalContext.current
-                            Row(modifier = Modifier
-                                .padding(2.dp)
-                                .fillMaxWidth())
-                            {
-
-                                XW_ManageInformationCard(
-                                    args = current,
-                                    onBack = {
-
-                                    }
-                                    , IsButtonEnable = false
-                                )
-                            }
-                            Row(Modifier
-                                .padding(2.dp)
-                                .fillMaxWidth())
-                            {
-                                var isDialogVisible by remember { mutableStateOf(false) }
-
-                                var isDialogVisible2 by remember { mutableStateOf(false) }
-
-                                Button(onClick = {
-                                    var kk = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText())
-                                    kk.CurrentGameIndex = ManageIndex
-                                    WriteJson("${LAUNCHERCONFIGNAME}",kk,lc)
-                                    XW_ToastMessage("操作成功",lc)
-                                    currentDestination = AppDestinations.ManagePage
-                                },Modifier.padding(2.dp)) {
-                                    Text("设为活动")
-                                }
-                                Button(onClick = {
-                                    isDialogVisible = true
-
-
-                                },Modifier.padding(2.dp)) {
-                                    Text("删除游戏", color = Color.Red)
-                                }
-                                XW_InputDialog(
-                                    showDialog = isDialogVisible,
-                                    title = "为防止误触，请重新输入“${current.GameName}”来确认删除",
-                                    placeholder = "请输入",
-                                    onDismiss = { isDialogVisible = false },
-                                    value = "",
-                                    onConfirm = { text ->
-                                        if(text == current.GameName)
-                                        {
-                                            uninstallApk(lc,current.PackageName)
-                                            var a2 = all.GameIndex.toMutableList()
-                                            a2.removeAt(ManageIndex)
-                                            all.GameIndex = a2.toList()
-                                            WriteJson(SAVECONFIGNAME,all,lc)
-
-                                            XW_ToastMessage("操作成功",lc)
-                                            currentDestination = AppDestinations.ManagePage
-                                        }
-                                    }
-                                )
-                                Button(onClick = {
-                                    isDialogVisible2 = true
-                                },Modifier.padding(2.dp)) {
-                                    Text("更改名称")
-                                }
-                                XW_InputDialog(
-                                    showDialog = isDialogVisible2,
-                                    title = "请输入新名字",
-                                    placeholder = "请输入",
-                                    onDismiss = { isDialogVisible2 = false },
-                                    value = "",
-                                    onConfirm = { text ->
-
-                                        all.GameIndex[ManageIndex].GameName = text
-                                        WriteJson(SAVECONFIGNAME,all,lc)
-
-                                        XW_ToastMessage("操作成功",lc)
-                                        currentDestination = AppDestinations.ManagePage
-                                    })
-                            }
-                            Column(Modifier.padding(5.dp))
-                            {
-                                Text("入库时间:${current.AddTime}")
-                                Text("启动次数:${current.LaunchTimes}")
-                            }
-                        }
-
-                    }
-
-                }
-                AppDestinations.DownloadDetailPage ->
-                {
-                    var lc = LocalContext.current
-
-                        Box(modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(10.dp, 20.dp, 10.dp, 20.dp))
-                        {
-                            Row(Modifier.align(Alignment.CenterStart), verticalAlignment = Alignment.CenterVertically) {
-                                Button(
+                            },
+                            navigationIcon = {
+                                TextButton(
                                     onClick = {
                                         currentDestination = AppDestinations.DownloadPage
                                     },
                                     modifier = Modifier
                                         .padding(5.dp)
-                                        .size(48.dp)
+                                        .size(32.dp)
                                         .background(Color.Transparent),
                                     contentPadding = PaddingValues(0.dp),
                                     shape = CircleShape
 
                                 )
-
                                 {
 
                                     Icon(
@@ -927,33 +997,153 @@ fun PvzLauncherAndroidApp() {
                                     )
 
                                 }
-                                Text(
-                                    "游戏信息",
-                                    fontWeight = Bold,
-                                    modifier = Modifier
-                                        .padding(5.dp),
-                                    fontSize = 28.sp
-                                )
                             }
+                        )
+                        val all =
+                            ReadJson<SaveConfigList>(File("${LocalContext.current.filesDir}/${SAVECONFIGNAME}").readText())
+                        val current = all.GameIndex[ManageIndex]
 
-                            Button(onClick = {
-                                currentDestination = AppDestinations.TaskPage
-                            }, modifier = Modifier
-                                .padding(5.dp)
-                                .size(48.dp)
-                                .align(Alignment.CenterEnd),contentPadding = PaddingValues(0.dp),
-                                shape = CircleShape
+
+                        val scrollState = rememberScrollState()
+                        Column(
+                            modifier = Modifier
+                                .padding(0.dp, 75.dp, 0.dp, 0.dp)
+                                .fillMaxSize().verticalScroll(scrollState)
+                        )
+                        {
+                            var lc = LocalContext.current
+                            Row(
+                                modifier = Modifier
+                                    .padding(2.dp)
+                                    .fillMaxWidth()
                             )
                             {
 
-                                Icon(imageVector = Icons.Default.Downloading,"检测更新", modifier = Modifier.size(32.dp))
+                                XW_ManageInformationCard(
+                                    args = current,
+                                    onBack = {
 
+                                    }, IsButtonEnable = false
+                                )
+                            }
+                            Column(Modifier) {
+                                Row(
+                                    Modifier
+
+                                        .fillMaxWidth()
+                                )
+                                {
+                                    var isDialogVisible by remember { mutableStateOf(false) }
+
+                                    var isDialogVisible2 by remember { mutableStateOf(false) }
+
+                                    OutlinedButton(onClick = {
+                                        var kk =
+                                            ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText())
+                                        kk.CurrentGameIndex = ManageIndex
+                                        WriteJson("${LAUNCHERCONFIGNAME}", kk, lc)
+                                        XW_ToastMessage("操作成功", lc)
+                                        currentDestination = AppDestinations.ManagePage
+                                    }, Modifier.padding(2.dp)) {
+                                        Text("设为活动")
+                                    }
+                                    OutlinedButton(onClick = {
+                                        isDialogVisible = true
+
+
+                                    }, Modifier.padding(2.dp)) {
+                                        Text("删除游戏", color = Color.Red)
+                                    }
+                                    XW_InputDialog(
+                                        showDialog = isDialogVisible,
+                                        title = "为防止误触，请重新输入“${current.GameName}”来确认删除",
+                                        placeholder = "请输入",
+                                        onDismiss = { isDialogVisible = false },
+                                        value = "",
+                                        onConfirm = { text ->
+                                            if (text == current.GameName) {
+
+                                                var a2 = all.GameIndex.toMutableList()
+                                                a2.removeAt(ManageIndex)
+                                                all.GameIndex = a2.toList()
+                                                WriteJson(SAVECONFIGNAME, all, lc)
+
+                                                XW_ToastMessage("操作成功", lc)
+                                                currentDestination = AppDestinations.ManagePage
+                                            }
+                                        }
+                                    )
+                                    OutlinedButton(onClick = {
+                                        isDialogVisible2 = true
+                                    }, Modifier.padding(2.dp)) {
+                                        Text("更改名称")
+                                    }
+                                    XW_InputDialog(
+                                        showDialog = isDialogVisible2,
+                                        title = "请输入新名字",
+                                        placeholder = "请输入",
+                                        onDismiss = { isDialogVisible2 = false },
+                                        value = "",
+                                        onConfirm = { text ->
+
+                                            all.GameIndex[ManageIndex].GameName = text
+                                            WriteJson(SAVECONFIGNAME, all, lc)
+
+                                            XW_ToastMessage("操作成功", lc)
+                                            currentDestination = AppDestinations.ManagePage
+                                        })
+                                }
+                                Column()
+                                {
+                                    Text("入库时间:${current.AddTime}")
+                                    Text("启动次数:${current.LaunchTimes}")
+                                }
                             }
                         }
-                    val scrollState = rememberScrollState()
+
+
+                    }
+
+                    AppDestinations.DownloadDetailPage -> {
+                        var lc = LocalContext.current
+                        TopAppBar(
+                            title = {
+                                Text(
+                                    "下载游戏",
+                                    fontWeight = Bold,
+                                    modifier = Modifier.padding(5.dp),
+                                    fontSize = 24.sp
+                                )
+                            },
+                            navigationIcon = {
+                                TextButton(
+                                    onClick = {
+                                        currentDestination = AppDestinations.DownloadPage
+                                    },
+                                    modifier = Modifier
+                                        .padding(5.dp)
+                                        .size(32.dp)
+                                        .background(Color.Transparent),
+                                    contentPadding = PaddingValues(0.dp),
+                                    shape = CircleShape
+
+                                )
+                                {
+
+                                    Icon(
+                                        imageVector = Icons.Default.ArrowBack,
+                                        "返回",
+                                        modifier = Modifier.size(32.dp)
+                                    )
+
+                                }
+                            }
+                        )
+
+                        val scrollState = rememberScrollState()
                         Column(
                             modifier = Modifier
-                                .padding(0.dp, 85.dp, 0.dp, 0.dp)
+                                .padding(0.dp, 75.dp, 0.dp, 0.dp)
                                 .fillMaxWidth().verticalScroll(scrollState)
                         )
                         {
@@ -970,8 +1160,7 @@ fun PvzLauncherAndroidApp() {
                                 onConfirm = { text ->
                                     // 这里处理你拿到的输入内容
                                     resultText = text
-                                    try
-                                    {
+                                    try {
 
 
                                         var dlc = DownloadConfig
@@ -996,38 +1185,116 @@ fun PvzLauncherAndroidApp() {
                                         )
                                             .build()
                                             .setOnProgressListener { progress ->
-                                                intProcessProgressList[intProcessList.indexOf(pid)] = ((progress.currentBytes * 100 / progress.totalBytes).toFloat())
-                                                sProcessProgressList[intProcessList.indexOf(pid)] = ((progress.currentBytes * 100 / progress.totalBytes).toString()) + "%"
+                                                intProcessProgressList[intProcessList.indexOf(pid)] =
+                                                    ((progress.currentBytes * 100 / progress.totalBytes).toFloat())
+                                                sProcessProgressList[intProcessList.indexOf(pid)] =
+                                                    ((progress.currentBytes * 100 / progress.totalBytes).toString()) + "%"
                                             }
                                             .start(object : OnDownloadListener {
                                                 override fun onDownloadComplete() {
-                                                    XW_ToastMessage("下载 ${ProcessList[intProcessList.indexOf(pid)].p_info.GameName} 完成",lc)
+                                                    XW_ToastMessage(
+                                                        "下载 ${
+                                                            ProcessList[intProcessList.indexOf(
+                                                                pid
+                                                            )].p_info.GameName
+                                                        } 完成", lc
+                                                    )
 
 
                                                     try {
-                                                        installApk(lc,File("${lc.filesDir}/${dlc.GameName}.apk"))
-                                                        var sl = ReadJson<SaveConfigList>(File("${lcc.filesDir}/${SAVECONFIGNAME}").readText())
-                                                        sl.GameIndex += SaveConfig(
-                                                            GameName =ProcessList[intProcessList.indexOf(pid)].p_info.GameName,
-                                                            PackageName = "${lc.packageManager.getPackageArchiveInfo("${lc.filesDir}/${dlc.GameName}.apk",0)?.packageName}",
-                                                            AddTime = ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")),
-                                                            PlayTime = 0,
-                                                            LaunchTimes = 0,
-                                                            headImage = ProcessList[intProcessList.indexOf(pid)].p_info.GameImage,
-                                                            gameversion = ProcessList[intProcessList.indexOf(pid)].p_info.GameLink[DownloadCount].VersionVer
+                                                        installApk(
+                                                            lc,
+                                                            File("${lc.filesDir}/${dlc.GameName}.apk"),
+                                                            {
 
+                                                                var sl =
+                                                                    ReadJson<SaveConfigList>(File("${lcc.filesDir}/${SAVECONFIGNAME}").readText())
+                                                                sl.GameIndex += SaveConfig(
+                                                                    GameName = ProcessList[intProcessList.indexOf(
+                                                                        pid
+                                                                    )].p_info.GameName,
+                                                                    PackageName = "${
+                                                                        lc.packageManager.getPackageArchiveInfo(
+                                                                            "${lc.filesDir}/${dlc.GameName}.apk",
+                                                                            0
+                                                                        )?.packageName
+                                                                    }",
+                                                                    AddTime = ZonedDateTime.now(
+                                                                        ZoneId.systemDefault()
+                                                                    ).format(
+                                                                        DateTimeFormatter.ofPattern(
+                                                                            "yyyy/MM/dd HH:mm"
+                                                                        )
+                                                                    ),
+                                                                    PlayTime = 0,
+                                                                    LaunchTimes = 0,
+                                                                    headImage = ProcessList[intProcessList.indexOf(
+                                                                        pid
+                                                                    )].p_info.GameImage,
+                                                                    gameversion = ProcessList[intProcessList.indexOf(
+                                                                        pid
+                                                                    )].p_info.GameLink[DownloadCount].VersionVer
+
+                                                                )
+                                                                WriteJson<SaveConfigList>(
+                                                                    SAVECONFIGNAME,
+                                                                    sl,
+                                                                    lcc
+                                                                )
+                                                                intProcessProgressList.removeAt(
+                                                                    index = intProcessList.indexOf(
+                                                                        pid
+                                                                    )
+                                                                )
+                                                                sProcessProgressList.removeAt(
+                                                                    intProcessList.indexOf(pid)
+                                                                )
+                                                                ProcessList.removeAt(
+                                                                    index = intProcessList.indexOf(
+                                                                        pid
+                                                                    )
+                                                                )
+                                                                intProcessList.remove(pid)
+
+                                                            },
+                                                            {
+                                                                intProcessProgressList.removeAt(
+                                                                    index = intProcessList.indexOf(
+                                                                        pid
+                                                                    )
+                                                                )
+                                                                sProcessProgressList.removeAt(
+                                                                    intProcessList.indexOf(pid)
+                                                                )
+                                                                ProcessList.removeAt(
+                                                                    index = intProcessList.indexOf(
+                                                                        pid
+                                                                    )
+                                                                )
+                                                                intProcessList.remove(pid)
+                                                            })
+
+
+                                                    } catch (e: Exception) {
+                                                        XW_ToastMessage("安装失败：${e.message}", lc)
+                                                        intProcessProgressList.removeAt(
+                                                            index = intProcessList.indexOf(
+                                                                pid
+                                                            )
                                                         )
-                                                        WriteJson<SaveConfigList>(SAVECONFIGNAME,sl,lcc)
+                                                        sProcessProgressList.removeAt(
+                                                            intProcessList.indexOf(
+                                                                pid
+                                                            )
+                                                        )
+                                                        ProcessList.removeAt(
+                                                            index = intProcessList.indexOf(
+                                                                pid
+                                                            )
+                                                        )
+                                                        intProcessList.remove(pid)
+                                                    }
 
-                                                    }
-                                                    catch (e : Exception)
-                                                    {
-                                                        XW_ToastMessage("安装失败：${e.message}",lc)
-                                                    }
-                                                    intProcessProgressList.removeAt(index = intProcessList.indexOf(pid))
-                                                    sProcessProgressList.removeAt(intProcessList.indexOf(pid))
-                                                    ProcessList.removeAt(index = intProcessList.indexOf(pid))
-                                                    intProcessList.remove(pid)
 
 //
 
@@ -1035,7 +1302,10 @@ fun PvzLauncherAndroidApp() {
 
                                                 override fun onError(error: Error?) {
                                                     // 下载失败
-                                                    XW_ToastMessage("下载出错: ${error?.serverErrorMessage}",lc)
+                                                    XW_ToastMessage(
+                                                        "下载出错: ${error?.serverErrorMessage}",
+                                                        lc
+                                                    )
                                                 }
 
 
@@ -1046,11 +1316,9 @@ fun PvzLauncherAndroidApp() {
 
 
                                         ProcessList[ProcessList.count() - 1].p_id = pid
-                                        intProcessList[ProcessList.count() -1] = pid
-                                    }
-                                    catch(e : Exception)
-                                    {
-                                        XW_ToastMessage("${e.message}",lc)
+                                        intProcessList[ProcessList.count() - 1] = pid
+                                    } catch (e: Exception) {
+                                        XW_ToastMessage("${e.message}", lc)
                                     }
                                     XW_ToastMessage("成功创建下载任务", lc)
                                 }
@@ -1060,13 +1328,13 @@ fun PvzLauncherAndroidApp() {
                                 XW_GameInformationCard(DownloadConfig, {
                                     isDialogVisible = true
 
-                                }, true, Icons.Default.Download,true)
+                                }, true, Icons.Default.Download, true)
                             }
                             Text(
                                 "简介",
                                 fontSize = 22.sp,
                                 fontWeight = Bold,
-                                modifier = Modifier.padding(10.dp, 5.dp)
+                                modifier = Modifier.padding(10.dp, 2.dp)
                             )
                             Text(
                                 DownloadConfig.GameDescription,
@@ -1098,261 +1366,396 @@ fun PvzLauncherAndroidApp() {
 
                         }
 
-                }
-                AppDestinations.TaskPage ->
-                {
-                    TopAppBar(
-                        title = {
-                            Text(
-                                "任务",
-                                fontWeight = Bold,
-                                modifier = Modifier.padding(5.dp),
-                                fontSize = 28.sp
-                            )
-                        },
-                        navigationIcon = {
-                            Button(onClick = {
-                                currentDestination = AppDestinations.DownloadPage
-                            }, modifier = Modifier
-                                .padding(5.dp)
-                                .size(48.dp)
-                                .background(Color.Transparent),contentPadding = PaddingValues(0.dp),
-                                shape = CircleShape
+                    }
 
-                            )
-                            {
-
-                                Icon(imageVector = Icons.Default.ArrowBack,"返回", modifier = Modifier.size(32.dp))
-
-                            }
-                        }
-                    )
-                    var lc = LocalContext.current
-                    val scrollState = rememberScrollState()
-                    Column(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp, 90.dp, 10.dp, 10.dp).verticalScroll(scrollState), horizontalAlignment = Alignment.CenterHorizontally)
-                    {
-                        ProcessList.forEach {
-                            procfg ->
-                            Card(modifier = Modifier
-                                .padding(5.dp)
-                                .fillMaxWidth())
-                            {
-                                Box(modifier = Modifier
-                                    .padding(5.dp)
-                                    .fillMaxWidth())
-                                {
-                                    val scope = rememberCoroutineScope()
-                                    Button(onClick = {
-                                        //PRDownloader.cancel(downloadId = Procfg.p_id)
-
-
-                                        PRDownloader.cancel(procfg.p_id)
-                                        scope.launch {
-                                            delay(100) // 💡 异步等待 0.5 秒
-                                            intProcessProgressList.removeAt(index = intProcessList.indexOf(procfg.p_id))
-                                            sProcessProgressList.removeAt(intProcessList.indexOf(procfg.p_id))
-                                            ProcessList.removeAt(index = intProcessList.indexOf(procfg.p_id))
-                                            intProcessList.remove(procfg.p_id)
-                                        }
-
-
-
-
-                                    }, modifier = Modifier
+                    AppDestinations.TaskPage -> {
+                        TopAppBar(
+                            title = {
+                                Text(
+                                    "任务",
+                                    fontWeight = Bold,
+                                    modifier = Modifier.padding(5.dp),
+                                    fontSize = 24.sp
+                                )
+                            },
+                            navigationIcon = {
+                                TextButton(
+                                    onClick = {
+                                        currentDestination = AppDestinations.DownloadPage
+                                    },
+                                    modifier = Modifier
                                         .padding(5.dp)
-                                        .align(Alignment.CenterEnd)
-                                        .size(48.dp),contentPadding = PaddingValues(0.dp),
-                                        shape = CircleShape
+                                        .size(32.dp)
+                                        .background(Color.Transparent),
+                                    contentPadding = PaddingValues(0.dp),
+                                    shape = CircleShape
+
+                                )
+                                {
+
+                                    Icon(
+                                        imageVector = Icons.Default.ArrowBack,
+                                        "返回",
+                                        modifier = Modifier.size(32.dp)
                                     )
-
-                                    {
-
-                                        Icon(imageVector = Icons.Default.Delete,"检测更新", modifier = Modifier.size(32.dp))
-
-                                    }
-
-
-                                    Column(modifier = Modifier
-                                        .align(Alignment.Center)
-                                        .fillMaxWidth())
-                                    {
-
-                                        Row(verticalAlignment = Alignment.CenterVertically,modifier = Modifier
-                                            .padding(5.dp)
-                                            .fillMaxWidth())
-                                        {
-                                            AsyncImage(model = procfg.p_info.GameImage,"",modifier = Modifier
-                                                .padding(5.dp)
-                                                .size(32.dp))
-                                            Column(Modifier.padding(2.dp))
-                                            {
-                                                Text("下载 ${procfg.p_info.GameName}", fontSize = 22.sp,modifier = Modifier.padding(2.dp), fontWeight = FontWeight.Bold)
-                                                Text("pid:${procfg.p_id}",fontSize = 14.sp,modifier = Modifier.padding(2.dp))
-                                            }
-                                        }
-                                        Column (modifier = Modifier
-                                            .padding(5.dp)
-                                            .fillMaxWidth())
-                                        {
-                                            Row(Modifier.fillMaxWidth()) {
-                                                Text("下载中……")
-                                                Text(sProcessProgressList[intProcessList.indexOf(procfg.p_id)])
-                                            }
-                                            LinearProgressIndicator(intProcessProgressList[intProcessList.indexOf(procfg.p_id)] / 100,Modifier.fillMaxWidth())
-
-                                        }
-                                    }
-
 
                                 }
                             }
-
-                        }
-
-
-
-
-                    }
-                }
-                AppDestinations.MDReaderPage ->
-                {
-                    TopAppBar(
-                        title = {
-                            Text(
-                                text = MDR_FileName,
-                                fontWeight = Bold,
-                                modifier = Modifier.padding(5.dp),
-                                fontSize = 28.sp
-                            )
-                        },
-                        navigationIcon = {
-                            Button(onClick = {
-                                currentDestination = AppDestinations.AboutPage
-                            }, modifier = Modifier
-                                .padding(5.dp)
-                                .size(48.dp)
-                                .background(Color.Transparent),contentPadding = PaddingValues(0.dp),
-                                shape = CircleShape
-
-                            )
-                            {
-
-                                Icon(imageVector = Icons.Default.ArrowBack,"返回", modifier = Modifier.size(32.dp))
-
-                            }
-                        }
-                    )
-                    MarkdownText(MDR_MDContent.trimIndent(),modifier = Modifier
-                        .padding(10.dp, 90.dp, 10.dp, 10.dp)
-                        .fillMaxSize())
-                }
-
-                AppDestinations.ImportPage -> {
-                    var lc = LocalContext.current
-                    TopAppBar(
-                        title = {
-                            Text(
-                                "导入",
-                                fontWeight = Bold,
-                                modifier = Modifier.padding(5.dp),
-                                fontSize = 28.sp
-                            )
-                        },
-                        navigationIcon = {
-                            Button(onClick = {
-                                currentDestination = AppDestinations.ManagePage
-                            }, modifier = Modifier
-                                .padding(5.dp)
-                                .size(48.dp)
-                                ,contentPadding = PaddingValues(0.dp),
-                                shape = CircleShape
-
-                            )
-                            {
-
-                                Icon(imageVector = Icons.Default.ArrowBack,"返回", modifier = Modifier.size(32.dp))
-
-                            }
-                        }
-                    )
-                    val scrollState = rememberScrollState()
-                    Column(Modifier
-                        .padding(10.dp, 90.dp, 10.dp, 10.dp)
-                        .fillMaxSize().verticalScroll(scrollState))
-                    {
-                        var gameindex = emptyList<android.content.pm.PackageInfo>().toMutableStateList()
-                       try{
-                          gameindex = lc.packageManager.getInstalledPackages(0).toMutableStateList()
-
-
-                       }
-                       catch(e:Exception)
-                       {
-                           XW_ToastMessage("无法获取到游戏索引,${e.message}",lc)
-                       }
-
-
-                        gameindex.forEach { i ->
-
-                                if((lc.packageManager.getApplicationInfo(i.packageName,0).flags and ApplicationInfo.FLAG_SYSTEM) == 0)
+                        )
+                        var lc = LocalContext.current
+                        val scrollState = rememberScrollState()
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(10.dp, 75.dp, 10.dp, 10.dp).verticalScroll(scrollState),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        )
+                        {
+                            ProcessList.forEach { procfg ->
+                                OutlinedCard(
+                                    modifier = Modifier
+                                        .padding(5.dp)
+                                        .fillMaxWidth()
+                                )
                                 {
-                                    var tempname = lc.packageManager.getApplicationLabel(lc.packageManager.getApplicationInfo(i.packageName,0)).toString()
-                                    if(isAppInstalled(lc,i.packageName) && ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex.none {it.PackageName == i.packageName})
+                                    Box(
+                                        modifier = Modifier
+                                            .padding(5.dp)
+                                            .fillMaxWidth()
+                                    )
                                     {
-                                        Card(Modifier
-                                            .padding(2.dp)
-                                            .fillMaxWidth())
-                                        {
-                                            Box(Modifier
+                                        val scope = rememberCoroutineScope()
+                                        TextButton(
+                                            onClick = {
+                                                //PRDownloader.cancel(downloadId = Procfg.p_id)
+
+
+                                                PRDownloader.cancel(procfg.p_id)
+                                                scope.launch {
+                                                    delay(100)
+                                                    intProcessProgressList.removeAt(
+                                                        index = intProcessList.indexOf(
+                                                            procfg.p_id
+                                                        )
+                                                    )
+                                                    sProcessProgressList.removeAt(
+                                                        intProcessList.indexOf(
+                                                            procfg.p_id
+                                                        )
+                                                    )
+                                                    ProcessList.removeAt(
+                                                        index = intProcessList.indexOf(
+                                                            procfg.p_id
+                                                        )
+                                                    )
+                                                    intProcessList.remove(procfg.p_id)
+                                                }
+
+
+                                            }, modifier = Modifier
                                                 .padding(5.dp)
-                                                .fillMaxWidth())
+                                                .align(Alignment.CenterEnd)
+                                                .size(48.dp), contentPadding = PaddingValues(0.dp),
+                                            shape = CircleShape
+                                        )
+
+                                        {
+
+                                            Icon(
+                                                imageVector = Icons.Default.Delete,
+                                                "检测更新",
+                                                modifier = Modifier.size(32.dp)
+                                            )
+
+                                        }
+
+
+                                        Column(
+                                            modifier = Modifier
+                                                .align(Alignment.Center)
+                                                .fillMaxWidth()
+                                        )
+                                        {
+
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically,
+                                                modifier = Modifier
+                                                    .padding(5.dp)
+                                                    .fillMaxWidth()
+                                            )
                                             {
-                                                Column(Modifier.align(Alignment.CenterStart).padding(10.dp,10.dp,64.dp,10.dp))
+                                                AsyncImage(
+                                                    model = procfg.p_info.GameImage,
+                                                    "",
+                                                    modifier = Modifier
+                                                        .padding(5.dp)
+                                                        .size(32.dp)
+                                                )
+                                                Column(Modifier.padding(2.dp))
+                                                {
+                                                    Text(
+                                                        "下载 ${procfg.p_info.GameName}",
+                                                        fontSize = 22.sp,
+                                                        modifier = Modifier.padding(2.dp),
+                                                        fontWeight = FontWeight.Bold
+                                                    )
+                                                    Text(
+                                                        "pid:${procfg.p_id}",
+                                                        fontSize = 14.sp,
+                                                        modifier = Modifier.padding(2.dp)
+                                                    )
+                                                }
+                                            }
+                                            Column(
+                                                modifier = Modifier
+                                                    .padding(5.dp)
+                                                    .fillMaxWidth()
+                                            )
+                                            {
+                                                Row(Modifier.fillMaxWidth()) {
+                                                    Text("下载中……")
+                                                    Text(
+                                                        sProcessProgressList[intProcessList.indexOf(
+                                                            procfg.p_id
+                                                        )]
+                                                    )
+                                                }
+                                                LinearProgressIndicator(
+                                                    intProcessProgressList[intProcessList.indexOf(
+                                                        procfg.p_id
+                                                    )] / 100, Modifier.fillMaxWidth()
+                                                )
+
+                                            }
+                                        }
+
+
+                                    }
+                                }
+
+                            }
+
+
+                        }
+                    }
+
+                    AppDestinations.MDReaderPage -> {
+                        TopAppBar(
+                            title = {
+                                Text(
+                                    text = MDR_FileName,
+                                    fontWeight = Bold,
+                                    modifier = Modifier.padding(5.dp),
+                                    fontSize = 24.sp
+                                )
+                            },
+                            navigationIcon = {
+                                TextButton(
+                                    onClick = {
+                                        currentDestination = AppDestinations.AboutPage
+                                    },
+                                    modifier = Modifier
+                                        .padding(5.dp)
+                                        .size(32.dp)
+                                        .background(Color.Transparent),
+                                    contentPadding = PaddingValues(0.dp),
+                                    shape = CircleShape
+
+                                )
+                                {
+
+                                    Icon(
+                                        imageVector = Icons.Default.ArrowBack,
+                                        "返回",
+                                        modifier = Modifier.size(32.dp)
+                                    )
+
+                                }
+                            }
+                        )
+                        MarkdownText(
+                            MDR_MDContent.trimIndent(), modifier = Modifier
+                                .padding(10.dp, 90.dp, 10.dp, 10.dp)
+                                .fillMaxSize()
+                        )
+                    }
+
+                    AppDestinations.ImportPage -> {
+                        var lc = LocalContext.current
+                        TopAppBar(
+                            title = {
+                                Text(
+                                    "导入",
+                                    fontWeight = Bold,
+                                    modifier = Modifier.padding(5.dp),
+                                    fontSize = 24.sp
+                                )
+                            },
+                            navigationIcon = {
+                                TextButton(
+                                    onClick = {
+                                        currentDestination = AppDestinations.ManagePage
+                                    }, modifier = Modifier
+                                        .padding(5.dp)
+                                        .size(32.dp), contentPadding = PaddingValues(0.dp),
+                                    shape = CircleShape
+
+                                )
+                                {
+
+                                    Icon(
+                                        imageVector = Icons.Default.ArrowBack,
+                                        "返回",
+                                        modifier = Modifier.size(32.dp)
+                                    )
+
+                                }
+                            }
+                        )
+                        val scrollState = rememberScrollState()
+                        Column(
+                            Modifier
+                                .padding(10.dp, 90.dp, 10.dp, 10.dp)
+                                .fillMaxSize().verticalScroll(scrollState)
+                        )
+                        {
+                            var gameindex =
+                                emptyList<android.content.pm.PackageInfo>().toMutableStateList()
+                            try {
+                                gameindex =
+                                    lc.packageManager.getInstalledPackages(0).toMutableStateList()
+
+
+                            } catch (e: Exception) {
+                                XW_ToastMessage("无法获取到游戏索引,${e.message}", lc)
+                            }
+
+
+                            gameindex.forEach { i ->
+
+                                if ((lc.packageManager.getApplicationInfo(
+                                        i.packageName,
+                                        0
+                                    ).flags and ApplicationInfo.FLAG_SYSTEM) == 0
+                                ) {
+                                    var tempname = lc.packageManager.getApplicationLabel(
+                                        lc.packageManager.getApplicationInfo(
+                                            i.packageName,
+                                            0
+                                        )
+                                    ).toString()
+                                    if (isAppInstalled(
+                                            lc,
+                                            i.packageName
+                                        ) && ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex.none { it.PackageName == i.packageName }
+                                    ) {
+                                        OutlinedCard(
+                                            Modifier
+                                                .padding(2.dp)
+                                                .fillMaxWidth()
+                                        )
+                                        {
+                                            Box(
+                                                Modifier
+                                                    .padding(5.dp)
+                                                    .fillMaxWidth()
+                                            )
+                                            {
+                                                Column(
+                                                    Modifier.align(Alignment.CenterStart)
+                                                        .padding(10.dp, 10.dp, 64.dp, 10.dp)
+                                                )
                                                 {
                                                     Row(verticalAlignment = Alignment.CenterVertically)
                                                     {
-                                                        AsyncImage(model = lc.packageManager.getApplicationIcon(i.packageName),"", modifier = Modifier.padding(10.dp,5.dp).size(48.dp),placeholder = painterResource(
-                                                            R.drawable.ic_unknown), error = painterResource(R.drawable.ic_unknown),onError = { state -> XW_ToastMessage("获取头图时发生错误：${state.result.throwable.message}",lc)})
+                                                        AsyncImage(
+                                                            model = lc.packageManager.getApplicationIcon(
+                                                                i.packageName
+                                                            ),
+                                                            "",
+                                                            modifier = Modifier.padding(10.dp, 5.dp)
+                                                                .size(48.dp),
+                                                            placeholder = painterResource(
+                                                                R.drawable.ic_unknown
+                                                            ),
+                                                            error = painterResource(R.drawable.ic_unknown),
+                                                            onError = { state ->
+                                                                XW_ToastMessage(
+                                                                    "获取头图时发生错误：${state.result.throwable.message}",
+                                                                    lc
+                                                                )
+                                                            })
 
 
                                                         Column(Modifier.padding(2.dp))
                                                         {
-                                                            Text(lc.packageManager.getApplicationLabel(lc.packageManager.getApplicationInfo(i.packageName,0)).toString(), fontWeight = Bold)
+                                                            Text(
+                                                                lc.packageManager.getApplicationLabel(
+                                                                    lc.packageManager.getApplicationInfo(
+                                                                        i.packageName,
+                                                                        0
+                                                                    )
+                                                                ).toString(), fontWeight = Bold
+                                                            )
 
                                                         }
                                                     }
-                                                    OutlinedTextField(label = { Text("请输入导入后的游戏名") }, onValueChange = { t-> tempname = t },value = lc.packageManager.getApplicationLabel(lc.packageManager.getApplicationInfo(i.packageName,0)).toString())
+                                                    OutlinedTextField(
+                                                        label = { Text("请输入导入后的游戏名") },
+                                                        onValueChange = { t -> tempname = t },
+                                                        value = lc.packageManager.getApplicationLabel(
+                                                            lc.packageManager.getApplicationInfo(
+                                                                i.packageName,
+                                                                0
+                                                            )
+                                                        ).toString()
+                                                    )
                                                 }
 
-                                                Button(onClick = {
-                                                    var aaa=ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
-                                                    aaa.GameIndex += SaveConfig(
-                                                        GameName =tempname ,
-                                                        PackageName = i.packageName,
-                                                        AddTime = ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")),
-                                                        PlayTime = 0,
-                                                        LaunchTimes = 0,
-                                                        headImage = "https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameAssets/Import.png",
-                                                        gameversion = GetApkInfo(i.packageName,lcc).versionName ?: "1.0.0")
-                                                    WriteJson<SaveConfigList>(SAVECONFIGNAME,aaa,lc)
-                                                    gameindex.remove(i)
-                                                    XW_ToastMessage("导入成功",lc)
+                                                TextButton(
+                                                    onClick = {
+                                                        var aaa =
+                                                            ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
+                                                        aaa.GameIndex += SaveConfig(
+                                                            GameName = tempname,
+                                                            PackageName = i.packageName,
+                                                            AddTime = ZonedDateTime.now(ZoneId.systemDefault())
+                                                                .format(
+                                                                    DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")
+                                                                ),
+                                                            PlayTime = 0,
+                                                            LaunchTimes = 0,
+                                                            headImage = "https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameAssets/Import.png",
+                                                            gameversion = GetApkInfo(
+                                                                i.packageName,
+                                                                lcc
+                                                            ).versionName ?: "1.0.0"
+                                                        )
+                                                        WriteJson<SaveConfigList>(
+                                                            SAVECONFIGNAME,
+                                                            aaa,
+                                                            lc
+                                                        )
+                                                        gameindex.remove(i)
+                                                        XW_ToastMessage("导入成功", lc)
 
 
-
-
-                                                }, modifier = Modifier
-                                                    .padding(5.dp)
-                                                    .align(Alignment.CenterEnd)
-                                                    .size(48.dp),contentPadding = PaddingValues(0.dp),
+                                                    },
+                                                    modifier = Modifier
+                                                        .padding(5.dp)
+                                                        .align(Alignment.CenterEnd)
+                                                        .size(48.dp),
+                                                    contentPadding = PaddingValues(0.dp),
                                                     shape = CircleShape
                                                 )
 
                                                 {
 
-                                                    Icon(imageVector = Icons.Default.ArrowRightAlt,"检测更新", modifier = Modifier.size(32.dp))
+                                                    Icon(
+                                                        imageVector = Icons.Default.ArrowForward,
+                                                        "检测更新",
+                                                        modifier = Modifier.size(32.dp)
+                                                    )
 
                                                 }
                                             }
@@ -1360,10 +1763,11 @@ fun PvzLauncherAndroidApp() {
                                     }
                                 }
 
+                            }
                         }
                     }
-                }
 
+                }
             }
 
         }

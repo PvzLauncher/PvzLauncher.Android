@@ -18,11 +18,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import com.pvzlauncher.pvzlauncher.R
 
-private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFFFFFFFF),
-    secondary = Color(0xFF0288D1),
-    tertiary = Color(0xFF01579B)
-)
+
 
 val appfontfamily = FontFamily(
     Font(resId = R.font.appfont_regular, weight = FontWeight.Normal),
@@ -35,7 +31,6 @@ val appfontfamily = FontFamily(
 
 val AppTypography = Typography()
 
-// 3. 核心：用你的字体，强行覆盖系统默认的所有字号样式
 val GlobalTypography = Typography(
     displayLarge = AppTypography.displayLarge.copy(fontFamily = appfontfamily),
     displayMedium = AppTypography.displayMedium.copy(fontFamily = appfontfamily),
@@ -58,27 +53,20 @@ val GlobalTypography = Typography(
     labelSmall = AppTypography.labelSmall.copy(fontFamily = appfontfamily)
 )
 
-private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFF29B6F6),
-    secondary = Color(0xFF0288D1),
-    tertiary = Color(0xFF01579B)
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
-)
+private val MainThemeLight = lightColorScheme(
+    primary = Color(0xFFD0BCFF),
+    secondary = Color(0xFFCCC2DC),
+    tertiary = Color(0xFFEFB8C8))
+private val MainThemeDark = darkColorScheme(
+    primary = Color(0xFF6650a4),
+    secondary = Color(0xFF625b71),
+    tertiary = Color(0xFF7D5260))
 
 @Composable
 fun PvzLauncherAndroidTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
 
     content: @Composable () -> Unit
 ) {
@@ -88,8 +76,8 @@ fun PvzLauncherAndroidTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        darkTheme -> MainThemeDark
+        else -> MainThemeLight
     }
 
     MaterialTheme(

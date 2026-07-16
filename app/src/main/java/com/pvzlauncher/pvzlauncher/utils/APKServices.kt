@@ -1,14 +1,23 @@
 package com.pvzlauncher.pvzlauncher.utils
 
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
 import android.os.Build
+import kotlin.concurrent.thread
 import android.content.Intent
+import android.content.IntentFilter
+import android.content.pm.PackageInstaller
 import android.net.Uri
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import java.io.File
+import android.os.Handler
+import android.os.Looper
+import java.io.FileInputStream
+import java.io.InputStream
 
 public fun GetApkInfo(pkg : String,context: Context) : PackageInfo
 {
@@ -42,7 +51,7 @@ fun isAppInstalled(context: Context, packageName: String): Boolean {
     }
 }
 
-fun installApk(context: Context, apkFile: File) {
+fun installApklegacy(context: Context, apkFile: File) {
     if (!apkFile.exists()) {
         Toast.makeText(context, "安装文件不存在", Toast.LENGTH_SHORT).show()
         return
@@ -63,17 +72,115 @@ fun installApk(context: Context, apkFile: File) {
     context.startActivity(intent)
 }
 
-fun uninstallApk(context: Context, packageName: String) {
-    try {
-        val intent = Intent(Intent.ACTION_DELETE).apply {
-            data = Uri.parse("package:$packageName")
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+fun installApk(
+    context: Context,
+    apkFile: File,
+    onSuccess: () -> Unit,
+    onFailed: () -> Unit
+) {
+    if (!apkFile.exists()) {
+        onFailed()
+        return
+    }
+
+    val installer = context.packageManager.packageInstaller
+    val action = "${context.packageName}.INSTALL_STATUS"
+
+    // 1. 动态接收广播
+    val statusReceiver = object : BroadcastReceiver() {
+        override fun onReceive(receiverContext: Context, intent: Intent) {
+            val status = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE)
+
+            when (status) {
+                PackageInstaller.STATUS_PENDING_USER_ACTION -> {
+                    // 拉起系统确认弹窗
+                    val confirmIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        intent.getParcelableExtra(Intent.EXTRA_INTENT, Intent::class.java)
+                    } else {
+                        @Suppress("DEPRECATION")
+                        intent.getParcelableExtra(Intent.EXTRA_INTENT)
+                    }
+                    confirmIntent?.let {
+                        it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        receiverContext.startActivity(it)
+                    }
+                }
+                PackageInstaller.STATUS_SUCCESS -> {
+                    // 1. 先安全注销广播
+                    try {
+                        receiverContext.unregisterReceiver(this)
+                    } catch (_: Exception) {}
+
+                    // 2. 回传成功（如果是安装别的App，这里会完美触发。如果是更新自己，进程即将被杀）
+                    Handler(Looper.getMainLooper()).post {
+                        onSuccess()
+                    }
+                }
+                else -> {
+                    // 失败或取消
+                    try {
+                        receiverContext.unregisterReceiver(this)
+                    } catch (_: Exception) {}
+
+                    Handler(Looper.getMainLooper()).post {
+                        onFailed()
+                    }
+                }
+            }
         }
-        context.startActivity(intent)
-    } catch (e: Exception) {
-        Toast.makeText(context, "卸载失败: ${e.message}", Toast.LENGTH_SHORT).show()
+    }
+
+    // 2. 注册广播
+    val filter = IntentFilter(action)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        context.registerReceiver(statusReceiver, filter, Context.RECEIVER_EXPORTED)
+    } else {
+        context.registerReceiver(statusReceiver, filter)
+    }
+
+    // 3. 写入 Session 并提交
+    thread {
+        try {
+            val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
+            val sessionId = installer.createSession(params)
+            val session = installer.openSession(sessionId)
+
+            session.openWrite("temp_install", 0, apkFile.length()).use { outStream ->
+                apkFile.inputStream().use { inStream ->
+                    inStream.copyTo(outStream)
+                }
+            }
+
+            val broadcastIntent = Intent(action).apply {
+                setPackage(context.packageName)
+            }
+
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                sessionId,
+                broadcastIntent,
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+                } else {
+                    PendingIntent.FLAG_UPDATE_CURRENT
+                }
+            )
+
+            session.commit(pendingIntent.intentSender)
+            session.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+
+
+            try {
+                context.unregisterReceiver(statusReceiver)
+                onFailed()
+            } catch (_: Exception) {}
+            Handler(Looper.getMainLooper()).post { onFailed() }
+        }
     }
 }
+
 
 fun launchApp(context: Context, packageName: String) {
     // 通过包名获取该应用的启动 Intent（通常是配置了 Launcher 的 Activity）
@@ -82,7 +189,6 @@ fun launchApp(context: Context, packageName: String) {
         launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(launchIntent)
     } else {
-        // 如果返回 null，说明该包名未安装，或者该应用没有配置启动界面（如纯后台服务应用）
         Toast.makeText(context, "未找到该应用或无法启动", Toast.LENGTH_SHORT).show()
     }
 }

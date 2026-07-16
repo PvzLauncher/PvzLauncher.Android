@@ -16,8 +16,8 @@ android {
         applicationId = "com.pvzlauncher.pvzlauncher"
         minSdk = 24
         targetSdk = 36
-        versionCode = 6
-        versionName = "1.0.0-RTM"
+        versionCode = 7
+        versionName = "1.0.0-Release.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -44,9 +44,11 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material3.adaptive.navigation.suite)
     implementation("com.github.amitshekhariitbhu:PRDownloader:1.0.2")
+    implementation("androidx.navigation:navigation-compose:2.9.8")
     implementation("com.jakewharton.threetenabp:threetenabp:1.4.7")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.google.android.material:material:1.12.0")
+    implementation(libs.androidx.material3)
     implementation(libs.material)
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
     implementation("com.github.jeziellago:compose-markdown:0.5.0")
