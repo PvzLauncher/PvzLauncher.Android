@@ -978,7 +978,7 @@ fun PvzLauncherAndroidApp() {
                             navigationIcon = {
                                 TextButton(
                                     onClick = {
-                                        currentDestination = AppDestinations.DownloadPage
+                                        currentDestination = AppDestinations.ManagePage
                                     },
                                     modifier = Modifier
                                         .padding(5.dp)
@@ -999,9 +999,8 @@ fun PvzLauncherAndroidApp() {
                                 }
                             }
                         )
-                        val all =
-                            ReadJson<SaveConfigList>(File("${LocalContext.current.filesDir}/${SAVECONFIGNAME}").readText())
-                        val current = all.GameIndex[ManageIndex]
+                        val all = ReadJson<SaveConfigList>(File("${LocalContext.current.filesDir}/${SAVECONFIGNAME}").readText())
+
 
 
                         val scrollState = rememberScrollState()
@@ -1020,7 +1019,7 @@ fun PvzLauncherAndroidApp() {
                             {
 
                                 XW_ManageInformationCard(
-                                    args = current,
+                                    args = all.GameIndex[ManageIndex],
                                     onBack = {
 
                                     }, IsButtonEnable = false
@@ -1054,22 +1053,27 @@ fun PvzLauncherAndroidApp() {
                                     }, Modifier.padding(2.dp)) {
                                         Text("删除游戏", color = Color.Red)
                                     }
+                                    val scope = rememberCoroutineScope()
                                     XW_InputDialog(
                                         showDialog = isDialogVisible,
-                                        title = "为防止误触，请重新输入“${current.GameName}”来确认删除",
+                                        title = "为防止误触，请重新输入“${all.GameIndex[ManageIndex].GameName}”来确认删除",
                                         placeholder = "请输入",
                                         onDismiss = { isDialogVisible = false },
                                         value = "",
                                         onConfirm = { text ->
-                                            if (text == current.GameName) {
-
-                                                var a2 = all.GameIndex.toMutableList()
-                                                a2.removeAt(ManageIndex)
-                                                all.GameIndex = a2.toList()
-                                                WriteJson(SAVECONFIGNAME, all, lc)
-
-                                                XW_ToastMessage("操作成功", lc)
+                                            if (text == all.GameIndex[ManageIndex].GameName) {
                                                 currentDestination = AppDestinations.ManagePage
+                                                scope.launch {
+                                                    delay(100)
+
+                                                    var a2 = all.GameIndex.toMutableList()
+                                                    a2.removeAt(ManageIndex)
+                                                    all.GameIndex = a2.toList()
+                                                    WriteJson(SAVECONFIGNAME, all, lc)
+                                                }
+
+
+
                                             }
                                         }
                                     )
@@ -1095,8 +1099,8 @@ fun PvzLauncherAndroidApp() {
                                 }
                                 Column()
                                 {
-                                    Text("入库时间:${current.AddTime}")
-                                    Text("启动次数:${current.LaunchTimes}")
+                                    Text("入库时间:${all.GameIndex[ManageIndex].AddTime}")
+                                    Text("启动次数:${all.GameIndex[ManageIndex].LaunchTimes}")
                                 }
                             }
                         }

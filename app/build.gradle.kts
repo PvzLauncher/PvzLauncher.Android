@@ -16,8 +16,8 @@ android {
         applicationId = "com.pvzlauncher.pvzlauncher"
         minSdk = 24
         targetSdk = 36
-        versionCode = 7
-        versionName = "1.0.0-Release.1"
+        versionCode = 8
+        versionName = "1.0.0-Release.1-Fix"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
