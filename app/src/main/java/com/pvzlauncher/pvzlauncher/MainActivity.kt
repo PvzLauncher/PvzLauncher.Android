@@ -94,6 +94,7 @@ import com.pvzlauncher.pvzlauncher.pages.ManagePage
 import com.pvzlauncher.pvzlauncher.pages.RefreshGamelist
 import com.pvzlauncher.pvzlauncher.pages.SettingPage
 import com.pvzlauncher.pvzlauncher.pages.TaskPage
+import com.pvzlauncher.pvzlauncher.pages.refreshInstalledapplist
 import com.pvzlauncher.pvzlauncher.ui.theme.XW_LightTheme
 import com.pvzlauncher.pvzlauncher.utils.CurrentDestination
 import com.pvzlauncher.pvzlauncher.utils.Downloadlist
@@ -327,6 +328,7 @@ fun InitializeAppInterface()
         .setConnectTimeout(30000)
         .build()
     PRDownloader.initialize(LocalContext.current, config)
+    refreshInstalledapplist(lc)
     if(checkinternetconnect == false)
     {
 

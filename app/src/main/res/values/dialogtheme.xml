@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="XW_DialogTheme" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+    <style name="XW_DialogTheme" parent="@style/ThemeOverlay.Material3.MaterialAlertDialog">
         <item name="colorSurface">#D9444444</item>
         <item name="elevation">0dp</item>
         <item name="colorPrimary">#63A002</item>

@@ -2,6 +2,7 @@ package com.pvzlauncher.pvzlauncher.utils
 
 import androidx.compose.runtime.mutableStateListOf
 import android.content.Context
+import android.content.pm.PackageInfo
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +18,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,21 +33,15 @@ var CurrentDestination by mutableStateOf<AppDestinations>(AppDestinations.HomePa
 const val LAUNCHERCONFIGNAME = "LauncherConfig.json"
 const val SAVECONFIGNAME = "SaveConfig.json"
 lateinit var globalContext: Context
-
-//ManageDetailPageArgs
-var ManageConfigPath : String? = null
 var ManageIndex : Int = 0
-
-//DownloadDetailPageArgs
 lateinit var DownloadConfig : GameConfig
 var DownloadCount : Int = 0
-
-//TaskPageArgs
 val ProcessList =  mutableStateListOf<ProcessConfig>()
 val intProcessList = mutableStateListOf<Int>()
 val intProcessProgressList = mutableStateListOf<Float>()
 val sProcessProgressList = mutableStateListOf<String>()
 lateinit var Downloadlist : MutableState<@Composable () -> Unit>
+var Installedappindex = mutableStateListOf<PackageInfo>()
 
 
 

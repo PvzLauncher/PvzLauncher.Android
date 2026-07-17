@@ -134,7 +134,7 @@ public fun RefreshGamelist(lc : Context)
                 {
                     Column(Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally) {
                         Text("无法获取到游戏索引",fontSize = 18.sp, fontWeight = Bold)
-                        Text("请连接网络后重新尝试", fontSize = 14.sp)
+                        Text("请稍后重试", fontSize = 14.sp)
                     }
                 }
             })

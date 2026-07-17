@@ -94,7 +94,7 @@ public fun XW_GameInformationCard(args : GameConfig,onBack: () -> Unit,Disablebu
             {
                 val cont = LocalContext.current
                 AsyncImage(model = args.GameImage,"", modifier = Modifier.padding(10.dp,5.dp).size(48.dp),placeholder = painterResource(
-                    R.drawable.ic_unknown), error = painterResource(R.drawable.ic_unknown),onError = { state -> XW_ToastMessage("获取头图时发生错误：${state.result.throwable.message}",cont)})
+                    R.drawable.ic_unknown), error = painterResource(R.drawable.ic_unknown))
                 Column()
                 {
                     Text(args.GameName,modifier = Modifier.padding(2.dp), fontWeight = FontWeight.Bold, fontSize = 18.sp)
@@ -191,7 +191,7 @@ public fun XW_ManageInformationCard(args : SaveConfig,onBack: () -> Unit, IsButt
             {
                 val cont = LocalContext.current
 
-                AsyncImage(model = args.headImage,"", modifier = Modifier.padding(10.dp,5.dp).size(48.dp),placeholder = painterResource(R.drawable.ic_unknown), error = painterResource(R.drawable.ic_unknown),onError = { state -> XW_ToastMessage("获取头图时发生错误：${state.result.throwable.message}",cont)})
+                AsyncImage(model = args.headImage,"", modifier = Modifier.padding(10.dp,5.dp).size(48.dp),placeholder = painterResource(R.drawable.ic_unknown), error = painterResource(R.drawable.ic_unknown))
 
                 Column()
                 {
@@ -364,10 +364,9 @@ fun XW_LoadingMask(context: Context, loadingText: String): Dialog {
 
 public fun XW_simpledialog(title: String,content:String,onConfirm: () -> Unit,onDismiss: () -> Unit,context : Context)
 {
-    val m3Context = ContextThemeWrapper(
-        context,
-        R.style.XW_DialogTheme
-    )
+    val m3BaseThemeRes = com.google.android.material.R.style.Theme_Material3_DayNight_NoActionBar
+    val baseContext = ContextThemeWrapper(context, m3BaseThemeRes)
+    val m3Context = ContextThemeWrapper(baseContext, R.style.XW_DialogTheme)
 
     MaterialAlertDialogBuilder(m3Context)
         .setTitle(title)

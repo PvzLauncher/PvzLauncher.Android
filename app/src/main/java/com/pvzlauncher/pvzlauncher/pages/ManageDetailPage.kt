@@ -221,4 +221,5 @@ public fun ManageDetailPage()
             }
         }
     }
+
 }
