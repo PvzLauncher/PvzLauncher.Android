@@ -16,6 +16,29 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
+val XW_LightTheme = lightColorScheme(
+    primary = Color(0xFF63A002),
+    secondary = Color(0xFF749D46),
+    tertiary = Color(0xFF69835A),
+
+)
+
+val XW_DarkTheme = darkColorScheme(
+    primary = Color(0xFF63A002),
+    secondary = Color(0xFF749D46),
+    tertiary = Color(0xFF69835A) ,
+    )
+
+val XW_Typography = Typography(
+    bodyLarge = TextStyle(
+        fontFamily = FontFamily.Default,
+        fontWeight = FontWeight.Normal,
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.5.sp,
+    )
+)
+
 @Composable
 fun PvzLauncherAndroidTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -24,25 +47,6 @@ fun PvzLauncherAndroidTheme(
 
     content: @Composable () -> Unit
 ) {
-    val XW_LightTheme = lightColorScheme(
-        primary = Color(0xFF63A002),
-        secondary = Color(0xFF749D46),
-        tertiary = Color(0xFF69835A))
-
-    val XW_DarkTheme = darkColorScheme(
-        primary = Color(0xFF63A002),
-        secondary = Color(0xFF749D46),
-        tertiary = Color(0xFF69835A))
-
-    val XW_Typography = Typography(
-        bodyLarge = TextStyle(
-            fontFamily = FontFamily.Default,
-            fontWeight = FontWeight.Normal,
-            fontSize = 16.sp,
-            lineHeight = 24.sp,
-            letterSpacing = 0.5.sp,
-        )
-    )
     val XW_ColorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current

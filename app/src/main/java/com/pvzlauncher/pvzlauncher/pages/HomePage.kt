@@ -170,7 +170,7 @@ public fun HomePage()
                 }
                 Row()
                 {
-                    Text("请先下载游戏", fontSize = 14.sp, fontWeight = Bold)
+                    Text("提示：请先下载游戏或导入游戏", fontSize = 14.sp, fontWeight = Bold)
                 }
             }
         }

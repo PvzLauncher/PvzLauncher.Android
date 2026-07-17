@@ -272,8 +272,6 @@ public fun XW_InputDialog(
             },
             text = {
                 Column {
-                    Text(text = "请在下方输入：")
-                    Spacer(modifier = Modifier.height(8.dp))
                     TextField(
                         value = inputText,
                         onValueChange = { inputText = it },
@@ -368,7 +366,7 @@ public fun XW_simpledialog(title: String,content:String,onConfirm: () -> Unit,on
 {
     val m3Context = ContextThemeWrapper(
         context,
-        com.google.android.material.R.style.Theme_Material3_DayNight_Dialog
+        R.style.XW_DialogTheme
     )
 
     MaterialAlertDialogBuilder(m3Context)
@@ -382,6 +380,7 @@ public fun XW_simpledialog(title: String,content:String,onConfirm: () -> Unit,on
         }
         .setCancelable(false)
         .show()
+
 }
 
 @Composable

@@ -38,6 +38,7 @@ import com.pvzlauncher.pvzlauncher.utils.LauncherConfig
 import com.pvzlauncher.pvzlauncher.utils.ManageIndex
 import com.pvzlauncher.pvzlauncher.utils.ReadJson
 import com.pvzlauncher.pvzlauncher.utils.SAVECONFIGNAME
+import com.pvzlauncher.pvzlauncher.utils.SaveConfig
 import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
 import com.pvzlauncher.pvzlauncher.utils.WriteJson
 import com.pvzlauncher.pvzlauncher.utils.XW_InputDialog
@@ -186,6 +187,36 @@ public fun ManageDetailPage()
                 {
                     Text("入库时间:${all.GameIndex[ManageIndex].AddTime}")
                     Text("启动次数:${all.GameIndex[ManageIndex].LaunchTimes}")
+                }
+            }
+        }
+        else
+        {
+            Row(modifier = Modifier.padding(2.dp).fillMaxWidth())
+            {
+                XW_ManageInformationCard(args = SaveConfig("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameAssets/Default.png","","","","",0,0), onBack = {}, IsButtonEnable = false)
+            }
+            Column(Modifier) {
+                Row(Modifier.fillMaxWidth())
+                {
+                    OutlinedButton(onClick = {
+                    }, Modifier.padding(2.dp)) {
+                        Text("设为活动")
+                    }
+                    OutlinedButton(onClick = {
+                    }, Modifier.padding(2.dp)) {
+                        Text("删除游戏", color = Color.Red)
+                    }
+                    OutlinedButton(onClick = {
+                    }, Modifier.padding(2.dp)) {
+                        Text("更改名称")
+                    }
+
+                }
+                Column()
+                {
+                    Text("入库时间:1970/01/01 00:00:00")
+                    Text("启动次数:0")
                 }
             }
         }

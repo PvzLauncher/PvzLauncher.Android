@@ -1,5 +1,6 @@
 package com.pvzlauncher.pvzlauncher.pages
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,12 +16,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Task
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,6 +41,7 @@ import coil3.compose.AsyncImage
 import com.pvzlauncher.pvzlauncher.AppDestinations
 import com.pvzlauncher.pvzlauncher.R
 import com.pvzlauncher.pvzlauncher.utils.CurrentDestination
+import com.pvzlauncher.pvzlauncher.utils.Downloadlist
 import com.pvzlauncher.pvzlauncher.utils.GameConfig
 import com.pvzlauncher.pvzlauncher.utils.GameListConfig
 import com.pvzlauncher.pvzlauncher.utils.GetWebSiteContent
@@ -42,10 +50,14 @@ import com.pvzlauncher.pvzlauncher.utils.ReadJson
 import com.pvzlauncher.pvzlauncher.utils.XW_GameInformationCard
 import com.pvzlauncher.pvzlauncher.utils.XW_ToastMessage
 import com.pvzlauncher.pvzlauncher.utils.XW_simpledialog
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 public fun DownloadPage()
 {
+    var isRendered by rememberSaveable{ mutableStateOf(true) }
+    val coroutineScope = rememberCoroutineScope()
     var lc = LocalContext.current
     Column(modifier = Modifier.padding(10.dp, 35.dp, 10.dp, 5.dp)) {
         Box(modifier = Modifier.fillMaxWidth())
@@ -55,27 +67,81 @@ public fun DownloadPage()
                     .padding(5.dp)
                     .align(Alignment.CenterStart), fontSize = 24.sp
             )
-            TextButton(
-                onClick = {
-                    CurrentDestination = AppDestinations.TaskPage
-                },
-                modifier = Modifier
-                    .padding(5.dp)
-                    .size(32.dp)
-                    .align(Alignment.CenterEnd),
-                contentPadding = PaddingValues(0.dp),
-                shape = CircleShape
-            )
+            Row(Modifier.align(Alignment.CenterEnd))
             {
+                TextButton(
+                    onClick = {
+                        isRendered = false
+                        RefreshGamelist(lc)
+                        isRendered = true
 
-                Icon(
-                    imageVector = Icons.Default.Task,
-                    "检测更新",
-                    modifier = Modifier.size(32.dp)
+                    },
+                    modifier = Modifier
+                        .padding(5.dp)
+                        .size(32.dp),
+                    contentPadding = PaddingValues(0.dp),
+                    shape = CircleShape
                 )
+                {
 
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        "检测更新",
+                        modifier = Modifier.size(32.dp)
+                    )
+
+                }
+                TextButton(
+                    onClick = {
+                        CurrentDestination = AppDestinations.TaskPage
+                    },
+                    modifier = Modifier
+                        .padding(5.dp)
+                        .size(32.dp),
+                    contentPadding = PaddingValues(0.dp),
+                    shape = CircleShape
+                )
+                {
+
+                    Icon(
+                        imageVector = Icons.Default.Task,
+                        "检测更新",
+                        modifier = Modifier.size(32.dp)
+                    )
+
+                }
             }
         }
+
+        if(isRendered)
+        {
+            Downloadlist.value()
+        }
+    }
+}
+
+public fun RefreshGamelist(lc : Context)
+{
+
+    try {
+        GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameIndex.json")
+    }
+    catch (e:Exception)
+    {
+        Downloadlist =
+            mutableStateOf(@Composable{
+                Box(Modifier.fillMaxSize())
+                {
+                    Column(Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text("无法获取到游戏索引",fontSize = 18.sp, fontWeight = Bold)
+                        Text("请连接网络后重新尝试", fontSize = 14.sp)
+                    }
+                }
+            })
+
+        return
+    }
+    Downloadlist =  mutableStateOf(@Composable{
         val scrollState = rememberScrollState()
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -91,7 +157,7 @@ public fun DownloadPage()
                     ReadJson<GameListConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameIndex.json")).GameIndex
 
             } catch (e: Exception) {
-                XW_ToastMessage("无法获取到游戏索引,${e.message}", lc)
+
             }
             for (i in gameindex) {
                 XW_GameInformationCard(i, {
@@ -130,7 +196,7 @@ public fun DownloadPage()
                                 Text(
                                     "更多游戏",
                                     modifier = Modifier.padding(2.dp),
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = Bold,
                                     fontSize = 18.sp
                                 )
                                 Column(modifier = Modifier.padding(2.dp))
@@ -212,5 +278,5 @@ public fun DownloadPage()
 
         }
 
-    }
+    })
 }

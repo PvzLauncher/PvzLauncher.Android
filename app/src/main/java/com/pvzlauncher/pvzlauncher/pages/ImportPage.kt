@@ -197,7 +197,7 @@ public fun ImportPage()
                                             ),
                                         PlayTime = 0,
                                         LaunchTimes = 0,
-                                        headImage = "https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameAssets/Import.png",
+                                        headImage = "https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameAssets/Default.png",
                                         gameversion = GetApkInfo(
                                             i.packageName,
                                             lc

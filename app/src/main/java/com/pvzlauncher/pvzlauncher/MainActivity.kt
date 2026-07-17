@@ -46,10 +46,41 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material3.NavigationBarDefaults
+import androidx.compose.material3.NavigationBarItemColors
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.NavigationDrawerItemDefaults
+import androidx.compose.material3.NavigationRailDefaults
+import androidx.compose.material3.NavigationRailItemDefaults
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 import com.pvzlauncher.pvzlauncher.utils.CheckUpdate
 import com.pvzlauncher.pvzlauncher.utils.globalContext
 import com.pvzlauncher.pvzlauncher.pages.AboutPage
@@ -60,12 +91,22 @@ import com.pvzlauncher.pvzlauncher.pages.ImportPage
 import com.pvzlauncher.pvzlauncher.pages.MDReaderPage
 import com.pvzlauncher.pvzlauncher.pages.ManageDetailPage
 import com.pvzlauncher.pvzlauncher.pages.ManagePage
+import com.pvzlauncher.pvzlauncher.pages.RefreshGamelist
 import com.pvzlauncher.pvzlauncher.pages.SettingPage
 import com.pvzlauncher.pvzlauncher.pages.TaskPage
+import com.pvzlauncher.pvzlauncher.ui.theme.XW_LightTheme
 import com.pvzlauncher.pvzlauncher.utils.CurrentDestination
+import com.pvzlauncher.pvzlauncher.utils.Downloadlist
+import com.pvzlauncher.pvzlauncher.utils.GameConfig
+import com.pvzlauncher.pvzlauncher.utils.GameListConfig
+import com.pvzlauncher.pvzlauncher.utils.ManageIndex
+import com.pvzlauncher.pvzlauncher.utils.OpenUrl
 import com.pvzlauncher.pvzlauncher.utils.SaveConfig
 import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
 import com.pvzlauncher.pvzlauncher.utils.WriteJson
+import com.pvzlauncher.pvzlauncher.utils.XW_GameInformationCard
+import com.pvzlauncher.pvzlauncher.utils.XW_ManageInformationCard
+import com.pvzlauncher.pvzlauncher.utils.XW_ToastMessage
 
 
 class MainActivity : ComponentActivity() {
@@ -101,6 +142,17 @@ fun PvzLauncherAndroidApp() {
             AppDestinations.TaskPage -> CurrentDestination = AppDestinations.DownloadPage
         }
     }
+    val NaviColor = NavigationSuiteDefaults.itemColors(
+        // 手机生态：底部导航栏颜色
+        navigationBarItemColors = NavigationBarItemDefaults.colors(
+            indicatorColor = Color(0x66749D46),
+            selectedIconColor = Color(0xFF63A002)
+        ),
+        navigationRailItemColors = NavigationRailItemDefaults.colors(
+            indicatorColor = Color(0x66749D46),
+            selectedIconColor = Color(0xFF63A002)
+        ),
+    )
         NavigationSuiteScaffold(
         navigationSuiteItems = {
             AppDestinations.entries.forEach {
@@ -116,26 +168,27 @@ fun PvzLauncherAndroidApp() {
                         },
                         label = { Text(it.label) },
                         selected = it == CurrentDestination,
-                        onClick = { CurrentDestination = it }
+                        onClick = { CurrentDestination = it },
+                        colors = NaviColor
                     )
 
             }
         }
     ) {
-
-
-
-
             AnimatedContent(
                 targetState = CurrentDestination,
                 modifier = Modifier
                     .fillMaxSize(),
                 transitionSpec = {
                     val enterAnim = slideIntoContainer(
+                        towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing)
+                    )
+
+                    val exitAnim = slideOutOfContainer(
                         towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                        animationSpec = tween(350)
-                    ) + fadeIn(animationSpec = tween(350))
-                    val exitAnim = ExitTransition.None
+                        animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing)
+                    )
                     enterAnim togetherWith exitAnim
                 },
                 label = "PageTransition"
@@ -277,8 +330,10 @@ fun InitializeAppInterface()
     if(checkinternetconnect == false)
     {
 
-        try{
+        try
+        {
             GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json")
+            RefreshGamelist(lc)
         }
         catch(e:Exception){
             XW_simpledialog("警告！","无法访问上游数据库，将无法进行游戏的下载与安装，是否退出程序？\r\n错误信息：${e.stackTraceToString()}",{System.exit(0)},{},lc)

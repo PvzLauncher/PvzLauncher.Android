@@ -23,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -50,8 +51,6 @@ public fun ManagePage()
                     .align(Alignment.CenterStart),
                 fontSize = 24.sp
             )
-            var isDialogVisible by remember { mutableStateOf(false) }
-            var resultText by remember { mutableStateOf("") }
 
             TextButton(
                 onClick = {
@@ -87,9 +86,7 @@ public fun ManagePage()
                     args = i,
                     onBack = {
                         ManageIndex =
-                            ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex.indexOf(
-                                i
-                            )
+                            ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex.indexOf(i)
                         CurrentDestination = AppDestinations.ManageDetailPage
                     },
                     IsButtonEnable = true,
