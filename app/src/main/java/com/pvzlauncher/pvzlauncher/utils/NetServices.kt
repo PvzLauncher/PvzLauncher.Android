@@ -3,13 +3,9 @@ package com.pvzlauncher.pvzlauncher.utils
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import com.downloader.Error
 import com.downloader.OnDownloadListener
 import com.downloader.PRDownloader
-
-import kotlinx.coroutines.runBlocking
 import java.io.File
 import java.net.URL
 
@@ -23,11 +19,8 @@ public fun OpenUrl(url : String,context : Context)
     context.startActivity(intent)
 }
 
-
 public fun GetWebSiteContent(url : String): String {
-
-        return URL(url).readText(Charsets.UTF_8)
-
+    return URL(url).readText(Charsets.UTF_8)
 }
 
 public fun CheckUpdate(lc : Context,isSilent : Boolean)

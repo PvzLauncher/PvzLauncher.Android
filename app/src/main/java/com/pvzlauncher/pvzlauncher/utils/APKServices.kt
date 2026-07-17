@@ -16,8 +16,6 @@ import androidx.core.content.FileProvider
 import java.io.File
 import android.os.Handler
 import android.os.Looper
-import java.io.FileInputStream
-import java.io.InputStream
 
 public fun GetApkInfo(pkg : String,context: Context) : PackageInfo
 {
