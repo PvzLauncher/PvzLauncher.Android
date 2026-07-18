@@ -26,7 +26,7 @@
 |![android](/docs/image/Icons/android.png) Android 7 及以上|✅支持|官方支持的操作系统，推荐 Android 8 及以上|
 |![android](/docs/image/Icons/android.png) Android 7 以下（不含Android 7）|❌不支持|系统太老，不支持新版本游戏以及部分功能|
 |![windows](/docs/image/Icons/windows.png) Windows|❌本仓库不支持|主线支持Windows: [跳转到主线仓库](https://github.com/PvzLauncher/PvzLauncher)|
-|![macos](/docs/image/Icons/macos.png) macOS / ![android](/docs/image/Icons/android.png) Android / ![ios](/docs/image/Icons/macos.png) IOS / ![web](/docs/image/Icons/web.png) Web / ![linux](/docs/image/Icons/linux.png) Linux  |❌不支持|永远也不会支持这些平台|
+|![macos](/docs/image/Icons/macos.png) macOS / ![ios](/docs/image/Icons/macos.png) IOS / ![web](/docs/image/Icons/web.png) Web / ![linux](/docs/image/Icons/linux.png) Linux  |❌不支持|永远也不会支持这些平台|
 
 植物大战僵尸原版**仅支持Windows平台** `(不包含部分跨平台改版)` ，因此启动器也**只支持Windows平台**。同时，游戏库也**不会上架**非Windows平台的游戏
 
