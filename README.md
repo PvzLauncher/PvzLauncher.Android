@@ -28,7 +28,6 @@
 |![windows](/docs/image/Icons/windows.png) Windows|❌本仓库不支持|主线支持Windows: [跳转到主线仓库](https://github.com/PvzLauncher/PvzLauncher)|
 |![macos](/docs/image/Icons/macos.png) macOS / ![ios](/docs/image/Icons/macos.png) IOS / ![web](/docs/image/Icons/web.png) Web / ![linux](/docs/image/Icons/linux.png) Linux  |❌不支持|永远也不会支持这些平台|
 
-植物大战僵尸原版**仅支持Windows平台** `(不包含部分跨平台改版)` ，因此启动器也**只支持Windows平台**。同时，游戏库也**不会上架**非Windows平台的游戏
 
 * **✅支持**: 程序可以在此平台完美运行，如出现问题会积极解决
 * **❌不支持**: 程序不可以在这些平台上运行，之后也不会支持
