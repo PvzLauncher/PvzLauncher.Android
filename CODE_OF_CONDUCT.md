@@ -2,6 +2,17 @@
 
 **开发者**：Xiaowang0229  
 **生效日期**：2026年3月1日  
+**最后更新日期**: 2026年7月19日
+
+本软件**植物大战僵尸启动器 - 安卓版**（*Plants Vs. Zombies Launcher for Android*）（以下简称“本软件”）由开发者**Xiaowang0229**独立开发并发布。本软件**完全免费且完全开源**，源代码受**GNU通用公共许可协议第3版**（ `GNU General Public License v3.0，仅限该版本，以下简称“GPLv3”` ）保护，并继承自其上游原作者 **ishuamouren**。
+
+> 本文档仅提供补充说明，不构成对 GPLv3 的任何修改或额外限制。
+
+通过下载、安装、使用或以任何方式访问本软件，即表示您已阅读、理解并同意遵守本协议及GPLv3的全部条款。如果您不同意，请立即删除本软件及其所有相关文件。
+# **植物大战僵尸启动器 - 安卓版 (Plants Vs. Zombies Launcher for Android) 最终用户许可协议**
+
+**开发者**：Xiaowang0229  
+**生效日期**：2026年3月1日  
 **最后更新日期**: 2026年7月14日
 
 本软件**植物大战僵尸启动器 - 安卓版**（*Plants Vs. Zombies Launcher for Android*）（以下简称“本软件”）由开发者**Xiaowang0229**独立开发并发布。本软件**完全免费且完全开源**，源代码受**GNU通用公共许可协议第3版**（ `GNU General Public License v3.0，仅限该版本，以下简称“GPLv3”` ）保护，并继承自其上游原作者 **ishuamouren**。
