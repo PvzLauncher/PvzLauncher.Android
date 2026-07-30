@@ -1,0 +1,13 @@
+name: 🟠 其他
+description: 不属于以上任何一种情况
+type: "其他"
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: 简要描述
+      description: 对问题进行描述
+      placeholder: |
+        输入描述内容
+    validations:
+      required: true

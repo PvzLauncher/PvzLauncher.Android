@@ -16,13 +16,13 @@
 单行:
 
 ```
-<type>(<scope>?): <subject>
+<type>: <subject>
 ```
 
 多行:
 
 ```
-<type>(<scope>?): <subject>
+<type>: <subject>
 
 <body>
 
@@ -46,7 +46,6 @@
  * `revert` - 撤销某次更改
  * `remove` - 移除某些东西
 
-`scope` - 可选，代表更改的位置或某个功能，比如更改了设置功能，那么此项应为 `settings` 此项全部字母小写，用 `-` 连接，例如 `file-reader`
 
 `subject` - 简要描述更改内容，中英不限
 
