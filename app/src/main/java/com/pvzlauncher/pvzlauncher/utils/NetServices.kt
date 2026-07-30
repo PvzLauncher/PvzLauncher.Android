@@ -8,6 +8,8 @@ import com.downloader.OnDownloadListener
 import com.downloader.PRDownloader
 import java.io.File
 import java.net.URL
+import com.pvzlauncher.pvzlauncher.controls.XW_simpledialog
+import com.pvzlauncher.pvzlauncher.controls.XW_LoadingMask
 
 
 public fun OpenUrl(url : String,context : Context)
@@ -37,7 +39,7 @@ public fun CheckUpdate(lc : Context,isSilent : Boolean)
         else
         {
             XW_simpledialog("更新可用","当前版本:${APP_VERSION}\r\n最新版本:${ConfigInline.LatestVersion}\r\n更新日志:\r\n${ConfigInline.LatestDescription}\r\n请问是否现在就要更新？",{
-                var loa = XW_LoadingMask(lc,"正在下载更新包……")
+                var loa = XW_LoadingMask(lc,"请稍候……")
                 loa.show()
                 var dprogress = 0
                 var ltscfg = ReadJson<UpdateConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json"))

@@ -18,6 +18,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Task
+import androidx.compose.material.icons.filled.Upload
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
@@ -28,7 +30,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -47,11 +48,13 @@ import com.pvzlauncher.pvzlauncher.utils.GameListConfig
 import com.pvzlauncher.pvzlauncher.utils.GetWebSiteContent
 import com.pvzlauncher.pvzlauncher.utils.OpenUrl
 import com.pvzlauncher.pvzlauncher.utils.ReadJson
-import com.pvzlauncher.pvzlauncher.utils.XW_GameInformationCard
+import com.pvzlauncher.pvzlauncher.controls.XW_GameInformationCard
 import com.pvzlauncher.pvzlauncher.utils.XW_ToastMessage
-import com.pvzlauncher.pvzlauncher.utils.XW_simpledialog
+import com.pvzlauncher.pvzlauncher.controls.XW_simpledialog
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import com.pvzlauncher.pvzlauncher.ui.theme.XW_LightTheme
 
 @Composable
 public fun DownloadPage()
@@ -59,64 +62,87 @@ public fun DownloadPage()
     var isRendered by rememberSaveable{ mutableStateOf(true) }
     val coroutineScope = rememberCoroutineScope()
     var lc = LocalContext.current
-    Column(modifier = Modifier.padding(10.dp, 35.dp, 10.dp, 5.dp)) {
-        Box(modifier = Modifier.fillMaxWidth())
-        {
-            Text(
-                "下载", fontWeight = Bold, modifier = Modifier
-                    .padding(5.dp)
-                    .align(Alignment.CenterStart), fontSize = 24.sp
-            )
-            Row(Modifier.align(Alignment.CenterEnd))
+    Box(Modifier.fillMaxSize())
+    {
+        Column(modifier = Modifier.padding(10.dp, 35.dp, 10.dp, 5.dp)) {
+            Box(modifier = Modifier.fillMaxWidth())
             {
-                TextButton(
-                    onClick = {
-                        isRendered = false
-                        RefreshGamelist(lc)
-                        isRendered = true
-
-                    },
-                    modifier = Modifier
+                Text(
+                    "下载", fontWeight = Bold, modifier = Modifier
                         .padding(5.dp)
-                        .size(32.dp),
-                    contentPadding = PaddingValues(0.dp),
-                    shape = CircleShape
+                        .align(Alignment.CenterStart), fontSize = 24.sp
                 )
+                Row(Modifier.align(Alignment.CenterEnd))
                 {
+                    TextButton(
+                        onClick = {
+                            OpenUrl("https://github.com/pvzlauncher/pvzlauncher.android/issues/new",lc)
 
-                    Icon(
-                        imageVector = Icons.Default.Refresh,
-                        "检测更新",
-                        modifier = Modifier.size(32.dp)
+                        },
+                        modifier = Modifier
+                            .padding(5.dp)
+                            .size(32.dp),
+                        contentPadding = PaddingValues(0.dp),
+                        shape = CircleShape
                     )
+                    {
 
-                }
-                TextButton(
-                    onClick = {
-                        CurrentDestination = AppDestinations.TaskPage
-                    },
-                    modifier = Modifier
-                        .padding(5.dp)
-                        .size(32.dp),
-                    contentPadding = PaddingValues(0.dp),
-                    shape = CircleShape
-                )
-                {
+                        Icon(
+                            imageVector = Icons.Default.Upload,
+                            "检测更新",
+                            modifier = Modifier.size(32.dp)
+                        )
 
-                    Icon(
-                        imageVector = Icons.Default.Task,
-                        "检测更新",
-                        modifier = Modifier.size(32.dp)
+                    }
+                    TextButton(
+                        onClick = {
+                            isRendered = false
+                            RefreshGamelist(lc)
+                            isRendered = true
+
+                        },
+                        modifier = Modifier
+                            .padding(5.dp)
+                            .size(32.dp),
+                        contentPadding = PaddingValues(0.dp),
+                        shape = CircleShape
                     )
+                    {
+
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            "检测更新",
+                            modifier = Modifier.size(32.dp)
+                        )
+
+                    }
 
                 }
             }
+
+            if (isRendered) {
+
+                    Downloadlist.value()
+
+            }
+        }
+        FloatingActionButton(
+            onClick = {
+                CurrentDestination = AppDestinations.TaskPage
+            },
+            shape = RoundedCornerShape(5.dp),
+            modifier = Modifier.align(Alignment.BottomEnd).padding(30.dp).size(48.dp), containerColor = XW_LightTheme.primary, contentColor = Color.White
+        )
+        {
+
+            Icon(
+                imageVector = Icons.Default.Task,
+                "检测更新",
+                modifier = Modifier.size(32.dp)
+            )
+
         }
 
-        if(isRendered)
-        {
-            Downloadlist.value()
-        }
     }
 }
 

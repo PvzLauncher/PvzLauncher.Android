@@ -49,8 +49,8 @@ import com.pvzlauncher.pvzlauncher.utils.SAVECONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.SaveConfig
 import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
 import com.pvzlauncher.pvzlauncher.utils.WriteJson
-import com.pvzlauncher.pvzlauncher.utils.XW_GameInformationCard
-import com.pvzlauncher.pvzlauncher.utils.XW_InputDialog
+import com.pvzlauncher.pvzlauncher.controls.XW_GameInformationCard
+import com.pvzlauncher.pvzlauncher.controls.XW_InputDialog
 import com.pvzlauncher.pvzlauncher.utils.XW_ToastMessage
 import com.pvzlauncher.pvzlauncher.utils.installApk
 import com.pvzlauncher.pvzlauncher.utils.intProcessList

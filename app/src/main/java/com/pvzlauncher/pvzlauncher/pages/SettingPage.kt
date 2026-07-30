@@ -26,7 +26,7 @@ import com.pvzlauncher.pvzlauncher.utils.LAUNCHERCONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.LauncherConfig
 import com.pvzlauncher.pvzlauncher.utils.ReadJson
 import com.pvzlauncher.pvzlauncher.utils.WriteJson
-import com.pvzlauncher.pvzlauncher.utils.XW_Switch
+import com.pvzlauncher.pvzlauncher.controls.XW_Switch
 import java.io.File
 
 @Composable

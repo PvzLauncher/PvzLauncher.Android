@@ -1,6 +1,8 @@
 package com.pvzlauncher.pvzlauncher.pages
 
 import android.content.Context
+import com.pvzlauncher.pvzlauncher.controls.XW_InputDialog
+import com.pvzlauncher.pvzlauncher.controls.XW_ManageInformationCard
 import android.content.pm.ApplicationInfo
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -57,8 +59,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import com.pvzlauncher.pvzlauncher.utils.Downloadlist
-import com.pvzlauncher.pvzlauncher.utils.XW_InputDialog
-import com.pvzlauncher.pvzlauncher.utils.XW_ManageInformationCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

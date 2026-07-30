@@ -27,6 +27,7 @@ val XW_DarkTheme = darkColorScheme(
     primary = Color(0xFF63A002),
     secondary = Color(0xFF749D46),
     tertiary = Color(0xFF69835A) ,
+
     )
 
 val XW_Typography = Typography(

@@ -34,7 +34,7 @@ import com.pvzlauncher.pvzlauncher.utils.LAUNCHERCONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.LauncherConfig
 import com.pvzlauncher.pvzlauncher.utils.ReadJson
 import com.pvzlauncher.pvzlauncher.utils.SAVECONFIGNAME
-import com.pvzlauncher.pvzlauncher.utils.XW_simpledialog
+import com.pvzlauncher.pvzlauncher.controls.XW_simpledialog
 import java.io.File
 import android.content.Intent
 import android.net.Uri
@@ -105,8 +105,8 @@ import com.pvzlauncher.pvzlauncher.utils.OpenUrl
 import com.pvzlauncher.pvzlauncher.utils.SaveConfig
 import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
 import com.pvzlauncher.pvzlauncher.utils.WriteJson
-import com.pvzlauncher.pvzlauncher.utils.XW_GameInformationCard
-import com.pvzlauncher.pvzlauncher.utils.XW_ManageInformationCard
+import com.pvzlauncher.pvzlauncher.controls.XW_GameInformationCard
+import com.pvzlauncher.pvzlauncher.controls.XW_ManageInformationCard
 import com.pvzlauncher.pvzlauncher.utils.XW_ToastMessage
 
 
@@ -183,12 +183,16 @@ fun PvzLauncherAndroidApp() {
                 transitionSpec = {
                     val enterAnim = slideIntoContainer(
                         towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                        animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing)
+                        animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
+                    ) + fadeIn(
+                        animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
                     )
 
                     val exitAnim = slideOutOfContainer(
                         towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                        animationSpec = tween(durationMillis = 400, easing = FastOutSlowInEasing)
+                        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
+                    ) + fadeOut(
+                        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
                     )
                     enterAnim togetherWith exitAnim
                 },
