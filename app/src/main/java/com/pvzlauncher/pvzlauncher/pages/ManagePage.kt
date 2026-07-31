@@ -106,7 +106,7 @@ public fun ManagePage()
                 .padding(30.dp)
                 .size(48.dp)
                 .align(Alignment.BottomEnd),
-            shape = RoundedCornerShape(10.dp), containerColor = XW_LightTheme.primary, contentColor = Color.White
+            shape = RoundedCornerShape(10.dp), containerColor = XW_LightTheme.primary
         )
         {
 

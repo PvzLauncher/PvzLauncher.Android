@@ -90,8 +90,8 @@ public fun HomePage()
                         launchApp(lc, current.PackageName)
 
 
-                    },Modifier.size(64.dp),containerColor = XW_LightTheme.primary, contentColor = Color.White)
-                    { Icon(imageVector = Icons.Default.RocketLaunch,modifier= Modifier.size(32.dp), contentDescription =  "",tint = Color.White) }
+                    },Modifier.size(64.dp),containerColor = XW_LightTheme.primary)
+                    { Icon(imageVector = Icons.Default.RocketLaunch,modifier= Modifier.size(32.dp), contentDescription =  "") }
 
 
 
@@ -128,9 +128,9 @@ public fun HomePage()
             {
 
                     FloatingActionButton(onClick = {},
-                        Modifier.size(64.dp), containerColor = Color.Gray, contentColor = Color.White
+                        Modifier.size(64.dp), containerColor = Color.Gray
                     )
-                    { Icon(imageVector = Icons.Default.RocketLaunch,modifier= Modifier.size(32.dp), contentDescription = "",tint = Color.White) }
+                    { Icon(imageVector = Icons.Default.RocketLaunch,modifier= Modifier.size(32.dp), contentDescription = "") }
 
 
 

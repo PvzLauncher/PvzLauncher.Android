@@ -192,6 +192,7 @@ public fun ManageDetailPage()
                                 a2.removeAt(ManageIndex)
                                 all.GameIndex = a2.toList()
                                 WriteJson(SAVECONFIGNAME, all, lc)
+                                isDialogVisible = false
                                 CurrentDestination = AppDestinations.ManagePage
                             }
                         )

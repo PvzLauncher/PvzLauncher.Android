@@ -94,7 +94,7 @@ fun shareConfig(context: Context) {
     val imageUri: Uri = FileProvider.getUriForFile(
         context,
         "${context.packageName}.fileprovider",
-        File("${context.filesDir}/${LAUNCHERCONFIGNAME}.json")
+        File("${context.filesDir}/${LAUNCHERCONFIGNAME}")
     )
     val sendIntent = Intent().apply {
         action = Intent.ACTION_SEND
@@ -110,7 +110,7 @@ fun shareConfig(context: Context) {
 fun JsonPickerLauncher(
     onSuccess: (File) -> Unit,
     onError: (String) -> Unit
-){
+): (String) -> Unit {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -135,12 +135,15 @@ fun JsonPickerLauncher(
             }
         }
     }
+    return { mimeType ->
+        launcher.launch(mimeType)
+    }
 }
 
 private fun createTempFileFromUri(context: Context, uri: Uri): File? {
     return try {
         val inputStream = context.contentResolver.openInputStream(uri) ?: return null
-        val tempFile = File.createTempFile("imported_json_", ".json", context.cacheDir)
+        val tempFile = File.createTempFile("imported_json_", ".json", File("${context.filesDir}/temp"))
 
         tempFile.outputStream().use { outputStream ->
             inputStream.use { input ->

@@ -4,6 +4,8 @@ import android.content.Context
 import com.pvzlauncher.pvzlauncher.controls.XW_InputDialog
 import com.pvzlauncher.pvzlauncher.controls.XW_ManageInformationCard
 import android.content.pm.ApplicationInfo
+import android.content.pm.PackageInfo
+import android.content.pm.PackageManager
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,6 +18,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Refresh
@@ -56,9 +59,17 @@ import org.threeten.bp.format.DateTimeFormatter
 import java.io.File
 import kotlin.collections.plus
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import com.pvzlauncher.pvzlauncher.utils.APKPickerLauncher
+import com.pvzlauncher.pvzlauncher.utils.DownloadCount
 import com.pvzlauncher.pvzlauncher.utils.Downloadlist
+import com.pvzlauncher.pvzlauncher.utils.ProcessList
+import com.pvzlauncher.pvzlauncher.utils.installApk
+import com.pvzlauncher.pvzlauncher.utils.intProcessList
+import com.pvzlauncher.pvzlauncher.utils.intProcessProgressList
+import com.pvzlauncher.pvzlauncher.utils.sProcessProgressList
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -158,26 +169,89 @@ public fun ImportPage()
     }
     Box(Modifier.fillMaxSize().padding(5.dp,35.dp))
     {
-        TextButton(
-            onClick = {
-                isRendered = false
-                refreshInstalledapplist(lc)
-                isRendered = true
-            },
-            modifier = Modifier
-                .padding(5.dp)
-                .size(32.dp).align(Alignment.TopEnd),
-            contentPadding = PaddingValues(0.dp),
-            shape = CircleShape
-        )
+        var isDialogVisible by remember { mutableStateOf(false) }
+        lateinit var currentapk : File
+        lateinit var cinfo : PackageInfo
+        var apptitle by rememberSaveable { mutableStateOf("") }
+
+
+
+            val al = APKPickerLauncher({ i ->
+                currentapk = i
+                try
+                {
+                    cinfo = lc.packageManager.getPackageArchiveInfo(
+                        i.absolutePath,
+                        PackageManager.GET_ACTIVITIES or
+                                PackageManager.GET_SERVICES or
+                                PackageManager.GET_RECEIVERS or
+                                PackageManager.GET_PROVIDERS or
+                                PackageManager.GET_META_DATA
+                    )!!
+                }
+                catch (e: Exception)
+                {
+                    XW_ToastMessage("安装包已损坏，无法读取！",lc)
+                }
+                CurrentDestination = AppDestinations.ImportPage
+                installApk(
+                    lc,
+                    i,
+                    {
+                        isRendered = false
+                        refreshInstalledapplist(lc)
+                        isRendered = true
+                    },{})
+
+
+
+            },{})
+
+
+
+
+        Row(modifier = Modifier.align(Alignment.TopEnd), verticalAlignment = Alignment.CenterVertically)
         {
-
-            Icon(
-                imageVector = Icons.Default.Refresh,
-                "检测更新",
-                modifier = Modifier.size(32.dp)
+            TextButton(
+                onClick = {
+                    al("application/vnd.android.package-archive")
+                },
+                modifier = Modifier
+                    .padding(5.dp)
+                    .size(32.dp),
+                contentPadding = PaddingValues(0.dp),
+                shape = CircleShape
             )
+            {
 
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    "检测更新",
+                    modifier = Modifier.size(32.dp)
+                )
+
+            }
+            TextButton(
+                onClick = {
+                    isRendered = false
+                    refreshInstalledapplist(lc)
+                    isRendered = true
+                },
+                modifier = Modifier
+                    .padding(5.dp)
+                    .size(32.dp),
+                contentPadding = PaddingValues(0.dp),
+                shape = CircleShape
+            )
+            {
+
+                Icon(
+                    imageVector = Icons.Default.Refresh,
+                    "检测更新",
+                    modifier = Modifier.size(32.dp)
+                )
+
+            }
         }
     }
 }

@@ -20,14 +20,14 @@ val XW_LightTheme = lightColorScheme(
     primary = Color(0xFF63A002),
     secondary = Color(0xFF749D46),
     tertiary = Color(0xFF69835A),
-
+    onPrimary = Color(0xFFFFFFFF)
 )
 
 val XW_DarkTheme = darkColorScheme(
     primary = Color(0xFF63A002),
     secondary = Color(0xFF749D46),
     tertiary = Color(0xFF69835A) ,
-
+    onPrimary = Color(0xFFFFFFFF)
     )
 
 val XW_Typography = Typography(

@@ -131,7 +131,7 @@ public fun DownloadPage()
                 CurrentDestination = AppDestinations.TaskPage
             },
             shape = RoundedCornerShape(5.dp),
-            modifier = Modifier.align(Alignment.BottomEnd).padding(30.dp).size(48.dp), containerColor = XW_LightTheme.primary, contentColor = Color.White
+            modifier = Modifier.align(Alignment.BottomEnd).padding(30.dp).size(48.dp), containerColor = XW_LightTheme.primary
         )
         {
 

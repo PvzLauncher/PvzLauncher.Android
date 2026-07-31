@@ -16,6 +16,12 @@ import androidx.core.content.FileProvider
 import java.io.File
 import android.os.Handler
 import android.os.Looper
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
+import kotlinx.coroutines.launch
 
 public fun GetApkInfo(pkg : String,context: Context) : PackageInfo
 {
@@ -193,12 +199,62 @@ fun installApk(
 
 
 fun launchApp(context: Context, packageName: String) {
-    // 通过包名获取该应用的启动 Intent（通常是配置了 Launcher 的 Activity）
     val launchIntent = context.packageManager.getLaunchIntentForPackage(packageName)
     if (launchIntent != null) {
         launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(launchIntent)
     } else {
         Toast.makeText(context, "未找到该应用或无法启动", Toast.LENGTH_SHORT).show()
+    }
+}
+
+@Composable
+fun APKPickerLauncher(
+    onSuccess: (File) -> Unit,
+    onError: (String) -> Unit
+): (type : String) -> Unit {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri == null) {
+            onError("取消选择")
+            return@rememberLauncherForActivityResult
+        }
+
+        scope.launch {
+            try {
+                val cacheFile = createTempFileFromUri(context, uri)
+                if (cacheFile != null && cacheFile.exists()) {
+                    onSuccess(cacheFile)
+                } else {
+                    onError("失败：文件未成功创建")
+                }
+            } catch (e: Exception) {
+                onError("处理时发生异常: ${e.localizedMessage}")
+            }
+        }
+    }
+    return { mimeType ->
+        launcher.launch(mimeType)
+    }
+}
+
+private fun createTempFileFromUri(context: Context, uri: Uri): File? {
+    return try {
+        val inputStream = context.contentResolver.openInputStream(uri) ?: return null
+        val tempFile = File.createTempFile("imported_apk_", ".apk", File("${context.filesDir}/temp"))
+
+        tempFile.outputStream().use { outputStream ->
+            inputStream.use { input ->
+                input.copyTo(outputStream)
+            }
+        }
+        tempFile
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
     }
 }

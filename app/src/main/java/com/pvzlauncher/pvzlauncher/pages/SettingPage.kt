@@ -106,7 +106,7 @@ public fun SettingPage()
                 )
                 TextButton(
                     onClick = {
-                        openJsonPicker
+                        openJsonPicker("application/json")
                     },
                     modifier = Modifier
                         .padding(5.dp)
