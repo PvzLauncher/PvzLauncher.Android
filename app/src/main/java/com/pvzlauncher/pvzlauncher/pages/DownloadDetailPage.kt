@@ -55,7 +55,10 @@ import com.pvzlauncher.pvzlauncher.utils.XW_ToastMessage
 import com.pvzlauncher.pvzlauncher.utils.installApk
 import com.pvzlauncher.pvzlauncher.utils.intProcessList
 import com.pvzlauncher.pvzlauncher.utils.intProcessProgressList
+import com.pvzlauncher.pvzlauncher.utils.intProcessSpeedList
 import com.pvzlauncher.pvzlauncher.utils.sProcessProgressList
+import com.pvzlauncher.pvzlauncher.utils.totalprogress
+import com.pvzlauncher.pvzlauncher.utils.totalspeed
 import org.threeten.bp.ZoneId
 import org.threeten.bp.ZonedDateTime
 import org.threeten.bp.format.DateTimeFormatter
@@ -135,9 +138,11 @@ public fun DownloadDetailPage()
                         )
                     ProcessList.add(cprsc)
                     intProcessList.add(pid)
+                    intProcessSpeedList.add(0.toFloat())
                     intProcessProgressList.add(0.toFloat())
                     sProcessProgressList.add("0%")
-
+                    var lastBytes = 0L
+                    var lastTime = System.currentTimeMillis()
 
 
                     pid = PRDownloader.download(
@@ -151,6 +156,36 @@ public fun DownloadDetailPage()
                                 ((progress.currentBytes * 100 / progress.totalBytes).toFloat())
                             sProcessProgressList[intProcessList.indexOf(pid)] =
                                 ((progress.currentBytes * 100 / progress.totalBytes).toString()) + "%"
+                            val now = System.currentTimeMillis()
+
+                            val diffBytes = progress.currentBytes - lastBytes
+                            val diffTime = now - lastTime
+
+                            if (diffTime > 0) {
+                                intProcessSpeedList[intProcessList.indexOf(pid)] =
+                                    "%.1f".format(
+                                        diffBytes * 1000f / diffTime / (1024f * 1024f)
+                                    ).toFloat()
+                            }
+
+                            lastBytes = progress.currentBytes
+                            lastTime = now
+
+                            var ts = 0.toFloat()
+                            for(i in 0 until intProcessSpeedList.count())
+                            {
+                                ts += intProcessSpeedList[i]
+                                totalspeed.value = ts
+                            }
+
+                            var total = 0.toFloat()
+                            var cur = 0.toFloat()
+                            for(i in 0 until intProcessList.count())
+                            {
+                                total+=(100.toFloat())
+                                cur += (intProcessProgressList[i])
+                                totalprogress.value = ((cur * 100)/total).toFloat()
+                            }
                         }
                         .start(object : OnDownloadListener {
                             override fun onDownloadComplete() {
@@ -218,6 +253,12 @@ public fun DownloadDetailPage()
                                                     pid
                                                 )
                                             )
+                                            intProcessSpeedList.removeAt(intProcessList.indexOf(
+                                                pid
+                                            ))
+                                            intProcessSpeedList.removeAt(intProcessList.indexOf(
+                                                pid
+                                            ))
                                             intProcessList.remove(pid)
 
                                         },
@@ -235,6 +276,9 @@ public fun DownloadDetailPage()
                                                     pid
                                                 )
                                             )
+                                            intProcessSpeedList.removeAt(intProcessList.indexOf(
+                                                pid
+                                            ))
                                             intProcessList.remove(pid)
                                         })
 
@@ -256,7 +300,10 @@ public fun DownloadDetailPage()
                                             pid
                                         )
                                     )
-                                    intProcessList.remove(pid)
+                                    intProcessSpeedList.removeAt(intProcessList.indexOf(
+                                                pid
+                                            ))
+                                            intProcessList.remove(pid)
                                 }
 
 
