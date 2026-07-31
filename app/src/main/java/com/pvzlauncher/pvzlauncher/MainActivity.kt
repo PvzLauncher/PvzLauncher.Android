@@ -40,6 +40,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import android.widget.ImageView
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -108,9 +109,17 @@ import com.pvzlauncher.pvzlauncher.utils.WriteJson
 import com.pvzlauncher.pvzlauncher.controls.XW_GameInformationCard
 import com.pvzlauncher.pvzlauncher.controls.XW_ManageInformationCard
 import com.pvzlauncher.pvzlauncher.utils.XW_ToastMessage
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.material3.OutlinedButton
+import com.pvzlauncher.pvzlauncher.utils.PickImageButton
+import java.io.InputStream
+import java.io.FileOutputStream
 
 
 class MainActivity : ComponentActivity() {
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         android.os.StrictMode.setThreadPolicy(android.os.StrictMode.ThreadPolicy.Builder().permitAll().build())
         super.onCreate(savedInstanceState)
@@ -121,6 +130,8 @@ class MainActivity : ComponentActivity() {
                 PvzLauncherAndroidApp()
             }
         }
+
+
     }
 }
 
@@ -144,7 +155,6 @@ fun PvzLauncherAndroidApp() {
         }
     }
     val NaviColor = NavigationSuiteDefaults.itemColors(
-        // 手机生态：底部导航栏颜色
         navigationBarItemColors = NavigationBarItemDefaults.colors(
             indicatorColor = Color(0x66749D46),
             selectedIconColor = Color(0xFF63A002)
@@ -248,6 +258,10 @@ fun InitializeAppInterface()
     var startupcheckupdate by rememberSaveable { mutableStateOf(false) }
     var requestappinstall by rememberSaveable { mutableStateOf(false) }
     var checkinternetconnect by rememberSaveable { mutableStateOf(false) }
+    val dir = File("${lc.filesDir}/temp")
+    if (!dir.exists()) {
+        dir.mkdirs()
+    }
     if(!requestappinstall)
     {
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
@@ -300,7 +314,7 @@ fun InitializeAppInterface()
                                 // 启动跳转
                                 lc.startActivity(intent)
                             },
-                            {},
+                            {requestappinstall = true},
                             lc
                         )
                     },
@@ -312,17 +326,21 @@ fun InitializeAppInterface()
             requestappinstall = true
         }
     }
-    if (!File("${LocalContext.current.filesDir}/${LAUNCHERCONFIGNAME}").exists())
-    {
-        WriteJson<LauncherConfig>(LAUNCHERCONFIGNAME, LauncherConfig(
-            UseSystemTheme = true,
-            UseDarkTheme = false,
-            UseEnglishTitle = false,
-            CurrentGameIndex = 0,
-            true
-        ), LocalContext.current
+    try{
+        ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText())
+    }
+    catch(e:Exception) {
+        WriteJson<LauncherConfig>(
+            LAUNCHERCONFIGNAME, LauncherConfig(
+                UseSystemTheme = true,
+                UseDarkTheme = false,
+                UseEnglishTitle = false,
+                CurrentGameIndex = 0,
+                true, false,false
+            ), LocalContext.current
         )
     }
+
     if (!File("${LocalContext.current.filesDir}/${SAVECONFIGNAME}").exists())
     {
         WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(emptyList<SaveConfig>()),lc)

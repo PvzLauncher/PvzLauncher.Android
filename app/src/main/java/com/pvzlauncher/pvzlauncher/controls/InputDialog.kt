@@ -16,7 +16,8 @@ import androidx.compose.ui.Modifier
 @Composable
 public fun XW_InputDialog(
     showDialog: Boolean,
-    title: String = "输入内容",
+    title: String,
+    content : String,
     placeholder: String = "请输入...",
     value : String,
     onDismiss: () -> Unit,
@@ -35,6 +36,7 @@ public fun XW_InputDialog(
             },
             text = {
                 Column {
+                    Text(content)
                     TextField(
                         value = inputText,
                         onValueChange = { inputText = it },

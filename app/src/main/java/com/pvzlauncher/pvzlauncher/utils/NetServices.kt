@@ -45,14 +45,14 @@ public fun CheckUpdate(lc : Context,isSilent : Boolean)
                 var ltscfg = ReadJson<UpdateConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json"))
                 PRDownloader.download(
                     ltscfg.LatestLink,
-                    lc.cacheDir.absolutePath,
+                    "${lc.filesDir}/temp",
                     "${ltscfg.LatestVersion}.apk"
                 )
                     .build()
                     .start(object : OnDownloadListener {
                         override fun onDownloadComplete()
                         {
-                            installApklegacy(lc,File("${lc.cacheDir.absolutePath}/${ltscfg.LatestVersion}.apk"))
+                            installApklegacy(lc,File("${lc.filesDir}/temp/${ltscfg.LatestVersion}.apk"))
                             System.exit(0)
                         }
 

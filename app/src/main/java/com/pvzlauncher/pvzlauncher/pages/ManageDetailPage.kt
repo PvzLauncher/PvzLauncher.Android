@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pvzlauncher.pvzlauncher.AppDestinations
+import com.pvzlauncher.pvzlauncher.controls.XW_CheckBoxDialog
 import com.pvzlauncher.pvzlauncher.utils.CurrentDestination
 import com.pvzlauncher.pvzlauncher.utils.LAUNCHERCONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.LauncherConfig
@@ -44,6 +45,7 @@ import com.pvzlauncher.pvzlauncher.utils.WriteJson
 import com.pvzlauncher.pvzlauncher.controls.XW_InputDialog
 import com.pvzlauncher.pvzlauncher.controls.XW_ManageInformationCard
 import com.pvzlauncher.pvzlauncher.utils.XW_ToastMessage
+import com.pvzlauncher.pvzlauncher.utils.uninstallApk
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -120,6 +122,8 @@ public fun ManageDetailPage()
 
                     var isDialogVisible2 by remember { mutableStateOf(false) }
 
+                    var isDialogVisible3 by remember { mutableStateOf(false) }
+
                     OutlinedButton(onClick = {
                         var kk =
                             ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText())
@@ -137,30 +141,21 @@ public fun ManageDetailPage()
                     }, Modifier.padding(2.dp)) {
                         Text("删除游戏", color = Color.Red)
                     }
-                    val scope = rememberCoroutineScope()
-                    XW_InputDialog(
+                    XW_CheckBoxDialog(
                         showDialog = isDialogVisible,
-                        title = "为防止误触，请重新输入“${all.GameIndex[ManageIndex].GameName}”来确认删除",
-                        placeholder = "请输入",
+                        title = "警告",
+                        content = "您一定要删除${all.GameIndex[ManageIndex].GameName}吗？这个游戏将会永久消失(真的很久！)",
+                        require = "一并卸载apk",
                         onDismiss = { isDialogVisible = false },
-                        value = "",
-                        onConfirm = { text ->
-                            if (text == all.GameIndex[ManageIndex].GameName) {
-
-
-
-
-
-                                var a2 = all.GameIndex.toMutableList()
-                                a2.removeAt(ManageIndex)
-                                all.GameIndex = a2.toList()
-                                WriteJson(SAVECONFIGNAME, all, lc)
-                                CurrentDestination = AppDestinations.ManagePage
-
-
-
-
+                        onConfirm = { i ->
+                            if (i == true) {
+                                uninstallApk(lc,all.GameIndex[ManageIndex].PackageName)
                             }
+                            var a2 = all.GameIndex.toMutableList()
+                            a2.removeAt(ManageIndex)
+                            all.GameIndex = a2.toList()
+                            WriteJson(SAVECONFIGNAME, all, lc)
+                            CurrentDestination = AppDestinations.ManagePage
                         }
                     )
                     OutlinedButton(onClick = {
@@ -170,7 +165,8 @@ public fun ManageDetailPage()
                     }
                     XW_InputDialog(
                         showDialog = isDialogVisible2,
-                        title = "请输入新名字",
+                        title = "提示",
+                        content = "请输入新名字",
                         placeholder = "请输入",
                         onDismiss = { isDialogVisible2 = false },
                         value = "",

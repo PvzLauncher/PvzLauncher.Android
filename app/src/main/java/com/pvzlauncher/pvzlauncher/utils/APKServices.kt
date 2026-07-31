@@ -30,6 +30,18 @@ public fun GetApkInfo(pkg : String,context: Context) : PackageInfo
 
 }
 
+fun uninstallApk(context: Context, packageName: String) {
+    try {
+        val intent = Intent(Intent.ACTION_DELETE).apply {
+            data = Uri.parse("package:$packageName")
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(intent)
+    } catch (e: Exception) {
+        Toast.makeText(context, "卸载失败: ${e.message}", Toast.LENGTH_SHORT).show()
+    }
+}
+
 fun isAppInstalled(context: Context, packageName: String): Boolean {
     val packageManager = context.packageManager
     return try {

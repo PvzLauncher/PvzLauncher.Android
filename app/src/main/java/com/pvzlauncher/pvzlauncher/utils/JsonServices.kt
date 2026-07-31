@@ -59,7 +59,9 @@ public data class LauncherConfig(
     var UseDarkTheme : Boolean,
     var UseEnglishTitle : Boolean,
     var CurrentGameIndex : Int,
-    var StartUpCheckUpdate : Boolean
+    var StartUpCheckUpdate : Boolean,
+    var CostumThemeColor : Boolean,
+    var CostumBackground : Boolean
 )
 
 

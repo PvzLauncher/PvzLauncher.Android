@@ -6,6 +6,8 @@ import android.content.pm.PackageInfo
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
@@ -42,6 +44,7 @@ val intProcessProgressList = mutableStateListOf<Float>()
 val sProcessProgressList = mutableStateListOf<String>()
 lateinit var Downloadlist : MutableState<@Composable () -> Unit>
 var Installedappindex = mutableStateListOf<PackageInfo>()
+lateinit var PickImageButton : MutableState<@Composable () -> Unit>
 
 
 

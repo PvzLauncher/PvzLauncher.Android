@@ -114,7 +114,8 @@ public fun DownloadDetailPage()
         var resultText by remember { mutableStateOf(DownloadConfig.GameName) }
         XW_InputDialog(
             showDialog = isDialogVisible,
-            title = "请输入游戏名",
+            title = "提示",
+            content = "请输入游戏名",
             placeholder = "${DownloadConfig.GameName}",
             onDismiss = { isDialogVisible = false },
             value = DownloadConfig.GameName + DownloadConfig.GameLink[DownloadCount].VersionName,
@@ -141,7 +142,7 @@ public fun DownloadDetailPage()
 
                     pid = PRDownloader.download(
                         dlc.GameLink[DownloadCount].VersionLink,
-                        "${lc.filesDir}",
+                        "${lc.filesDir}/temp",
                         "${dlc.GameName}.apk"
                     )
                         .build()
@@ -165,7 +166,7 @@ public fun DownloadDetailPage()
                                 try {
                                     installApk(
                                         lc,
-                                        File("${lc.filesDir}/${dlc.GameName}.apk"),
+                                        File("${lc.filesDir}/temp/${dlc.GameName}.apk"),
                                         {
 
                                             var sl =
@@ -176,7 +177,7 @@ public fun DownloadDetailPage()
                                                 )].p_info.GameName,
                                                 PackageName = "${
                                                     lc.packageManager.getPackageArchiveInfo(
-                                                        "${lc.filesDir}/${dlc.GameName}.apk",
+                                                        "${lc.filesDir}/temp/${dlc.GameName}.apk",
                                                         0
                                                     )?.packageName
                                                 }",

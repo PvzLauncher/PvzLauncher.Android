@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.RocketLaunch
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExtendedFloatingActionButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,8 +42,11 @@ import java.io.File
 public fun HomePage()
 {   var lc = LocalContext.current
     Box(modifier = Modifier.fillMaxSize()) {
-        AsyncImage("","",Modifier.fillMaxSize())
-        if (ReadJson<LauncherConfig>(File("${LocalContext.current.filesDir}/${LAUNCHERCONFIGNAME}").readText()).UseEnglishTitle) {
+        if(ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText()).CostumBackground)
+        {
+            AsyncImage(File("${lc.filesDir}/Background.png"),"",Modifier.fillMaxSize())
+        }
+        if (ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText()).UseEnglishTitle) {
             Image(
                 painter = painterResource(id = R.drawable.ic_apptitle_en),
                 "123",
@@ -66,13 +70,12 @@ public fun HomePage()
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(25.dp),
+                    .padding(30.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             )
             {
-                Row(verticalAlignment = Alignment.CenterVertically)
-                {
-                    ExtendedFloatingActionButton(onClick = {
+
+                    FloatingActionButton(onClick = {
 
                         val current =
                             ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex[ReadJson<LauncherConfig>(
@@ -87,25 +90,28 @@ public fun HomePage()
                         launchApp(lc, current.PackageName)
 
 
-                    }, icon = { Icon(imageVector = Icons.Default.RocketLaunch,modifier= Modifier.size(32.dp), contentDescription =  "",tint = Color.White) },
-                        text = {Text("启动游戏", fontWeight = Bold, fontSize = 18.sp,color = Color.White)}
-                    , containerColor = XW_LightTheme.primary, contentColor = Color.White)
+                    },Modifier.size(48.dp),containerColor = XW_LightTheme.primary, contentColor = Color.White)
+                    { Icon(imageVector = Icons.Default.RocketLaunch,modifier= Modifier.size(32.dp), contentDescription =  "",tint = Color.White) }
 
 
-                }
+
+
+            }
+            Column(Modifier.align(Alignment.BottomStart).padding(15.dp))
+            {
                 Row()
                 {
                     Text("当前游戏：", fontSize = 12.sp)
 
-                        val current =
-                            ReadJson<SaveConfigList>(File("${LocalContext.current.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex[ReadJson<LauncherConfig>(
-                                File("${LocalContext.current.filesDir}/${LAUNCHERCONFIGNAME}").readText()
-                            ).CurrentGameIndex]
+                    val current =
+                        ReadJson<SaveConfigList>(File("${LocalContext.current.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex[ReadJson<LauncherConfig>(
+                            File("${LocalContext.current.filesDir}/${LAUNCHERCONFIGNAME}").readText()
+                        ).CurrentGameIndex]
                     Text(
-                            "${current.GameName}",
-                            fontSize = 12.sp,
-                            fontWeight = Bold
-                        )
+                        "${current.GameName}",
+                        fontSize = 12.sp,
+                        fontWeight = Bold
+                    )
 
 
                 }
@@ -116,22 +122,22 @@ public fun HomePage()
             Column(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(25.dp),
+                    .padding(30.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             )
             {
-                Row(verticalAlignment = Alignment.CenterVertically)
-                {
-                    ExtendedFloatingActionButton(onClick = {}, icon = { Icon(imageVector = Icons.Default.RocketLaunch,modifier= Modifier.size(32.dp), contentDescription = "",tint = Color.White) },
-                        text = {Text("启动游戏", fontWeight = Bold, fontSize = 18.sp,color = Color.White)}, containerColor = Color.Gray, contentColor = Color.White
 
+                    FloatingActionButton(onClick = {},
+                        Modifier.size(48.dp), containerColor = Color.Gray, contentColor = Color.White
                     )
+                    { Icon(imageVector = Icons.Default.RocketLaunch,modifier= Modifier.size(32.dp), contentDescription = "",tint = Color.White) }
 
-                }
-                Row()
-                {
-                    Text("提示：请先下载游戏或导入游戏", fontSize = 12.sp, fontWeight = Bold)
-                }
+
+
+            }
+            Column(Modifier.align(Alignment.BottomStart).padding(15.dp))
+            {
+                Text("提示：请先下载游戏或导入游戏", fontSize = 12.sp, fontWeight = Bold)
             }
         }
     }

@@ -114,7 +114,7 @@ public fun ImportPage()
 
                         listcount += 1
                         var isdialogvisible by rememberSaveable { mutableStateOf(false) }
-                        XW_InputDialog(isdialogvisible,"请输入版本标题","","${lc.packageManager.getApplicationLabel(lc.packageManager.getApplicationInfo(i.packageName, 0)).toString()}",{isdialogvisible = false},{t ->
+                        XW_InputDialog(isdialogvisible,title = "提示","请输入版本标题","","${lc.packageManager.getApplicationLabel(lc.packageManager.getApplicationInfo(i.packageName, 0)).toString()}",{isdialogvisible = false},{t ->
                             var aaa =
                                 ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
                             aaa.GameIndex += SaveConfig(
