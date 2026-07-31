@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
@@ -20,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -36,7 +38,7 @@ import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
 import java.io.File
 
 @Composable
-public fun XW_ManageInformationCard(args : SaveConfig, onBack: () -> Unit, IsButtonEnable :  Boolean)
+public fun XW_ManageInformationCard(args : SaveConfig, onBack: () -> Unit, IsButtonEnable :  Boolean,icon : ImageVector = Icons.Default.ArrowForward)
 {
 
     return OutlinedCard(modifier = Modifier.padding(5.dp).fillMaxWidth())
@@ -90,12 +92,15 @@ public fun XW_ManageInformationCard(args : SaveConfig, onBack: () -> Unit, IsBut
                 )
                 {
 
-                    Icon(imageVector = Icons.Default.ArrowForward,"检测更新", modifier = Modifier.size(32.dp))
+                    Icon(imageVector = icon,"检测更新", modifier = Modifier.size(32.dp))
 
 
                 }
             }
-
+            if(args.like && icon != Icons.Default.Star)
+            {
+                Icon(imageVector = Icons.Default.Star,"检测更新", modifier = Modifier.size(18.dp).align(Alignment.TopEnd))
+            }
 
         }
     }

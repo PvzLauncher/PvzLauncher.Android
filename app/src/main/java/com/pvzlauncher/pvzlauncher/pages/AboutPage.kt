@@ -126,7 +126,7 @@ public fun AboutPage()
                         val cont = LocalContext.current
                         OutlinedButton(onClick = {
                             OpenUrl(
-                                "https://github.com/PvzLauncher/PvzLauncher.Android/issues/new",
+                                "https://github.com/PvzLauncher/PvzLauncher.Android/issues/new?template=bug.yml",
                                 cont
                             )
                         })

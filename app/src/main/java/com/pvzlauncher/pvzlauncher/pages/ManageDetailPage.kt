@@ -13,6 +13,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarOutline
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
@@ -24,6 +26,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,6 +49,8 @@ import com.pvzlauncher.pvzlauncher.controls.XW_InputDialog
 import com.pvzlauncher.pvzlauncher.controls.XW_ManageInformationCard
 import com.pvzlauncher.pvzlauncher.utils.XW_ToastMessage
 import com.pvzlauncher.pvzlauncher.utils.uninstallApk
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,6 +58,7 @@ import java.io.File
 public fun ManageDetailPage()
 {
     val lc = LocalContext.current
+    var isRendered by rememberSaveable{ mutableStateOf(true) }
     TopAppBar(
         title = {
             Text(
@@ -86,133 +92,165 @@ public fun ManageDetailPage()
             }
         }
     )
-
-    val scrollState = rememberScrollState()
-    Column(
-        modifier = Modifier
-            .padding(0.dp, 75.dp, 0.dp, 0.dp)
-            .fillMaxSize().verticalScroll(scrollState)
-    )
+    val scope = rememberCoroutineScope()
+    fun RefreshDetail()
     {
-        val all = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
-        if(ManageIndex < all.GameIndex.count())
+        isRendered = false
+        scope.launch {
+            isRendered = true
+        }
+    }
+    val scrollState = rememberScrollState()
+    if(isRendered)
+    {
+        Column(
+            modifier = Modifier
+                .padding(0.dp, 75.dp, 0.dp, 0.dp)
+                .fillMaxSize().verticalScroll(scrollState)
+        )
         {
-            Row(
-                modifier = Modifier
-                    .padding(2.dp)
-                    .fillMaxWidth()
-            )
+
+            val all = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
+            if(ManageIndex < all.GameIndex.count())
             {
-
-                XW_ManageInformationCard(
-                    args = all.GameIndex[ManageIndex],
-                    onBack = {
-
-                    }, IsButtonEnable = false
-                )
-            }
-            Column(Modifier) {
                 Row(
-                    Modifier
-
+                    modifier = Modifier
+                        .padding(2.dp)
                         .fillMaxWidth()
                 )
                 {
-                    var isDialogVisible by remember { mutableStateOf(false) }
 
-                    var isDialogVisible2 by remember { mutableStateOf(false) }
+                    if(all.GameIndex[ManageIndex].like == false)
+                    {
+                        XW_ManageInformationCard(
+                            args = all.GameIndex[ManageIndex],
+                            onBack = {
+                                    all.GameIndex[ManageIndex].like = true
+                                    WriteJson(SAVECONFIGNAME, all, lc)
+                                RefreshDetail()
 
-                    var isDialogVisible3 by remember { mutableStateOf(false) }
+                            }, IsButtonEnable = true,icon = Icons.Default.StarOutline
 
-                    OutlinedButton(onClick = {
-                        var kk =
-                            ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText())
-                        kk.CurrentGameIndex = ManageIndex
-                        WriteJson("${LAUNCHERCONFIGNAME}", kk, lc)
-                        XW_ToastMessage("操作成功", lc)
-                        CurrentDestination = AppDestinations.ManagePage
-                    }, Modifier.padding(2.dp)) {
-                        Text("设为活动")
+                        )
                     }
-                    OutlinedButton(onClick = {
-                        isDialogVisible = true
+                    else
+                    {
+                        XW_ManageInformationCard(
+                            args = all.GameIndex[ManageIndex],
+                            onBack = {
+                                    all.GameIndex[ManageIndex].like = false
+                                val svc = all.GameIndex[ManageIndex]
+                                val v1 = all.GameIndex.toMutableList()
+                                v1.removeAt(ManageIndex)
+                                v1.add(0,svc)
+                                val v2 = v1.toList()
+                                all.GameIndex = v2
+                                    WriteJson(SAVECONFIGNAME, all, lc)
+                                RefreshDetail()
 
-
-                    }, Modifier.padding(2.dp)) {
-                        Text("删除游戏", color = Color.Red)
+                            }, IsButtonEnable = true,icon = Icons.Default.Star
+                        )
                     }
-                    XW_CheckBoxDialog(
-                        showDialog = isDialogVisible,
-                        title = "警告",
-                        content = "您一定要删除${all.GameIndex[ManageIndex].GameName}吗？这个游戏将会永久消失(真的很久！)",
-                        require = "一并卸载apk",
-                        onDismiss = { isDialogVisible = false },
-                        onConfirm = { i ->
-                            if (i == true) {
-                                uninstallApk(lc,all.GameIndex[ManageIndex].PackageName)
-                            }
-                            var a2 = all.GameIndex.toMutableList()
-                            a2.removeAt(ManageIndex)
-                            all.GameIndex = a2.toList()
-                            WriteJson(SAVECONFIGNAME, all, lc)
-                            CurrentDestination = AppDestinations.ManagePage
-                        }
-                    )
-                    OutlinedButton(onClick = {
-                        isDialogVisible2 = true
-                    }, Modifier.padding(2.dp)) {
-                        Text("更改名称")
-                    }
-                    XW_InputDialog(
-                        showDialog = isDialogVisible2,
-                        title = "提示",
-                        content = "请输入新名字",
-                        placeholder = "请输入",
-                        onDismiss = { isDialogVisible2 = false },
-                        value = "",
-                        onConfirm = { text ->
+                }
+                Column(Modifier.padding(10.dp,5.dp,)) {
+                    Row(Modifier.fillMaxWidth())
+                    {
+                        var isDialogVisible by remember { mutableStateOf(false) }
 
-                            all.GameIndex[ManageIndex].GameName = text
-                            WriteJson(SAVECONFIGNAME, all, lc)
+                        var isDialogVisible2 by remember { mutableStateOf(false) }
 
+                        var isDialogVisible3 by remember { mutableStateOf(false) }
+
+                        OutlinedButton(onClick = {
+                            var kk =
+                                ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText())
+                            kk.CurrentGameIndex = ManageIndex
+                            WriteJson("${LAUNCHERCONFIGNAME}", kk, lc)
                             XW_ToastMessage("操作成功", lc)
                             CurrentDestination = AppDestinations.ManagePage
-                        })
-                }
-                Column()
-                {
-                    Text("入库时间:${all.GameIndex[ManageIndex].AddTime}")
-                    Text("启动次数:${all.GameIndex[ManageIndex].LaunchTimes}")
-                }
-            }
-        }
-        else
-        {
-            Row(modifier = Modifier.padding(2.dp).fillMaxWidth())
-            {
-                XW_ManageInformationCard(args = SaveConfig("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameAssets/Default.png","","","","",0,0), onBack = {}, IsButtonEnable = false)
-            }
-            Column(Modifier) {
-                Row(Modifier.fillMaxWidth())
-                {
-                    OutlinedButton(onClick = {
-                    }, Modifier.padding(2.dp)) {
-                        Text("设为活动")
-                    }
-                    OutlinedButton(onClick = {
-                    }, Modifier.padding(2.dp)) {
-                        Text("删除游戏", color = Color.Red)
-                    }
-                    OutlinedButton(onClick = {
-                    }, Modifier.padding(2.dp)) {
-                        Text("更改名称")
-                    }
+                        }, Modifier.padding(2.dp)) {
+                            Text("设为活动")
+                        }
+                        OutlinedButton(onClick = {
+                            isDialogVisible = true
 
+
+                        }, Modifier.padding(2.dp)) {
+                            Text("删除游戏", color = Color.Red)
+                        }
+                        XW_CheckBoxDialog(
+                            showDialog = isDialogVisible,
+                            title = "警告",
+                            content = "您一定要删除${all.GameIndex[ManageIndex].GameName}吗？这个游戏将会永久消失(真的很久！)",
+                            require = "一并卸载apk",
+                            onDismiss = { isDialogVisible = false },
+                            onConfirm = { i ->
+                                if (i == true) {
+                                    uninstallApk(lc,all.GameIndex[ManageIndex].PackageName)
+                                }
+                                var a2 = all.GameIndex.toMutableList()
+                                a2.removeAt(ManageIndex)
+                                all.GameIndex = a2.toList()
+                                WriteJson(SAVECONFIGNAME, all, lc)
+                                CurrentDestination = AppDestinations.ManagePage
+                            }
+                        )
+                        OutlinedButton(onClick = {
+                            isDialogVisible2 = true
+                        }, Modifier.padding(2.dp)) {
+                            Text("更改名称")
+                        }
+                        XW_InputDialog(
+                            showDialog = isDialogVisible2,
+                            title = "提示",
+                            content = "请输入新名字",
+                            placeholder = "请输入",
+                            onDismiss = { isDialogVisible2 = false },
+                            value = "",
+                            onConfirm = { text ->
+
+                                all.GameIndex[ManageIndex].GameName = text
+                                WriteJson(SAVECONFIGNAME, all, lc)
+
+                                XW_ToastMessage("操作成功", lc)
+                                CurrentDestination = AppDestinations.ManagePage
+                            })
+                    }
+                    Column()
+                    {
+                        Text("入库时间:${all.GameIndex[ManageIndex].AddTime}")
+                        Text("启动次数:${all.GameIndex[ManageIndex].LaunchTimes}")
+                    }
                 }
-                Column()
+            }
+            else
+            {
+                Row(modifier = Modifier.padding(2.dp).fillMaxWidth())
                 {
-                    Text("入库时间:1970/01/01 00:00:00")
-                    Text("启动次数:0")
+                    XW_ManageInformationCard(args = SaveConfig("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameAssets/Default.png","","","","",0,0,false), onBack = {}, IsButtonEnable = false)
+                }
+                Column(Modifier) {
+                    Row(Modifier.fillMaxWidth())
+                    {
+                        OutlinedButton(onClick = {
+                        }, Modifier.padding(2.dp)) {
+                            Text("设为活动")
+                        }
+                        OutlinedButton(onClick = {
+                        }, Modifier.padding(2.dp)) {
+                            Text("删除游戏", color = Color.Red)
+                        }
+                        OutlinedButton(onClick = {
+                        }, Modifier.padding(2.dp)) {
+                            Text("更改名称")
+                        }
+
+                    }
+                    Column()
+                    {
+                        Text("入库时间:1970/01/01 00:00:00")
+                        Text("启动次数:0")
+                    }
                 }
             }
         }

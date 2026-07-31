@@ -341,6 +341,13 @@ fun InitializeAppInterface()
         )
     }
 
+    try{
+        ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
+    }
+    catch(e:Exception) {
+        WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(emptyList<SaveConfig>()),lc)
+    }
+
     if (!File("${LocalContext.current.filesDir}/${SAVECONFIGNAME}").exists())
     {
         WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(emptyList<SaveConfig>()),lc)

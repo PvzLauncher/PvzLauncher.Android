@@ -28,7 +28,7 @@ public fun XW_Button(icon:ImageVector,title : String,desc :String,buttontext : S
     {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier.align(Alignment.CenterStart).padding(5.dp,5.dp,64.dp,5.dp)) {
             Icon(imageVector = icon,"检测更新", modifier = Modifier.size(48.dp).padding(5.dp))
-            Column(Modifier.padding(5.dp))
+            Column(Modifier.padding(5.dp,5.dp,50.dp,5.dp))
             {
                 Text(title, fontSize = 18.sp, fontWeight = FontWeight.Bold,modifier = Modifier.padding(2.dp))
                 Text(desc, fontSize = 14.sp)
@@ -37,7 +37,7 @@ public fun XW_Button(icon:ImageVector,title : String,desc :String,buttontext : S
         }
         OutlinedButton({
             OnClicked()
-        }) {
+        },modifier = modifier.align(Alignment.CenterEnd)) {
             Text(buttontext)
         }
     }

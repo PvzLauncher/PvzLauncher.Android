@@ -1,9 +1,19 @@
 package com.pvzlauncher.pvzlauncher.utils
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import androidx.core.content.FileProvider
+import kotlinx.coroutines.launch
 import java.io.File
 
 
@@ -45,6 +55,7 @@ public data class SaveConfig(
     val AddTime : String,
     var PlayTime : Long,
     var LaunchTimes : Long,
+    var like : Boolean
 
 )
 
@@ -77,4 +88,68 @@ public inline fun <reified T> WriteJson(fileName: String, data: T,context: Conte
     val writepath = context.filesDir
     val jsonString = Json.encodeToString(data)
     File("${writepath}/${fileName}").writeText(jsonString, Charsets.UTF_8)
+}
+
+fun shareConfig(context: Context) {
+    val imageUri: Uri = FileProvider.getUriForFile(
+        context,
+        "${context.packageName}.fileprovider",
+        File("${context.filesDir}/${LAUNCHERCONFIGNAME}.json")
+    )
+    val sendIntent = Intent().apply {
+        action = Intent.ACTION_SEND
+        putExtra(Intent.EXTRA_STREAM, imageUri)
+        type = "json/*"
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    }
+    val shareIntent = Intent.createChooser(sendIntent, "导出设置")
+    context.startActivity(shareIntent)
+}
+
+@Composable
+fun JsonPickerLauncher(
+    onSuccess: (File) -> Unit,
+    onError: (String) -> Unit
+){
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        if (uri == null) {
+            onError("取消选择")
+            return@rememberLauncherForActivityResult
+        }
+
+        scope.launch {
+            try {
+                val cacheFile = createTempFileFromUri(context, uri)
+                if (cacheFile != null && cacheFile.exists()) {
+                    onSuccess(cacheFile)
+                } else {
+                    onError("失败：文件未成功创建")
+                }
+            } catch (e: Exception) {
+                onError("处理时发生异常: ${e.localizedMessage}")
+            }
+        }
+    }
+}
+
+private fun createTempFileFromUri(context: Context, uri: Uri): File? {
+    return try {
+        val inputStream = context.contentResolver.openInputStream(uri) ?: return null
+        val tempFile = File.createTempFile("imported_json_", ".json", context.cacheDir)
+
+        tempFile.outputStream().use { outputStream ->
+            inputStream.use { input ->
+                input.copyTo(outputStream)
+            }
+        }
+        tempFile
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
 }

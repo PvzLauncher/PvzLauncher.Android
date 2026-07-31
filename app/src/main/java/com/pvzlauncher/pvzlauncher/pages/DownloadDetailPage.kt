@@ -195,7 +195,8 @@ public fun DownloadDetailPage()
                                                 )].p_info.GameImage,
                                                 gameversion = ProcessList[intProcessList.indexOf(
                                                     pid
-                                                )].p_info.GameLink[DownloadCount].VersionVer
+                                                )].p_info.GameLink[DownloadCount].VersionVer,
+                                                like = false
 
                                             )
                                             WriteJson<SaveConfigList>(

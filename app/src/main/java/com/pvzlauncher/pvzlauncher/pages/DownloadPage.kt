@@ -76,7 +76,7 @@ public fun DownloadPage()
                 {
                     TextButton(
                         onClick = {
-                            OpenUrl("https://github.com/pvzlauncher/pvzlauncher.android/issues/new",lc)
+                            OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/issues/new?template=download.yml",lc)
 
                         },
                         modifier = Modifier
