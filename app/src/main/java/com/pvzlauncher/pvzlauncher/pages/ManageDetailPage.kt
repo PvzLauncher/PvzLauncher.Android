@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -35,6 +36,7 @@ import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pvzlauncher.pvzlauncher.AppDestinations
+import com.pvzlauncher.pvzlauncher.controls.RadioDialog
 import com.pvzlauncher.pvzlauncher.controls.XW_CheckBoxDialog
 import com.pvzlauncher.pvzlauncher.utils.CurrentDestination
 import com.pvzlauncher.pvzlauncher.utils.LAUNCHERCONFIGNAME
@@ -48,11 +50,11 @@ import com.pvzlauncher.pvzlauncher.utils.WriteJson
 import com.pvzlauncher.pvzlauncher.controls.XW_InputDialog
 import com.pvzlauncher.pvzlauncher.controls.XW_ManageInformationCard
 import com.pvzlauncher.pvzlauncher.utils.ManagelistIndex
-import com.pvzlauncher.pvzlauncher.utils.XW_ToastMessage
+import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
 import com.pvzlauncher.pvzlauncher.utils.uninstallApk
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.io.File
+import kotlin.collections.listOf
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -160,7 +162,6 @@ public fun ManageDetailPage()
 
                         var isDialogVisible2 by remember { mutableStateOf(false) }
 
-                        var isDialogVisible3 by remember { mutableStateOf(false) }
 
                         OutlinedButton(onClick = {
                             var kk =
@@ -184,7 +185,7 @@ public fun ManageDetailPage()
                             showDialog = isDialogVisible,
                             title = "警告",
                             content = "您一定要删除${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].GameName}吗？这个游戏将会永久消失(真的很久！)",
-                            require = "一并卸载apk",
+                            require = "一并卸载对应应用",
                             onDismiss = { isDialogVisible = false },
                             onConfirm = { i ->
                                 if (i == true) {
@@ -221,6 +222,36 @@ public fun ManageDetailPage()
                     }
                     Column()
                     {
+                        Row(verticalAlignment = Alignment.CenterVertically)
+                        {
+                            var isDialogVisible by rememberSaveable { mutableStateOf(false) }
+                            val cfg = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
+                            var names = emptyList<String>().toMutableList()
+                            for(i in cfg.ListIndex)
+                            {
+                                names.add(i.listname)
+                            }
+                            RadioDialog(isDialogVisible,"提示","请选择要移入的收藏夹",names.toList(),{isDialogVisible = false},{j ->
+                                val v1 = all.ListIndex[ManagelistIndex].GameIndex[ManageIndex]
+                                val v0 = all.ListIndex[ManagelistIndex].GameIndex.toMutableList()
+                                v0.remove(v1)
+                                all.ListIndex[ManagelistIndex].GameIndex = v0.toList()
+                                WriteJson(SAVECONFIGNAME, all, lc)
+                                ManagelistIndex = j
+                                val v2 = all.ListIndex[j].GameIndex.toMutableList()
+                                v2.add(v1)
+                                all.ListIndex[j].GameIndex = v2.toList()
+                                WriteJson(SAVECONFIGNAME, all, lc)
+                                isDialogVisible = false
+                                RefreshDetail()})
+                            Text("所在收藏夹：${all.ListIndex[ManagelistIndex].listname}")
+                            TextButton(onClick = {
+                                isDialogVisible = true
+                            })
+                            {
+                                Text("修改所在收藏夹")
+                            }
+                        }
                         Text("入库时间:${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].AddTime}")
                         Text("启动次数:${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].LaunchTimes}")
                     }

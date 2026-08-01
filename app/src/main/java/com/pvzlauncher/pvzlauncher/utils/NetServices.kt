@@ -10,6 +10,7 @@ import java.io.File
 import java.net.URL
 import com.pvzlauncher.pvzlauncher.controls.XW_simpledialog
 import com.pvzlauncher.pvzlauncher.controls.XW_LoadingMask
+import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
 
 
 public fun OpenUrl(url : String,context : Context)
@@ -58,7 +59,7 @@ public fun CheckUpdate(lc : Context,isSilent : Boolean)
 
                         override fun onError(error: Error?) {
                             // 下载失败
-                            XW_ToastMessage("下载出错: ${error?.serverErrorMessage}",lc)
+                            XW_ToastMessage("下载出错: ${error?.serverErrorMessage}", lc)
                             loa.dismiss()
                         }
 
@@ -69,7 +70,7 @@ public fun CheckUpdate(lc : Context,isSilent : Boolean)
     }
     catch(e: Exception)
     {
-        XW_ToastMessage("检测更新时遇到错误：${e.message}",lc)
+        XW_ToastMessage("检测更新时遇到错误：${e.message}", lc)
     }
 }
 

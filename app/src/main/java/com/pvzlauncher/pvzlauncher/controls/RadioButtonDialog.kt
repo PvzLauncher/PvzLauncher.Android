@@ -1,10 +1,12 @@
 package com.pvzlauncher.pvzlauncher.controls
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -38,26 +40,16 @@ public fun RadioDialog(visible : Boolean,content : List<VersionConfig>,onDismiss
                     Row(Modifier.padding(2.dp), verticalAlignment = Alignment.CenterVertically)
                     {
 
-                        if(i == oncheckeditem)
-                        {
+
                             RadioButton(
-                                selected = true,
+                                selected = i == oncheckeditem,
                                 onClick = {
                                     oncheckeditem = i
                                 },
 
                                 )
 
-                        }
-                        else{
-                            RadioButton(
-                                selected = false,
-                                onClick = {
-                                    oncheckeditem = i
-                                },
 
-                                )
-                        }
                         Text(content[i].VersionName)
                         Row(Modifier.padding(2.dp)){}
                         Box(modifier = Modifier
@@ -74,6 +66,67 @@ public fun RadioDialog(visible : Boolean,content : List<VersionConfig>,onDismiss
                         {
                             Text(content[i].VersionSize,color = Color.White)
                         }
+                    }
+                }
+            } },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+
+                        onConfirm(oncheckeditem)
+                    }
+                ) {
+                    Text("确定")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        onDismiss()
+                    }
+                ) {
+                    Text("取消")
+                }
+            }
+        )
+    }
+}
+
+@Composable
+public fun RadioDialog(visible : Boolean,title : String,content : String,items : List<String>,onDismiss: () -> Unit,onConfirm: (Int) -> Unit)
+{
+    if(visible)
+    {
+        var oncheckeditem by rememberSaveable { mutableStateOf(0) }
+
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text(title, fontWeight = FontWeight.Bold) },
+            text = { val scrollState = rememberScrollState()
+                Column(Modifier.horizontalScroll(scrollState)
+                ){
+                Text(content, fontWeight = FontWeight.Bold)
+                for(i in 0 until items.count())
+                {
+                    Row(Modifier.padding(2.dp), verticalAlignment = Alignment.CenterVertically)
+                    {
+
+
+
+                            if(items[i] != "默认收藏夹")
+                            {
+                                RadioButton(
+                                    selected = i == oncheckeditem,
+                                    onClick = {
+                                        oncheckeditem = i
+                                    },
+
+                                    )
+                                Text(items[i])
+                            }
+
+
+
                     }
                 }
             } },

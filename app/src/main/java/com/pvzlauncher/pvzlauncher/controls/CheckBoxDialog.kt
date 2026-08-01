@@ -1,8 +1,11 @@
 package com.pvzlauncher.pvzlauncher.controls
 
+import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -25,7 +28,9 @@ public fun XW_CheckBoxDialog(showDialog : Boolean,title : String,content : Strin
         androidx.compose.material3.AlertDialog(
             onDismissRequest = onDismiss,
             title = { Text(title) },
-            text = { Column(
+            text = {
+                val scrollState = rememberScrollState()
+                Column(Modifier.horizontalScroll(scrollState)
             ){
                 Text(content,Modifier.padding(5.dp))
                 Row(verticalAlignment = Alignment.CenterVertically)

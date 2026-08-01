@@ -51,6 +51,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationRailItemDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
@@ -74,6 +76,7 @@ import com.pvzlauncher.pvzlauncher.utils.FavoriteListsConfig
 import com.pvzlauncher.pvzlauncher.utils.SaveConfig
 import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
 import com.pvzlauncher.pvzlauncher.utils.WriteJson
+import com.pvzlauncher.pvzlauncher.utils.snackbarHostState
 
 
 class MainActivity : ComponentActivity() {
@@ -123,12 +126,15 @@ fun PvzLauncherAndroidApp() {
             selectedIconColor = Color(0xFF63A002)
         ),
     )
+
+
+
         NavigationSuiteScaffold(
-        navigationSuiteItems = {
-            AppDestinations.entries.forEach {
-                if (it.icon == Icons.Default.QuestionMark) {
-                    return@forEach
-                }
+            navigationSuiteItems = {
+                AppDestinations.entries.forEach {
+                    if (it.icon == Icons.Default.QuestionMark) {
+                        return@forEach
+                    }
                     item(
                         icon = {
                             Icon(
@@ -142,50 +148,61 @@ fun PvzLauncherAndroidApp() {
                         colors = NaviColor
                     )
 
+                }
             }
-        }
-    ) {
-            AnimatedContent(
-                targetState = CurrentDestination,
-                modifier = Modifier
-                    .fillMaxSize(),
-                transitionSpec = {
-                    val enterAnim = slideIntoContainer(
-                        towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                        animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
-                    ) + fadeIn(
-                        animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
+        )
+        {
+            Scaffold(
+                snackbarHost = {
+                    SnackbarHost(
+                        snackbarHostState
                     )
+                }
+            )
+            {
+                p -> val a = p
+                AnimatedContent(
+                    targetState = CurrentDestination,
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    transitionSpec = {
+                        val enterAnim = slideIntoContainer(
+                            towards = AnimatedContentTransitionScope.SlideDirection.Right,
+                            animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
+                        ) + fadeIn(
+                            animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
+                        )
 
-                    val exitAnim = slideOutOfContainer(
-                        towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
-                    ) + fadeOut(
-                        animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
-                    )
-                    enterAnim togetherWith exitAnim
-                },
-                label = "PageTransition"
-            ) { targetPage ->
-                when (targetPage) {
-                    AppDestinations.HomePage -> HomePage()
-                    AppDestinations.ManagePage -> ManagePage()
-                    AppDestinations.DownloadPage -> DownloadPage()
-                    AppDestinations.SettingPage -> SettingPage()
-                    AppDestinations.AboutPage -> AboutPage()
-                    //--隐藏页面区域--
-                    AppDestinations.ManageDetailPage -> ManageDetailPage()
-                    AppDestinations.DownloadDetailPage -> DownloadDetailPage()
-                    AppDestinations.TaskPage -> TaskPage()
-                    AppDestinations.MDReaderPage -> MDReaderPage()
-                    AppDestinations.ImportPage -> ImportPage()
+                        val exitAnim = slideOutOfContainer(
+                            towards = AnimatedContentTransitionScope.SlideDirection.Left,
+                            animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
+                        ) + fadeOut(
+                            animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
+                        )
+                        enterAnim togetherWith exitAnim
+                    },
+                    label = "PageTransition"
+                ) { targetPage ->
+                    when (targetPage) {
+                        AppDestinations.HomePage -> HomePage()
+                        AppDestinations.ManagePage -> ManagePage()
+                        AppDestinations.DownloadPage -> DownloadPage()
+                        AppDestinations.SettingPage -> SettingPage()
+                        AppDestinations.AboutPage -> AboutPage()
+                        //--隐藏页面区域--
+                        AppDestinations.ManageDetailPage -> ManageDetailPage()
+                        AppDestinations.DownloadDetailPage -> DownloadDetailPage()
+                        AppDestinations.TaskPage -> TaskPage()
+                        AppDestinations.MDReaderPage -> MDReaderPage()
+                        AppDestinations.ImportPage -> ImportPage()
 
 
+                    }
                 }
             }
 
+        }
 
-    }
 }
 
 

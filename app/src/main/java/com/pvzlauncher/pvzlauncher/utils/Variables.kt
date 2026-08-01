@@ -3,12 +3,17 @@ package com.pvzlauncher.pvzlauncher.utils
 import androidx.compose.runtime.mutableStateListOf
 import android.content.Context
 import android.content.pm.PackageInfo
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import com.pvzlauncher.pvzlauncher.AppDestinations
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 
 lateinit var APP_VERSION: String
 var CurrentDestination by mutableStateOf<AppDestinations>(AppDestinations.HomePage)
@@ -29,6 +34,8 @@ lateinit var Downloadlist : MutableState<@Composable () -> Unit>
 var Installedappindex = mutableStateListOf<PackageInfo>()
 var MDR_FileName : String = ""
 var MDR_MDContent : String = ""
+val snackbarHostState = SnackbarHostState()
+val snackbarScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
 data class ProcessConfig(
     var p_info : GameConfig,

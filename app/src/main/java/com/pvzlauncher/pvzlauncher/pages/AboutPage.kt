@@ -32,7 +32,7 @@ import com.pvzlauncher.pvzlauncher.utils.GetWebSiteContent
 import com.pvzlauncher.pvzlauncher.utils.MDR_FileName
 import com.pvzlauncher.pvzlauncher.utils.MDR_MDContent
 import com.pvzlauncher.pvzlauncher.utils.OpenUrl
-import com.pvzlauncher.pvzlauncher.utils.XW_ToastMessage
+import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
 
 @Composable
 public fun AboutPage()

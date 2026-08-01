@@ -1,7 +1,9 @@
 package com.pvzlauncher.pvzlauncher.controls
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -35,22 +37,34 @@ public fun XW_InputDialog(
                 Text(text = title)
             },
             text = {
-                Column {
+                val scrollState = rememberScrollState()
+                Column(Modifier.horizontalScroll(scrollState)
+                ) {
                     Text(content)
-                    TextField(
-                        value = inputText,
-                        onValueChange = { inputText = it },
-                        placeholder = { Text(placeholder) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true
-                    )
+
+
+                        TextField(
+                            value = inputText,
+                            onValueChange = { inputText = it },
+                            placeholder = { Text(placeholder) },
+                            modifier = Modifier.fillMaxWidth(),
+                            singleLine = true
+                        )
+
                 }
             },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        onConfirm(inputText) // 传回输入的数据
-                        onDismiss()          // 关闭对话框
+                        if(inputText != "")
+                        {
+                            onConfirm(inputText)
+                            onDismiss()
+                        }
+                        else
+                        {
+                            XW_ToastMessage("请输入内容！")
+                        }
                     }
                 ) {
                     Text("确定")

@@ -1,8 +1,5 @@
 package com.pvzlauncher.pvzlauncher.pages
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -20,21 +17,17 @@ import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FileOpen
 import androidx.compose.material.icons.filled.Image
-import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material.icons.filled.PlaylistRemove
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Title
 import androidx.compose.material.icons.filled.Update
 import androidx.compose.material.icons.filled.UploadFile
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -55,12 +48,11 @@ import com.pvzlauncher.pvzlauncher.controls.XW_Switch
 import com.pvzlauncher.pvzlauncher.controls.XW_simpledialog
 import com.pvzlauncher.pvzlauncher.utils.CurrentIndex
 import com.pvzlauncher.pvzlauncher.utils.FavoriteListsConfig
-import com.pvzlauncher.pvzlauncher.utils.GameConfig
 import com.pvzlauncher.pvzlauncher.utils.JsonPickerLauncher
 import com.pvzlauncher.pvzlauncher.utils.SAVECONFIGNAME
-import com.pvzlauncher.pvzlauncher.utils.SaveConfig
 import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
-import com.pvzlauncher.pvzlauncher.utils.XW_ToastMessage
+import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
+import com.pvzlauncher.pvzlauncher.utils.SaveConfig
 import com.pvzlauncher.pvzlauncher.utils.rememberPhotoPickerLauncher
 import com.pvzlauncher.pvzlauncher.utils.shareConfig
 import kotlinx.coroutines.delay
@@ -292,7 +284,7 @@ public fun SettingPage()
                                     "警告",
                                     "此操作不可逆，确认要将游戏列表清空吗？",
                                     {
-                                        WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(emptyList<FavoriteListsConfig>()),lc)
+                                        WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>()))),lc)
                                     },
                                     {},lc
                                 )

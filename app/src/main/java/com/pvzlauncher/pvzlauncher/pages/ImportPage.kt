@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -20,13 +19,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Task
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.OutlinedCard
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -36,13 +31,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import coil3.compose.AsyncImage
 import com.pvzlauncher.pvzlauncher.AppDestinations
-import com.pvzlauncher.pvzlauncher.R
 import com.pvzlauncher.pvzlauncher.utils.CurrentDestination
 import com.pvzlauncher.pvzlauncher.utils.GetApkInfo
 import com.pvzlauncher.pvzlauncher.utils.Installedappindex
@@ -51,7 +43,7 @@ import com.pvzlauncher.pvzlauncher.utils.SAVECONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.SaveConfig
 import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
 import com.pvzlauncher.pvzlauncher.utils.WriteJson
-import com.pvzlauncher.pvzlauncher.utils.XW_ToastMessage
+import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
 import com.pvzlauncher.pvzlauncher.utils.isAppInstalled
 import org.threeten.bp.ZoneId
 import org.threeten.bp.ZonedDateTime
@@ -62,13 +54,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import com.pvzlauncher.pvzlauncher.controls.XW_ImportInformationCard
 import com.pvzlauncher.pvzlauncher.utils.APKPickerLauncher
-import com.pvzlauncher.pvzlauncher.utils.DownloadCount
-import com.pvzlauncher.pvzlauncher.utils.Downloadlist
-import com.pvzlauncher.pvzlauncher.utils.ProcessList
 import com.pvzlauncher.pvzlauncher.utils.installApk
-import com.pvzlauncher.pvzlauncher.utils.intProcessList
-import com.pvzlauncher.pvzlauncher.utils.intProcessProgressList
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -156,7 +144,7 @@ public fun ImportPage()
                         Installedappindex.remove(i)
                         XW_ToastMessage("导入成功", lc)})
 
-                    XW_ManageInformationCard(SaveConfig("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameAssets/Default.png",GetApkInfo(i.packageName, lc).versionName ?: "1.0.0","${lc.packageManager.getApplicationLabel(lc.packageManager.getApplicationInfo(i.packageName, 0)).toString()}",i.packageName,ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")),0,0,false),{isdialogvisible = true},true)
+                    XW_ImportInformationCard(SaveConfig("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameAssets/Default.png",GetApkInfo(i.packageName, lc).versionName ?: "1.0.0","${lc.packageManager.getApplicationLabel(lc.packageManager.getApplicationInfo(i.packageName, 0)).toString()}",i.packageName,ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")),0,0,false),{isdialogvisible = true},true)
 
 
 

@@ -42,6 +42,7 @@ import coil3.compose.AsyncImage
 import com.downloader.PRDownloader
 import com.pvzlauncher.pvzlauncher.AppDestinations
 import com.pvzlauncher.pvzlauncher.controls.XW_InputDialog
+import com.pvzlauncher.pvzlauncher.controls.XW_TaskInformationCard
 import com.pvzlauncher.pvzlauncher.controls.XW_simpledialog
 import com.pvzlauncher.pvzlauncher.utils.CurrentDestination
 import com.pvzlauncher.pvzlauncher.utils.ProcessList
@@ -119,135 +120,7 @@ public fun TaskPage()
         )
         {
             ProcessList.forEach { procfg ->
-                OutlinedCard(
-                    modifier = Modifier
-                        .padding(5.dp)
-                        .fillMaxWidth()
-                )
-                {
-                    Box(
-                        modifier = Modifier
-                            .padding(5.dp)
-                            .fillMaxWidth()
-                    )
-                    {
-                        val scope = rememberCoroutineScope()
-                        TextButton(
-                            onClick = {
-                                XW_simpledialog("提示","是否删除任务:${procfg.p_info.GameName}？",{
-                                    PRDownloader.cancel(procfg.p_id)
-                                    scope.launch {
-                                        delay(100)
-                                        intProcessProgressList.removeAt(
-                                            index = intProcessList.indexOf(
-                                                procfg.p_id
-                                            )
-                                        )
-
-                                        ProcessList.removeAt(
-                                            index = intProcessList.indexOf(
-                                                procfg.p_id
-                                            )
-                                        )
-                                        intProcessSpeedList.removeAt(intProcessList.indexOf(
-                                            procfg.p_id
-                                        ))
-                                        intProcessList.remove(procfg.p_id)
-                                    }
-                                },{},lc)
-
-
-
-
-                            }, modifier = Modifier
-                                .padding(5.dp)
-                                .align(Alignment.CenterEnd)
-                                .size(48.dp), contentPadding = PaddingValues(0.dp),
-                            shape = CircleShape
-                        )
-
-                        {
-
-                            Icon(
-                                imageVector = Icons.Default.Delete,
-                                "检测更新",
-                                modifier = Modifier.size(32.dp)
-                            )
-
-                        }
-
-
-                        Column(
-                            modifier = Modifier
-                                .align(Alignment.Center)
-                                .fillMaxWidth()
-                        )
-                        {
-
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier
-                                    .padding(5.dp)
-                                    .fillMaxWidth()
-                            )
-                            {
-                                AsyncImage(
-                                    model = procfg.p_info.GameImage,
-                                    "",
-                                    modifier = Modifier
-                                        .padding(5.dp)
-                                        .size(32.dp)
-                                )
-                                Column(Modifier.padding(2.dp))
-                                {
-                                    Text(
-                                        "下载 ${procfg.p_info.GameName}",
-                                        fontSize = 22.sp,
-                                        modifier = Modifier.padding(2.dp),
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Text(
-                                        "pid:${procfg.p_id}",
-                                        fontSize = 14.sp,
-                                        modifier = Modifier.padding(2.dp)
-                                    )
-                                }
-                            }
-                            Column(
-                                modifier = Modifier
-                                    .padding(5.dp)
-                                    .fillMaxWidth()
-                            )
-                            {
-                                Box(Modifier.fillMaxWidth())
-                                {
-                                    Row(Modifier.align(Alignment.CenterStart)) {
-                                        Text("下载中……")
-                                        Text("${intProcessProgressList[intProcessList.indexOf(
-                                            procfg.p_id
-                                        )]}%")
-                                    }
-                                    Row(Modifier.align(Alignment.CenterEnd))
-                                    {
-                                        Text("速度:")
-                                        Text("${intProcessSpeedList[intProcessList.indexOf(
-                                            procfg.p_id
-                                        )]}MB/s")
-                                    }
-                                }
-                                LinearProgressIndicator(
-                                    intProcessProgressList[intProcessList.indexOf(
-                                        procfg.p_id
-                                    )] / 100, Modifier.fillMaxWidth()
-                                )
-
-                            }
-                        }
-
-
-                    }
-                }
-
+                XW_TaskInformationCard(procfg,lc)
             }
             if(ProcessList.count() == 0)
             {
