@@ -112,7 +112,7 @@ public fun ManageDetailPage()
         {
 
             val all = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
-            if(ManageIndex < all.ListIndex[ManageIndex].GameIndex.count())
+            if(ManageIndex < all.ListIndex[ManagelistIndex].GameIndex.count())
             {
                 Row(
                     modifier = Modifier
