@@ -47,6 +47,7 @@ import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
 import com.pvzlauncher.pvzlauncher.utils.WriteJson
 import com.pvzlauncher.pvzlauncher.controls.XW_InputDialog
 import com.pvzlauncher.pvzlauncher.controls.XW_ManageInformationCard
+import com.pvzlauncher.pvzlauncher.utils.ManagelistIndex
 import com.pvzlauncher.pvzlauncher.utils.XW_ToastMessage
 import com.pvzlauncher.pvzlauncher.utils.uninstallApk
 import kotlinx.coroutines.delay
@@ -111,7 +112,7 @@ public fun ManageDetailPage()
         {
 
             val all = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
-            if(ManageIndex < all.GameIndex.count())
+            if(ManageIndex < all.ListIndex[ManageIndex].GameIndex.count())
             {
                 Row(
                     modifier = Modifier
@@ -120,12 +121,12 @@ public fun ManageDetailPage()
                 )
                 {
 
-                    if(all.GameIndex[ManageIndex].like == false)
+                    if(all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].like == false)
                     {
                         XW_ManageInformationCard(
-                            args = all.GameIndex[ManageIndex],
+                            args = all.ListIndex[ManagelistIndex].GameIndex[ManageIndex],
                             onBack = {
-                                    all.GameIndex[ManageIndex].like = true
+                                all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].like = true
                                     WriteJson(SAVECONFIGNAME, all, lc)
                                 RefreshDetail()
 
@@ -136,15 +137,15 @@ public fun ManageDetailPage()
                     else
                     {
                         XW_ManageInformationCard(
-                            args = all.GameIndex[ManageIndex],
+                            args = all.ListIndex[ManagelistIndex].GameIndex[ManageIndex],
                             onBack = {
-                                    all.GameIndex[ManageIndex].like = false
-                                val svc = all.GameIndex[ManageIndex]
-                                val v1 = all.GameIndex.toMutableList()
+                                all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].like = false
+                                val svc = all.ListIndex[ManagelistIndex].GameIndex[ManageIndex]
+                                val v1 = all.ListIndex[ManagelistIndex].GameIndex.toMutableList()
                                 v1.removeAt(ManageIndex)
                                 v1.add(0,svc)
                                 val v2 = v1.toList()
-                                all.GameIndex = v2
+                                all.ListIndex[ManagelistIndex].GameIndex = v2
                                     WriteJson(SAVECONFIGNAME, all, lc)
                                 RefreshDetail()
 
@@ -164,7 +165,8 @@ public fun ManageDetailPage()
                         OutlinedButton(onClick = {
                             var kk =
                                 ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText())
-                            kk.CurrentGameIndex = ManageIndex
+                            kk.CurrentGameIndex.GameIndex = ManageIndex
+                            kk.CurrentGameIndex.ListIndex = ManagelistIndex
                             WriteJson("${LAUNCHERCONFIGNAME}", kk, lc)
                             XW_ToastMessage("操作成功", lc)
                             CurrentDestination = AppDestinations.ManagePage
@@ -181,16 +183,16 @@ public fun ManageDetailPage()
                         XW_CheckBoxDialog(
                             showDialog = isDialogVisible,
                             title = "警告",
-                            content = "您一定要删除${all.GameIndex[ManageIndex].GameName}吗？这个游戏将会永久消失(真的很久！)",
+                            content = "您一定要删除${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].GameName}吗？这个游戏将会永久消失(真的很久！)",
                             require = "一并卸载apk",
                             onDismiss = { isDialogVisible = false },
                             onConfirm = { i ->
                                 if (i == true) {
-                                    uninstallApk(lc,all.GameIndex[ManageIndex].PackageName)
+                                    uninstallApk(lc,all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].PackageName)
                                 }
-                                var a2 = all.GameIndex.toMutableList()
+                                var a2 = all.ListIndex[ManagelistIndex].GameIndex.toMutableList()
                                 a2.removeAt(ManageIndex)
-                                all.GameIndex = a2.toList()
+                                all.ListIndex[ManagelistIndex].GameIndex = a2.toList()
                                 WriteJson(SAVECONFIGNAME, all, lc)
                                 isDialogVisible = false
                                 CurrentDestination = AppDestinations.ManagePage
@@ -210,7 +212,7 @@ public fun ManageDetailPage()
                             value = "",
                             onConfirm = { text ->
 
-                                all.GameIndex[ManageIndex].GameName = text
+                                all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].GameName = text
                                 WriteJson(SAVECONFIGNAME, all, lc)
 
                                 XW_ToastMessage("操作成功", lc)
@@ -219,8 +221,8 @@ public fun ManageDetailPage()
                     }
                     Column()
                     {
-                        Text("入库时间:${all.GameIndex[ManageIndex].AddTime}")
-                        Text("启动次数:${all.GameIndex[ManageIndex].LaunchTimes}")
+                        Text("入库时间:${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].AddTime}")
+                        Text("启动次数:${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].LaunchTimes}")
                     }
                 }
             }

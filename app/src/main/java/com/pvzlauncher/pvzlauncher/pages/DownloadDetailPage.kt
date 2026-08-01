@@ -56,7 +56,6 @@ import com.pvzlauncher.pvzlauncher.utils.installApk
 import com.pvzlauncher.pvzlauncher.utils.intProcessList
 import com.pvzlauncher.pvzlauncher.utils.intProcessProgressList
 import com.pvzlauncher.pvzlauncher.utils.intProcessSpeedList
-import com.pvzlauncher.pvzlauncher.utils.sProcessProgressList
 import com.pvzlauncher.pvzlauncher.utils.totalprogress
 import com.pvzlauncher.pvzlauncher.utils.totalspeed
 import org.threeten.bp.ZoneId
@@ -140,7 +139,6 @@ public fun DownloadDetailPage()
                     intProcessList.add(pid)
                     intProcessSpeedList.add(0.toFloat())
                     intProcessProgressList.add(0.toFloat())
-                    sProcessProgressList.add("0%")
                     var lastBytes = 0L
                     var lastTime = System.currentTimeMillis()
 
@@ -154,8 +152,6 @@ public fun DownloadDetailPage()
                         .setOnProgressListener { progress ->
                             intProcessProgressList[intProcessList.indexOf(pid)] =
                                 ((progress.currentBytes * 100 / progress.totalBytes).toFloat())
-                            sProcessProgressList[intProcessList.indexOf(pid)] =
-                                ((progress.currentBytes * 100 / progress.totalBytes).toString()) + "%"
                             val now = System.currentTimeMillis()
 
                             val diffBytes = progress.currentBytes - lastBytes
@@ -206,7 +202,7 @@ public fun DownloadDetailPage()
 
                                             var sl =
                                                 ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
-                                            sl.GameIndex += SaveConfig(
+                                            sl.ListIndex[0].GameIndex += SaveConfig(
                                                 GameName = ProcessList[intProcessList.indexOf(
                                                     pid
                                                 )].p_info.GameName,
@@ -245,17 +241,12 @@ public fun DownloadDetailPage()
                                                     pid
                                                 )
                                             )
-                                            sProcessProgressList.removeAt(
-                                                intProcessList.indexOf(pid)
-                                            )
+
                                             ProcessList.removeAt(
                                                 index = intProcessList.indexOf(
                                                     pid
                                                 )
                                             )
-                                            intProcessSpeedList.removeAt(intProcessList.indexOf(
-                                                pid
-                                            ))
                                             intProcessSpeedList.removeAt(intProcessList.indexOf(
                                                 pid
                                             ))
@@ -268,9 +259,7 @@ public fun DownloadDetailPage()
                                                     pid
                                                 )
                                             )
-                                            sProcessProgressList.removeAt(
-                                                intProcessList.indexOf(pid)
-                                            )
+
                                             ProcessList.removeAt(
                                                 index = intProcessList.indexOf(
                                                     pid
@@ -290,11 +279,7 @@ public fun DownloadDetailPage()
                                             pid
                                         )
                                     )
-                                    sProcessProgressList.removeAt(
-                                        intProcessList.indexOf(
-                                            pid
-                                        )
-                                    )
+
                                     ProcessList.removeAt(
                                         index = intProcessList.indexOf(
                                             pid

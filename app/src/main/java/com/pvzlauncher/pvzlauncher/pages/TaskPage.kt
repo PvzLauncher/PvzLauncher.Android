@@ -48,7 +48,6 @@ import com.pvzlauncher.pvzlauncher.utils.ProcessList
 import com.pvzlauncher.pvzlauncher.utils.intProcessList
 import com.pvzlauncher.pvzlauncher.utils.intProcessProgressList
 import com.pvzlauncher.pvzlauncher.utils.intProcessSpeedList
-import com.pvzlauncher.pvzlauncher.utils.sProcessProgressList
 import com.pvzlauncher.pvzlauncher.utils.totalspeed
 import com.pvzlauncher.pvzlauncher.utils.totalprogress
 import kotlinx.coroutines.delay
@@ -144,11 +143,7 @@ public fun TaskPage()
                                                 procfg.p_id
                                             )
                                         )
-                                        sProcessProgressList.removeAt(
-                                            intProcessList.indexOf(
-                                                procfg.p_id
-                                            )
-                                        )
+
                                         ProcessList.removeAt(
                                             index = intProcessList.indexOf(
                                                 procfg.p_id

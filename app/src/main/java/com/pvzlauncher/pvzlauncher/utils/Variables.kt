@@ -15,13 +15,13 @@ var CurrentDestination by mutableStateOf<AppDestinations>(AppDestinations.HomePa
 const val LAUNCHERCONFIGNAME = "LauncherConfig.json"
 const val SAVECONFIGNAME = "SaveConfig.json"
 lateinit var globalContext: Context
+var ManagelistIndex : Int = 0
 var ManageIndex : Int = 0
 lateinit var DownloadConfig : GameConfig
 var DownloadCount : Int = 0
 val ProcessList =  mutableStateListOf<ProcessConfig>()
 val intProcessList = mutableStateListOf<Int>()
 val intProcessProgressList = mutableStateListOf<Float>()
-val sProcessProgressList = mutableStateListOf<String>()
 val intProcessSpeedList = mutableStateListOf<Float>()
 var totalspeed = mutableStateOf(0.toFloat())
 var totalprogress = mutableStateOf(100.toFloat())

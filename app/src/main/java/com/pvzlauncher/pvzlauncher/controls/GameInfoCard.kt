@@ -59,7 +59,6 @@ public fun XW_GameInformationCard(args : GameConfig,onBack: () -> Unit,Disablebu
                         )
 
                         {
-                            //Text(args.GameVersion)
                             var i = ""
                             for(j in 0 until args.GameLink.count())
                             {

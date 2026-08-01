@@ -42,8 +42,14 @@ public data class VersionConfig(
 )
 
 @Serializable
+public data class GameKindsConfig(
+    var kindname : String,
+    var GameIndex : List<GameConfig>
+)
+
+@Serializable
 public data class GameListConfig(
-    val GameIndex : List<GameConfig>
+    val ListIndex : List<GameKindsConfig>
 )
 
 @Serializable
@@ -61,6 +67,12 @@ public data class SaveConfig(
 
 @Serializable
 public data class SaveConfigList(
+    var ListIndex : List<FavoriteListsConfig>
+)
+
+@Serializable
+public data class FavoriteListsConfig(
+    var listname : String,
     var GameIndex : List<SaveConfig>
 )
 
@@ -69,10 +81,16 @@ public data class LauncherConfig(
     var UseSystemTheme: Boolean,
     var UseDarkTheme : Boolean,
     var UseEnglishTitle : Boolean,
-    var CurrentGameIndex : Int,
+    var CurrentGameIndex : CurrentIndex,
     var StartUpCheckUpdate : Boolean,
     var CostumThemeColor : Boolean,
     var CostumBackground : Boolean
+)
+
+@Serializable
+public data class CurrentIndex(
+    var GameIndex : Int,
+    var ListIndex : Int
 )
 
 

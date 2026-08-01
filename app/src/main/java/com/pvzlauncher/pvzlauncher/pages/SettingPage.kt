@@ -53,6 +53,8 @@ import com.pvzlauncher.pvzlauncher.utils.ReadJson
 import com.pvzlauncher.pvzlauncher.utils.WriteJson
 import com.pvzlauncher.pvzlauncher.controls.XW_Switch
 import com.pvzlauncher.pvzlauncher.controls.XW_simpledialog
+import com.pvzlauncher.pvzlauncher.utils.CurrentIndex
+import com.pvzlauncher.pvzlauncher.utils.FavoriteListsConfig
 import com.pvzlauncher.pvzlauncher.utils.GameConfig
 import com.pvzlauncher.pvzlauncher.utils.JsonPickerLauncher
 import com.pvzlauncher.pvzlauncher.utils.SAVECONFIGNAME
@@ -290,7 +292,7 @@ public fun SettingPage()
                                     "警告",
                                     "此操作不可逆，确认要将游戏列表清空吗？",
                                     {
-                                        WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(emptyList<SaveConfig>()),lc)
+                                        WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(emptyList<FavoriteListsConfig>()),lc)
                                     },
                                     {},lc
                                 )
@@ -360,11 +362,11 @@ public fun SettingPage()
                                                 UseSystemTheme = true,
                                                 UseDarkTheme = false,
                                                 UseEnglishTitle = false,
-                                                CurrentGameIndex = 0,
+                                                CurrentGameIndex = CurrentIndex(0,0),
                                                 true, false,false
                                             ), lc
                                         )
-                                        WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(emptyList<SaveConfig>()),lc)
+                                        WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(emptyList<FavoriteListsConfig>()),lc)
                                         XW_simpledialog("提示","启动器需要重启以应用更改，应用即将退出……",{System.exit(0)},{System.exit(0)},lc)
                                     },
                                     {},lc

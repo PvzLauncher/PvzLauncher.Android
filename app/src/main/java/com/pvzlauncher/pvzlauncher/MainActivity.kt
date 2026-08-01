@@ -69,6 +69,8 @@ import com.pvzlauncher.pvzlauncher.pages.SettingPage
 import com.pvzlauncher.pvzlauncher.pages.TaskPage
 import com.pvzlauncher.pvzlauncher.pages.refreshInstalledapplist
 import com.pvzlauncher.pvzlauncher.utils.CurrentDestination
+import com.pvzlauncher.pvzlauncher.utils.CurrentIndex
+import com.pvzlauncher.pvzlauncher.utils.FavoriteListsConfig
 import com.pvzlauncher.pvzlauncher.utils.SaveConfig
 import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
 import com.pvzlauncher.pvzlauncher.utils.WriteJson
@@ -292,7 +294,7 @@ fun InitializeAppInterface()
                 UseSystemTheme = true,
                 UseDarkTheme = false,
                 UseEnglishTitle = false,
-                CurrentGameIndex = 0,
+                CurrentGameIndex = CurrentIndex(0,0),
                 true, false,false
             ), LocalContext.current
         )
@@ -302,13 +304,10 @@ fun InitializeAppInterface()
         ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
     }
     catch(e:Exception) {
-        WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(emptyList<SaveConfig>()),lc)
+        WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>()))),lc)
     }
 
-    if (!File("${LocalContext.current.filesDir}/${SAVECONFIGNAME}").exists())
-    {
-        WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(emptyList<SaveConfig>()),lc)
-    }
+
     val config = PRDownloaderConfig.newBuilder()
         .setReadTimeout(30000)
         .setConnectTimeout(30000)

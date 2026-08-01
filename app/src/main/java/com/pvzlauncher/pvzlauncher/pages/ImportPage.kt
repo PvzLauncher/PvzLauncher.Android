@@ -69,7 +69,6 @@ import com.pvzlauncher.pvzlauncher.utils.ProcessList
 import com.pvzlauncher.pvzlauncher.utils.installApk
 import com.pvzlauncher.pvzlauncher.utils.intProcessList
 import com.pvzlauncher.pvzlauncher.utils.intProcessProgressList
-import com.pvzlauncher.pvzlauncher.utils.sProcessProgressList
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -115,39 +114,49 @@ public fun ImportPage()
     )
     {
         var listcount by rememberSaveable { mutableStateOf(0) }
+        var aaa =
+            ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
         if(isRendered)
         {
-            Installedappindex.forEach { i ->
+            Installedappindex.forEach outer@ { i ->
 
-                if ((lc.packageManager.getApplicationInfo(i.packageName, 0).flags and ApplicationInfo.FLAG_SYSTEM) == 0 && isAppInstalled(lc, i.packageName) && ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex.none { it.PackageName == i.packageName } && i.packageName != "com.pvzlauncher.pvzlauncher") {
+                if ((lc.packageManager.getApplicationInfo(i.packageName, 0).flags and ApplicationInfo.FLAG_SYSTEM) == 0 && isAppInstalled(lc, i.packageName) && i.packageName != "com.pvzlauncher.pvzlauncher") {
 
 
 
-                        listcount += 1
-                        var isdialogvisible by rememberSaveable { mutableStateOf(false) }
-                        XW_InputDialog(isdialogvisible,title = "提示","请输入版本标题","","${lc.packageManager.getApplicationLabel(lc.packageManager.getApplicationInfo(i.packageName, 0)).toString()}",{isdialogvisible = false},{t ->
-                            var aaa =
-                                ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
-                            aaa.GameIndex += SaveConfig(
-                                GameName = t,
-                                PackageName = i.packageName,
-                                AddTime = ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")),
-                                PlayTime = 0,
-                                LaunchTimes = 0,
-                                headImage = "https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameAssets/Default.png",
-                                gameversion = GetApkInfo(i.packageName, lc).versionName ?: "1.0.0",
-                                like = false
-                            )
-                            WriteJson<SaveConfigList>(
-                                SAVECONFIGNAME,
-                                aaa,
-                                lc
-                            )
-                            Installedappindex.remove(i)
-                            XW_ToastMessage("导入成功", lc)})
+                        for(k in aaa.ListIndex)
+                        {
+                            for(l in k.GameIndex)
+                            {
+                                if(l.PackageName == i.packageName)
+                                {
+                                    return@outer
+                                }
+                            }
+                        }
+                    listcount += 1
+                    var isdialogvisible by rememberSaveable { mutableStateOf(false) }
+                    XW_InputDialog(isdialogvisible,title = "提示","请输入版本标题","","${lc.packageManager.getApplicationLabel(lc.packageManager.getApplicationInfo(i.packageName, 0)).toString()}",{isdialogvisible = false},{t ->
 
-                        XW_ManageInformationCard(SaveConfig("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameAssets/Default.png",GetApkInfo(i.packageName, lc).versionName ?: "1.0.0","${lc.packageManager.getApplicationLabel(lc.packageManager.getApplicationInfo(i.packageName, 0)).toString()}",i.packageName,ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")),0,0,false),{isdialogvisible = true},true)
+                        aaa.ListIndex[0].GameIndex += SaveConfig(
+                            GameName = t,
+                            PackageName = i.packageName,
+                            AddTime = ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")),
+                            PlayTime = 0,
+                            LaunchTimes = 0,
+                            headImage = "https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameAssets/Default.png",
+                            gameversion = GetApkInfo(i.packageName, lc).versionName ?: "1.0.0",
+                            like = false
+                        )
+                        WriteJson<SaveConfigList>(
+                            SAVECONFIGNAME,
+                            aaa,
+                            lc
+                        )
+                        Installedappindex.remove(i)
+                        XW_ToastMessage("导入成功", lc)})
 
+                    XW_ManageInformationCard(SaveConfig("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameAssets/Default.png",GetApkInfo(i.packageName, lc).versionName ?: "1.0.0","${lc.packageManager.getApplicationLabel(lc.packageManager.getApplicationInfo(i.packageName, 0)).toString()}",i.packageName,ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")),0,0,false),{isdialogvisible = true},true)
 
 
 

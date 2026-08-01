@@ -15,12 +15,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.SecondaryScrollableTabRow
+import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,6 +41,7 @@ import com.pvzlauncher.pvzlauncher.utils.SAVECONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
 import com.pvzlauncher.pvzlauncher.controls.XW_ManageInformationCard
 import com.pvzlauncher.pvzlauncher.ui.theme.XW_LightTheme
+import com.pvzlauncher.pvzlauncher.utils.ManagelistIndex
 import java.io.File
 
 @Composable
@@ -61,20 +65,37 @@ public fun ManagePage()
 
             }
             val scrollState = rememberScrollState()
+
             Column(
                 Modifier
 
                     .fillMaxSize()
                     .verticalScroll(scrollState)
             ) {
-                if(ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex.count() != 0)
+                val cfg = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
+
+
+                    var selecteditem by rememberSaveable { mutableStateOf(0) }
+                    SecondaryScrollableTabRow(
+                        selectedTabIndex = selecteditem
+                    ) {
+                        cfg.ListIndex.forEachIndexed { i, c ->
+                            Tab(
+                                selected = selecteditem == i,
+                                onClick = { selecteditem = i},
+                                text = { Text(c.listname) }
+                            )
+                        }
+                    }
+                if(cfg.ListIndex[selecteditem].GameIndex.count() != 0)
                 {
-                    for (i in ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex) {
+                    for (i in cfg.ListIndex[selecteditem].GameIndex) {
                         XW_ManageInformationCard(
                             args = i,
                             onBack = {
+                                ManagelistIndex = selecteditem
                                 ManageIndex =
-                                    ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex.indexOf(
+                                    ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).ListIndex[selecteditem].GameIndex.indexOf(
                                         i
                                     )
                                 CurrentDestination = AppDestinations.ManageDetailPage
@@ -96,6 +117,7 @@ public fun ManagePage()
                     }
                 }
             }
+
 
         }
         FloatingActionButton(

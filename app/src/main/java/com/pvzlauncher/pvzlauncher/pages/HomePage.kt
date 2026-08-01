@@ -65,7 +65,8 @@ public fun HomePage()
                     .fillMaxWidth()
             )
         }
-        if (ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex.count() != 0)
+        var current = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText()).CurrentGameIndex
+        if (ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).ListIndex[current.ListIndex].GameIndex.count() != 0)
         {
             Column(
                 modifier = Modifier
@@ -77,17 +78,14 @@ public fun HomePage()
 
                     FloatingActionButton(onClick = {
 
-                        val current =
-                            ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex[ReadJson<LauncherConfig>(
-                                File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText()
-                            ).CurrentGameIndex]
+
 
 
                         val new =
                             ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
-                        new.GameIndex[ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText()).CurrentGameIndex].LaunchTimes += 1
+                        new.ListIndex[current.ListIndex].GameIndex[current.GameIndex].LaunchTimes += 1
                         WriteJson<SaveConfigList>(SAVECONFIGNAME, new, lc)
-                        launchApp(lc, current.PackageName)
+                        launchApp(lc, new.ListIndex[current.ListIndex].GameIndex[current.GameIndex].PackageName)
 
 
                     },Modifier.size(64.dp),containerColor = XW_LightTheme.primary)
@@ -103,10 +101,9 @@ public fun HomePage()
                 {
                     Text("当前游戏：", fontSize = 12.sp)
 
+                    val cur = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText()).CurrentGameIndex
                     val current =
-                        ReadJson<SaveConfigList>(File("${LocalContext.current.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex[ReadJson<LauncherConfig>(
-                            File("${LocalContext.current.filesDir}/${LAUNCHERCONFIGNAME}").readText()
-                        ).CurrentGameIndex]
+                        ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).ListIndex[cur.ListIndex].GameIndex[cur.GameIndex]
                     Text(
                         "${current.GameName}",
                         fontSize = 12.sp,

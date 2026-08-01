@@ -66,15 +66,29 @@ public fun XW_ManageInformationCard(args : SaveConfig, onBack: () -> Unit, IsBut
                         }
                         Box(Modifier.padding(2.dp)){}
 //
-                        val rj =  ReadJson<SaveConfigList>(File("${cont.filesDir}/${SAVECONFIGNAME}").readText()).GameIndex
-                        if(rj.indexOf(args) == ReadJson<LauncherConfig>(File("${cont.filesDir}/${LAUNCHERCONFIGNAME}").readText()).CurrentGameIndex)
+                        val rj =  ReadJson<SaveConfigList>(File("${cont.filesDir}/${SAVECONFIGNAME}").readText()).ListIndex
+
+                        for(ij in 0 until rj.count())
                         {
-                            Box(modifier = Modifier.background(Color.Red, RoundedCornerShape(7.5.dp))
-                                .padding(4.dp,2.dp))
+                            if(ij == ReadJson<LauncherConfig>(File("${cont.filesDir}/${LAUNCHERCONFIGNAME}").readText()).CurrentGameIndex.ListIndex)
                             {
-                                Text("活动", color = Color.White, fontSize = 14.sp)
+                                if(rj[ij].GameIndex.indexOf(args) == ReadJson<LauncherConfig>(File("${cont.filesDir}/${LAUNCHERCONFIGNAME}").readText()).CurrentGameIndex.GameIndex)
+                                {
+                                    Box(modifier = Modifier.background(Color.Red, RoundedCornerShape(7.5.dp))
+                                        .padding(4.dp,2.dp))
+                                    {
+                                        Text("活动", color = Color.White, fontSize = 14.sp)
+                                    }
+                                }
                             }
+
+
                         }
+
+
+
+
+
 
 
                     }
