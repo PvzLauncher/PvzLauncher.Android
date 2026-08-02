@@ -18,7 +18,7 @@ android {
         targetSdk = 36
 
         //更新时一定要更改此区域
-        versionCode = 13
+        versionCode = 14
         versionName = "1.1.0"
         //更新时一定要更改此区域
 

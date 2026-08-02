@@ -168,16 +168,16 @@ fun PvzLauncherAndroidApp() {
                     transitionSpec = {
                         val enterAnim = slideIntoContainer(
                             towards = AnimatedContentTransitionScope.SlideDirection.Right,
-                            animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
+                            animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
                         ) + fadeIn(
-                            animationSpec = tween(durationMillis = 1000, easing = FastOutSlowInEasing)
+                            animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
                         )
 
                         val exitAnim = slideOutOfContainer(
                             towards = AnimatedContentTransitionScope.SlideDirection.Left,
-                            animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
+                            animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing)
                         ) + fadeOut(
-                            animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing)
+                            animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing)
                         )
                         enterAnim togetherWith exitAnim
                     },
@@ -319,6 +319,10 @@ fun InitializeAppInterface()
 
     try{
         ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
+        if(ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).ListIndex.count() < 1)
+        {
+            WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>()))),lc)
+        }
     }
     catch(e:Exception) {
         WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>()))),lc)

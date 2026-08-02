@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.pvzlauncher.pvzlauncher.R
 import com.pvzlauncher.pvzlauncher.controls.LaunchAnimation
+import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
 import com.pvzlauncher.pvzlauncher.ui.theme.XW_LightTheme
 import com.pvzlauncher.pvzlauncher.utils.LAUNCHERCONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.LauncherConfig
@@ -133,7 +134,9 @@ public fun HomePage()
             )
             {
 
-                    FloatingActionButton(onClick = {},
+                    FloatingActionButton(onClick = {
+                        XW_ToastMessage("请先下载或导入游戏")
+                    },
                         Modifier.size(64.dp), containerColor = Color.Gray
                     )
                     { Icon(imageVector = Icons.Default.RocketLaunch,modifier= Modifier.size(32.dp), contentDescription = "") }

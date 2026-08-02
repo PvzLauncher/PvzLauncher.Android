@@ -201,12 +201,12 @@ public fun SettingPage()
 
                         )
                         XW_Button(
-                            Icons.Default.FileOpen,
-                            "导出设置",
-                            "将设置导出，方便跨设备传输",
+                            Icons.Default.UploadFile,
+                            "导入设置",
+                            "将设置导入，应用您的自定义属性",
                             "导出设置",
                             Modifier,{
-                                shareConfig(lc)
+                                openJsonPicker("application/json")
                             }
 
                         )
@@ -353,7 +353,7 @@ public fun SettingPage()
                                                 true, false,false
                                             ), lc
                                         )
-                                        WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(emptyList<FavoriteListsConfig>()),lc)
+                                        WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>()))),lc)
                                         XW_simpledialog("提示","启动器需要重启以应用更改，应用即将退出……",{System.exit(0)},{System.exit(0)},lc)
                                     },
                                     {},lc
