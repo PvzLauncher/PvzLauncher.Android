@@ -1,6 +1,7 @@
 package com.pvzlauncher.pvzlauncher.pages
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -50,6 +51,7 @@ import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
 import com.pvzlauncher.pvzlauncher.utils.WriteJson
 import com.pvzlauncher.pvzlauncher.controls.XW_GameInformationCard
 import com.pvzlauncher.pvzlauncher.controls.XW_InputDialog
+import com.pvzlauncher.pvzlauncher.controls.XW_PhotoMask
 import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
 import com.pvzlauncher.pvzlauncher.utils.installApk
 import com.pvzlauncher.pvzlauncher.utils.intProcessList
@@ -353,7 +355,7 @@ public fun DownloadDetailPage()
                 AsyncImage(
                     model = i, "", modifier = Modifier
                         .height(200.dp)
-                        .width(360.dp)
+                        .width(360.dp).clickable(true, onClick = { XW_PhotoMask(lc,i).show() })
                 )
             }
         }

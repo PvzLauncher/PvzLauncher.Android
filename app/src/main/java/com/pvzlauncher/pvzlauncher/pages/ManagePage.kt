@@ -18,12 +18,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.SecondaryScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -52,6 +55,8 @@ import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
 import com.pvzlauncher.pvzlauncher.controls.XW_simpledialog
 import com.pvzlauncher.pvzlauncher.ui.theme.XW_LightTheme
 import com.pvzlauncher.pvzlauncher.utils.FavoriteListsConfig
+import com.pvzlauncher.pvzlauncher.utils.LAUNCHERCONFIGNAME
+import com.pvzlauncher.pvzlauncher.utils.LauncherConfig
 import com.pvzlauncher.pvzlauncher.utils.ManagelistIndex
 import com.pvzlauncher.pvzlauncher.utils.SaveConfig
 import com.pvzlauncher.pvzlauncher.utils.WriteJson
@@ -86,6 +91,7 @@ public fun ManagePage()
             if(isRendered)
             {
                 val scrollState = rememberScrollState()
+                var search by rememberSaveable {mutableStateOf("")}
                 Box(Modifier.fillMaxSize())
                 {
                     val cfg = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
@@ -129,6 +135,14 @@ public fun ManagePage()
                                 if(selecteditem == j)
                                 {
                                     selecteditem = 0
+                                }
+                                if(ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText()).CurrentGameIndex.ListIndex == j)
+                                {
+                                    val cfg = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText())
+                                    cfg.CurrentGameIndex.ListIndex = 0
+                                    cfg.CurrentGameIndex.GameIndex = 0
+                                    WriteJson<LauncherConfig>(
+                                        LAUNCHERCONFIGNAME,cfg,lc)
                                 }
                                 isDialogVisible = false
                                 isRendered = false
@@ -204,22 +218,36 @@ public fun ManagePage()
                                 }
                             }
                         }
+                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically)
+                        {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                "检测更新",
+                                modifier = Modifier.size(32.dp)
+                            )
+                            TextField(value = search, onValueChange = {search = it},Modifier.weight(1f).padding(5.dp), textStyle = LocalTextStyle.current.copy(
+                                fontSize = 14.sp
+                            ))
+                        }
                         if(cfg.ListIndex[selecteditem].GameIndex.count() != 0)
                         {
                             for (i in cfg.ListIndex[selecteditem].GameIndex) {
-                                XW_ManageInformationCard(
-                                    args = i,
-                                    onBack = {
-                                        ManagelistIndex = selecteditem
-                                        ManageIndex =
-                                            ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).ListIndex[selecteditem].GameIndex.indexOf(
-                                                i
-                                            )
-                                        CurrentDestination = AppDestinations.ManageDetailPage
-                                    },
-                                    IsButtonEnable = true,
+                                if(i.GameName.contains(search))
+                                {
+                                    XW_ManageInformationCard(
+                                        args = i,
+                                        onBack = {
+                                            ManagelistIndex = selecteditem
+                                            ManageIndex =
+                                                ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).ListIndex[selecteditem].GameIndex.indexOf(
+                                                    i
+                                                )
+                                            CurrentDestination = AppDestinations.ManageDetailPage
+                                        },
+                                        IsButtonEnable = true,
 
-                                    )
+                                        )
+                                }
 
                             }
                         }

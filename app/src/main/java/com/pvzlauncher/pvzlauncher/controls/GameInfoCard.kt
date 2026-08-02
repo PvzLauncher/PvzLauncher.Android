@@ -1,5 +1,6 @@
 package com.pvzlauncher.pvzlauncher.controls
 
+import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -94,6 +95,74 @@ public fun XW_GameInformationCard(args : GameConfig,onBack: () -> Unit,Disablebu
                             }
                             Text(i, color = Color.White, fontSize = 14.sp)
 
+                        }
+                        Box(modifier = Modifier.padding(2.5.dp)) { }
+                        Row()
+                        {
+                            if(args.supportVersion.SupportSystem <= Build.VERSION.SDK_INT)
+                            {
+                                outer@for(i in args.supportVersion.SupportPlatform)
+                                {
+                                    for(j in Build.SUPPORTED_ABIS)
+                                    {
+                                        if(i == j)
+                                        {
+                                            Box(modifier = Modifier
+                                                .background(Color(0xff2b30b4), RoundedCornerShape(7.5.dp))
+                                                .padding(4.dp,2.dp)
+                                            )
+
+                                            {
+
+                                                Text("兼容", color = Color.White, fontSize = 14.sp)
+
+                                            }
+                                            break@outer
+                                        }
+                                        if(args.supportVersion.SupportPlatform.indexOf(i) == args.supportVersion.SupportPlatform.count() - 1 && Build.SUPPORTED_ABIS.indexOf(j) == Build.SUPPORTED_ABIS.count() - 1 && i != j)
+                                        {
+                                            Box(modifier = Modifier
+                                                .background(Color(0xff3c3c3c), RoundedCornerShape(7.5.dp))
+                                                .padding(4.dp,2.dp)
+                                            )
+
+                                            {
+
+                                                Text("可能不兼容", color = Color.White, fontSize = 14.sp)
+
+                                            }
+                                        }
+                                    }
+                                }
+
+                            }
+                            else
+                            {
+                                Box(modifier = Modifier
+                                    .background(Color(0xff3c3c3c), RoundedCornerShape(7.5.dp))
+                                    .padding(4.dp,2.dp)
+                                )
+
+                                {
+
+                                    Text("不兼容", color = Color.White, fontSize = 14.sp)
+
+                                }
+                            }
+                            Box(modifier = Modifier.padding(2.5.dp)) { }
+                            if(args.recommend)
+                            {
+                                Box(modifier = Modifier
+                                    .background(Color(0xff3fbc2b), RoundedCornerShape(7.5.dp))
+                                    .padding(4.dp,2.dp)
+                                )
+
+                                {
+
+                                    Text("推荐", color = Color.White, fontSize = 14.sp)
+
+                                }
+                            }
                         }
                     }
                 }

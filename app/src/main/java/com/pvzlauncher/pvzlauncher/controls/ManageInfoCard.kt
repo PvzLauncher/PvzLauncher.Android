@@ -31,6 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.pvzlauncher.pvzlauncher.R
+import com.pvzlauncher.pvzlauncher.utils.GameListConfig
+import com.pvzlauncher.pvzlauncher.utils.GetWebSiteContent
 import com.pvzlauncher.pvzlauncher.utils.LAUNCHERCONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.LauncherConfig
 import com.pvzlauncher.pvzlauncher.utils.ReadJson
@@ -86,6 +88,8 @@ public fun XW_ManageInformationCard(args : SaveConfig, onBack: () -> Unit, IsBut
 
 
                         }
+
+
 
 
 

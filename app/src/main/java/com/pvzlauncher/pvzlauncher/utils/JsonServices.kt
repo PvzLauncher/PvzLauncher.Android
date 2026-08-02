@@ -30,7 +30,10 @@ public data class GameConfig(
     val GameLink : List<VersionConfig>,
     val GameImage : String,
     val GameDescription : String,
-    val ScreenShoot : List<String>
+    val ScreenShoot : List<String>,
+    val latestupdatetime : String,
+    val supportVersion : SupportConfig,
+    val recommend : Boolean
 )
 
 @Serializable
@@ -38,7 +41,14 @@ public data class VersionConfig(
     val VersionName :String,
     val VersionLink:String,
     val VersionSize:String,
-    val VersionVer : String
+    val VersionVer : String,
+
+)
+
+@Serializable
+public data class SupportConfig(
+    val SupportPlatform : List<String>,
+    val SupportSystem : Int
 )
 
 @Serializable
