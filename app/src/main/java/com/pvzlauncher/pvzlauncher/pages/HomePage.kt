@@ -53,8 +53,7 @@ public fun HomePage()
     Box(modifier = Modifier.fillMaxSize()) {
         if(ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText()).CostumBackground)
         {
-            AsyncImage(File("${lc.filesDir}/Background.png"),"", Modifier.fillMaxSize()
-                .blur(20.dp),
+            AsyncImage(File("${lc.filesDir}/Background.png"),"", Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop)
         }
         if (ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText()).UseEnglishTitle) {

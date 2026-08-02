@@ -1,0 +1,89 @@
+name: Build Signed APK CI
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - main
+
+
+permissions:
+  contents: write
+
+
+jobs:
+
+  build:
+
+    runs-on: windows-11-latest
+
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v4
+
+
+    - name: Setup JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: 17
+
+
+    - name: Decode keystore
+      shell: pwsh
+      run: |
+        [IO.File]::WriteAllBytes(
+          "release.keystore",
+          [Convert]::FromBase64String("${{ secrets.KEYSTORE_BASE64 }}")
+        )
+
+
+    - name: Build Release APK
+      shell: pwsh
+      run: |
+        .\gradlew.bat assembleRelease
+      env:
+        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
+
+    - name: Generate Version
+      id: version
+      shell: pwsh
+      run: |
+        $date = Get-Date -Format "yyMMdd"
+        $count = git tag -l "$date-ci*" | Measure-Object | Select-Object -ExpandProperty Count
+        $count++
+
+        "version=$date-ci$count" >> $env:GITHUB_OUTPUT
+
+
+    - name: Create Git Tag
+      shell: pwsh
+      run: |
+        git tag ${{ steps.version.outputs.version }}
+        git push origin ${{ steps.version.outputs.version }}
+
+
+    - name: Publish Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: ${{ steps.version.outputs.version }}
+
+        name: ${{ steps.version.outputs.version }}
+
+        body: |
+          Automated CI Build
+
+          Version:
+          ${{ steps.version.outputs.version }}
+
+          Commit:
+          ${{ github.sha }}
+
+        files: |
+          app/build/outputs/apk/release/*.apk

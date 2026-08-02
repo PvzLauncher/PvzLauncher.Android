@@ -114,6 +114,7 @@ public fun SettingPage()
                         isRendered = true
                     }
 
+
                 },
                 onError = {
                     isRendered = false
@@ -137,7 +138,7 @@ public fun SettingPage()
                     )
                     {
                         Text(
-                            "主题",
+                            "个性化",
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(0.dp),
                             fontSize = 18.sp
@@ -204,7 +205,7 @@ public fun SettingPage()
                             Icons.Default.UploadFile,
                             "导入设置",
                             "将设置导入，应用您的自定义属性",
-                            "导出设置",
+                            "导入设置",
                             Modifier,{
                                 openJsonPicker("application/json")
                             }
@@ -254,7 +255,6 @@ public fun SettingPage()
                                         LocalSettings,
                                         lc
                                     )
-                                    File(lc.filesDir, "Background.png").delete()
                                 }
                             }
 

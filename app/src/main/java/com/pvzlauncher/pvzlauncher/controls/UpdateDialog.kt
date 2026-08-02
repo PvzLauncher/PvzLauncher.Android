@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.pvzlauncher.pvzlauncher.R
@@ -34,6 +35,7 @@ public fun XW_UpdateDialog(lc: Context, args: UpdateConfig, onDismiss: () -> Uni
                     Column(Modifier.padding(10.dp)) {
                         Text("当前版本：${APP_VERSION}",color = Color.White)
                         Text("最新版本：${args.LatestVersion}", color = Color.White)
+                        Text("是否更新？", fontWeight = FontWeight.Bold, color = Color.White)
                         MarkdownText(
                             args.LatestDescription.trimIndent(), color = Color.White
                         )
@@ -44,6 +46,7 @@ public fun XW_UpdateDialog(lc: Context, args: UpdateConfig, onDismiss: () -> Uni
                     Column(Modifier.padding(10.dp)) {
                         Text("当前版本：${APP_VERSION}",color = Color.Black)
                         Text("最新版本：${args.LatestVersion}", color = Color.Black)
+                        Text("是否更新？", fontWeight = FontWeight.Bold, color = Color.Black)
                         MarkdownText(
                             args.LatestDescription.trimIndent(), color = Color.Black
                         )
