@@ -113,7 +113,7 @@ public fun RadioDialog(visible : Boolean,title : String,content : String,items :
 
 
 
-                            if(items[i] != "默认收藏夹")
+                            if(items[i] != "默认收藏夹" || content == "请选择要移入的收藏夹" )
                             {
                                 RadioButton(
                                     selected = i == oncheckeditem,
