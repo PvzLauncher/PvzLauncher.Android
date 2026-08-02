@@ -33,7 +33,7 @@ android {
 
             storePassword = "123456"
 
-            keyAlias = "release"
+            keyAlias = "key0"
 
             keyPassword = "123456"
         }
