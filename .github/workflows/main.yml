@@ -1,3 +1,23 @@
-- name: Build Release APK
-  run: |
-    .\gradlew.bat assembleRelease
+name: Build Release APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-11-latest
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Build Release APK
+        run: |
+          .\gradlew.bat assembleRelease
