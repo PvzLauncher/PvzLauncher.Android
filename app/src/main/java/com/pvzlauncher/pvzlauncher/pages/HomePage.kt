@@ -18,6 +18,10 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.pvzlauncher.pvzlauncher.R
+import com.pvzlauncher.pvzlauncher.controls.LaunchAnimation
 import com.pvzlauncher.pvzlauncher.ui.theme.XW_LightTheme
 import com.pvzlauncher.pvzlauncher.utils.LAUNCHERCONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.LauncherConfig
@@ -41,6 +46,7 @@ import java.io.File
 @Composable
 public fun HomePage()
 {   var lc = LocalContext.current
+    var showAnimation by rememberSaveable {mutableStateOf(false)}
     Box(modifier = Modifier.fillMaxSize()) {
         if(ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText()).CostumBackground)
         {
@@ -75,19 +81,22 @@ public fun HomePage()
                 horizontalAlignment = Alignment.CenterHorizontally
             )
             {
-
-                    FloatingActionButton(onClick = {
-
-
-
+                if(showAnimation)
+                {
+                    LaunchAnimation {
 
                         val new =
                             ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
                         new.ListIndex[current.ListIndex].GameIndex[current.GameIndex].LaunchTimes += 1
                         WriteJson<SaveConfigList>(SAVECONFIGNAME, new, lc)
+                        showAnimation = false
                         launchApp(lc, new.ListIndex[current.ListIndex].GameIndex[current.GameIndex].PackageName)
 
+                    }
+                }
 
+                    FloatingActionButton(onClick = {
+                        showAnimation = true
                     },Modifier.size(64.dp),containerColor = XW_LightTheme.primary)
                     { Icon(imageVector = Icons.Default.RocketLaunch,modifier= Modifier.size(32.dp), contentDescription =  "") }
 

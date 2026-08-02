@@ -98,25 +98,7 @@ public fun SettingPage()
                         .align(Alignment.CenterStart),
                     fontSize = 24.sp
                 )
-                TextButton(
-                    onClick = {
-                        openJsonPicker("application/json")
-                    },
-                    modifier = Modifier
-                        .padding(5.dp)
-                        .size(32.dp).align(Alignment.CenterEnd),
-                    contentPadding = PaddingValues(0.dp),
-                    shape = CircleShape
-                )
-                {
 
-                    Icon(
-                        imageVector = Icons.Default.UploadFile,
-                        "检测更新",
-                        modifier = Modifier.size(32.dp)
-                    )
-
-                }
             }
             val openPicker = rememberPhotoPickerLauncher(
                 onSuccess = {
@@ -160,50 +142,63 @@ public fun SettingPage()
                             modifier = Modifier.padding(0.dp),
                             fontSize = 18.sp
                         )
-                        XW_Switch(
-                            Icons.Default.Brightness6,
-                            "自动切换主题",
-                            "使程序随系统主题切换而自动切换(默认)",
-                            modifier = Modifier.padding(0.dp),
-                            LocalSettings.UseSystemTheme,
-                            { isChecked ->
-                                LocalSettings.UseSystemTheme = isChecked
+                        if(false)
+                        {
+                            XW_Switch(
+                                Icons.Default.Brightness6,
+                                "自动切换主题",
+                                "使程序随系统主题切换而自动切换(默认)",
+                                modifier = Modifier.padding(0.dp),
+                                LocalSettings.UseSystemTheme,
+                                { isChecked ->
+                                    LocalSettings.UseSystemTheme = isChecked
 
-                                WriteJson<LauncherConfig>(
-                                    LAUNCHERCONFIGNAME,
-                                    LocalSettings,
-                                    lc
-                                )
+                                    WriteJson<LauncherConfig>(
+                                        LAUNCHERCONFIGNAME,
+                                        LocalSettings,
+                                        lc
+                                    )
 
-                            })
-                        XW_Switch(
-                            Icons.Default.DarkMode,
-                            "启用深色模式",
-                            "手动使程序保持深色主题，不随系统切换而切换",
-                            modifier = Modifier.padding(0.dp),
-                            LocalSettings.UseDarkTheme,
-                            { isChecked ->
-                                LocalSettings.UseDarkTheme = isChecked
-                                WriteJson<LauncherConfig>(
-                                    LAUNCHERCONFIGNAME,
-                                    LocalSettings,
-                                    lc
-                                )
-                            })
-                        XW_Switch(
-                            Icons.Default.ColorLens,
-                            "自定义主题色",
-                            "选择你喜欢的颜色作为主题色",
-                            Modifier,
-                            LocalSettings.CostumThemeColor,
-                            { i ->
-                                LocalSettings.CostumThemeColor = i
-                                WriteJson<LauncherConfig>(
-                                    LAUNCHERCONFIGNAME,
-                                    LocalSettings,
-                                    lc
-                                )
+                                })
+                            XW_Switch(
+                                Icons.Default.DarkMode,
+                                "启用深色模式",
+                                "手动使程序保持深色主题，不随系统切换而切换",
+                                modifier = Modifier.padding(0.dp),
+                                LocalSettings.UseDarkTheme,
+                                { isChecked ->
+                                    LocalSettings.UseDarkTheme = isChecked
+                                    WriteJson<LauncherConfig>(
+                                        LAUNCHERCONFIGNAME,
+                                        LocalSettings,
+                                        lc
+                                    )
+                                })
+                            XW_Switch(
+                                Icons.Default.ColorLens,
+                                "自定义主题色",
+                                "选择你喜欢的颜色作为主题色",
+                                Modifier,
+                                LocalSettings.CostumThemeColor,
+                                { i ->
+                                    LocalSettings.CostumThemeColor = i
+                                    WriteJson<LauncherConfig>(
+                                        LAUNCHERCONFIGNAME,
+                                        LocalSettings,
+                                        lc
+                                    )
+                                }
+                            )
+                        }
+                        XW_Button(
+                            Icons.Default.FileOpen,
+                            "导出设置",
+                            "将设置导出，方便跨设备传输",
+                            "导出设置",
+                            Modifier,{
+                                shareConfig(lc)
                             }
+
                         )
                         XW_Button(
                             Icons.Default.FileOpen,
