@@ -25,11 +25,24 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+
+        create("release") {
+
+            storeFile = file("${rootProject.projectDir}/pvzlauncher.jks")
+
+            storePassword = "123456"
+
+            keyAlias = "release"
+
+            keyPassword = "123456"
+        }
+    }
+
     buildTypes {
         release {
-            optimization {
-                enable = false
-            }
+            signingConfig =
+                signingConfigs.getByName("release")
         }
     }
     compileOptions {
