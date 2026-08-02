@@ -67,6 +67,7 @@ fun XW_LoadingMask(context: Context, loadingText: String): Dialog {
                 }
             }
         }
+
     }
 
     if (context is ComponentActivity) {

@@ -20,14 +20,16 @@ val XW_LightTheme = lightColorScheme(
     primary = Color(0xFF63A002),
     secondary = Color(0xFF749D46),
     tertiary = Color(0xFF69835A),
-    onPrimary = Color(0xFFFFFFFF)
+    onPrimary = Color(0xFFFFFFFF),
+    onBackground = Color(0xFF000000)
 )
 
 val XW_DarkTheme = darkColorScheme(
     primary = Color(0xFF63A002),
     secondary = Color(0xFF749D46),
     tertiary = Color(0xFF69835A) ,
-    onPrimary = Color(0xFFFFFFFF)
+    onPrimary = Color(0xFFFFFFFF),
+    onBackground = Color(0xFFFFFFFF)
     )
 
 val XW_Typography = Typography(
@@ -63,3 +65,4 @@ fun PvzLauncherAndroidTheme(
         content = content
     )
 }
+

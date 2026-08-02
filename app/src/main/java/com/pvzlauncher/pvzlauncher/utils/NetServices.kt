@@ -11,6 +11,7 @@ import java.net.URL
 import com.pvzlauncher.pvzlauncher.controls.XW_simpledialog
 import com.pvzlauncher.pvzlauncher.controls.XW_LoadingMask
 import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
+import com.pvzlauncher.pvzlauncher.controls.XW_UpdateDialog
 
 
 public fun OpenUrl(url : String,context : Context)
@@ -39,7 +40,9 @@ public fun CheckUpdate(lc : Context,isSilent : Boolean)
         }
         else
         {
-            XW_simpledialog("更新可用","当前版本:${APP_VERSION}\r\n最新版本:${ConfigInline.LatestVersion}\r\n更新日志:\r\n${ConfigInline.LatestDescription}\r\n请问是否现在就要更新？",{
+            val info = GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateInfo.md")
+            ConfigInline.LatestDescription = info
+            XW_UpdateDialog(lc,ConfigInline,{},{
                 var loa = XW_LoadingMask(lc,"请稍候……")
                 loa.show()
                 var dprogress = 0
@@ -65,7 +68,7 @@ public fun CheckUpdate(lc : Context,isSilent : Boolean)
 
 
                     })
-            },{},lc)
+            })
         }
     }
     catch(e: Exception)

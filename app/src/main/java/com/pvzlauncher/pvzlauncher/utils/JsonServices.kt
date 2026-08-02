@@ -20,7 +20,7 @@ import java.io.File
 @Serializable
 public data class UpdateConfig(
     val LatestVersion : String,
-    val LatestDescription : String,
+    var LatestDescription : String,
     val LatestLink : String
 )
 
