@@ -1,23 +1,96 @@
 name: Build Release APK
 
+
 on:
   workflow_dispatch:
 
+  push:
+    branches:
+      - main
+
+
+permissions:
+  contents: write
+
+
 jobs:
+
   build:
+
     runs-on: windows-11-latest
+
 
     steps:
 
+      # 拉取代码
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
+
+      # 配置 JDK
       - name: Setup JDK
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
+
+      # 构建 Signed APK
       - name: Build Release APK
         run: |
           .\gradlew.bat assembleRelease
+
+
+      # 生成版本号 YYMMDD-ci编号
+      - name: Generate Version
+        id: version
+        shell: pwsh
+        run: |
+          $date = Get-Date -Format "yyMMdd"
+
+          $count = git tag -l "$date-ci*" |
+            Measure-Object |
+            Select-Object -ExpandProperty Count
+
+          $count++
+
+          $version = "$date-ci$count"
+
+          echo "version=$version" >> $env:GITHUB_OUTPUT
+
+
+      # 创建 Git Tag
+      - name: Create Git Tag
+        shell: pwsh
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git tag ${{ steps.version.outputs.version }}
+
+          git push origin ${{ steps.version.outputs.version }}
+
+
+      # 发布 Release
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+
+          tag_name: ${{ steps.version.outputs.version }}
+
+          name: ${{ steps.version.outputs.version }}
+
+          body: |
+            Automated CI Build
+
+            Version:
+            ${{ steps.version.outputs.version }}
+
+            Commit:
+            ${{ github.sha }}
+
+
+          files: |
+            app/build/outputs/apk/release/*.apk
