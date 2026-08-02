@@ -37,33 +37,34 @@ jobs:
           java-version: 17
 
 
-      # 构建 Signed APK
+      # 设置 Gradle 权限
+      - name: Grant execute permission
+        run: chmod +x ./gradlew
+
+
+      # 构建签名 APK
       - name: Build Release APK
         run: |
-          .\gradlew.bat assembleRelease
+          ./gradlew assembleRelease
 
 
       # 生成版本号 YYMMDD-ci编号
       - name: Generate Version
         id: version
-        shell: pwsh
         run: |
-          $date = Get-Date -Format "yyMMdd"
+          DATE=$(date +"%y%m%d")
 
-          $count = git tag -l "$date-ci*" |
-            Measure-Object |
-            Select-Object -ExpandProperty Count
+          COUNT=$(git tag -l "${DATE}-ci*" | wc -l)
 
-          $count++
+          COUNT=$((COUNT+1))
 
-          $version = "$date-ci$count"
+          VERSION="${DATE}-ci${COUNT}"
 
-          echo "version=$version" >> $env:GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
 
       # 创建 Git Tag
       - name: Create Git Tag
-        shell: pwsh
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
@@ -73,11 +74,10 @@ jobs:
           git push origin ${{ steps.version.outputs.version }}
 
 
-      # 发布 Release
-      - name: Publish GitHub Release
+      # 发布 GitHub Release
+      - name: Publish Release
         uses: softprops/action-gh-release@v2
         with:
-
           tag_name: ${{ steps.version.outputs.version }}
 
           name: ${{ steps.version.outputs.version }}
@@ -90,7 +90,6 @@ jobs:
 
             Commit:
             ${{ github.sha }}
-
 
           files: |
             app/build/outputs/apk/release/*.apk
