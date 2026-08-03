@@ -125,6 +125,31 @@ public fun SettingPage()
 
                 }
             )
+            val openPicker2 = rememberPhotoPickerLauncher(
+                onSuccess = {
+                    LocalSettings.UseEnglishTitle = true
+                    WriteJson<LauncherConfig>(
+                        LAUNCHERCONFIGNAME,
+                        LocalSettings,
+                        lc
+                    )
+                    isRendered = false
+                    scope.launch {
+                        delay(100)
+                        isRendered = true
+                    }
+
+
+                },
+                onError = {
+                    isRendered = false
+                    scope.launch {
+                        delay(100)
+                        isRendered = true
+                    }
+
+                },false
+            )
             val scrollState = rememberScrollState()
             if(isRendered)
             {
@@ -225,18 +250,27 @@ public fun SettingPage()
                         )
                         XW_Switch(
                             Icons.Default.Title,
-                            "启用英文版标题",
-                            "使用“Plants Vs. Zombies”字样而不是“植物大战僵尸”作为标题",
+                            "自定义标题图片",
+                            "使用您的自定义字样而不是默认的“植物大战僵尸”作为标题",
                             modifier = Modifier.padding(0.dp),
                             LocalSettings.UseEnglishTitle,
-                            { isChecked ->
-                                LocalSettings.UseEnglishTitle = isChecked
-                                WriteJson<LauncherConfig>(
-                                    LAUNCHERCONFIGNAME,
-                                    LocalSettings,
-                                    lc
-                                )
-                            })
+                            { i ->
+                                if(i == true)
+                                {
+                                    openPicker2()
+                                }
+                                else
+                                {
+                                    LocalSettings.UseEnglishTitle = i
+                                    WriteJson<LauncherConfig>(
+                                        LAUNCHERCONFIGNAME,
+                                        LocalSettings,
+                                        lc
+                                    )
+                                }
+                            }
+
+                        )
                         XW_Switch(
                             Icons.Default.Image,
                             "自定义背景图",
@@ -272,7 +306,7 @@ public fun SettingPage()
                             Icons.Default.PlaylistRemove,
                             "清除游戏列表",
                             "将启动器内导入的所有游戏清空",
-                            "立即删除",
+                            "立即清除",
                             Modifier,
                             OnClicked = {
                                 XW_simpledialog(
@@ -337,7 +371,7 @@ public fun SettingPage()
                             Icons.Default.Restore,
                             "恢复默认配置",
                             "将启动器的所有设置恢复默认",
-                            "立即删除",
+                            "立即恢复",
                             Modifier,
                             OnClicked = {
                                 XW_simpledialog(

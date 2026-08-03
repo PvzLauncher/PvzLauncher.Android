@@ -167,20 +167,3 @@ fun JsonPickerLauncher(
         launcher.launch(mimeType)
     }
 }
-
-private fun createTempFileFromUri(context: Context, uri: Uri): File? {
-    return try {
-        val inputStream = context.contentResolver.openInputStream(uri) ?: return null
-        val tempFile = File.createTempFile("imported_json_", ".json", File("${context.filesDir}/temp"))
-
-        tempFile.outputStream().use { outputStream ->
-            inputStream.use { input ->
-                input.copyTo(outputStream)
-            }
-        }
-        tempFile
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
-    }
-}

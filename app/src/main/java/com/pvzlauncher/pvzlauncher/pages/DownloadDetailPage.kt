@@ -270,6 +270,7 @@ public fun DownloadDetailPage()
                                                 pid
                                             ))
                                             intProcessList.remove(pid)
+                                            XW_ToastMessage("安装失败")
                                         })
 
 

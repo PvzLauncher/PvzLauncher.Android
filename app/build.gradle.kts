@@ -18,8 +18,8 @@ android {
         targetSdk = 36
 
         //更新时一定要更改此区域
-        versionCode = 15
-        versionName = "1.1.1"
+        versionCode = 16
+        versionName = "1.2.0"
         //更新时一定要更改此区域
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

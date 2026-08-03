@@ -11,17 +11,25 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageInstaller
 import android.net.Uri
+import android.os.Environment
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import java.io.File
 import android.os.Handler
 import android.os.Looper
+import android.provider.OpenableColumns
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
+import com.pvzlauncher.pvzlauncher.controls.XW_simpledialog
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 public fun GetApkInfo(pkg : String,context: Context) : PackageInfo
 {
@@ -242,7 +250,7 @@ fun APKPickerLauncher(
     }
 }
 
-private fun createTempFileFromUri(context: Context, uri: Uri): File? {
+public fun createTempFileFromUri(context: Context, uri: Uri): File? {
     return try {
         val inputStream = context.contentResolver.openInputStream(uri) ?: return null
         val tempFile = File.createTempFile("imported_apk_", ".apk", File("${context.filesDir}/temp"))
@@ -258,3 +266,4 @@ private fun createTempFileFromUri(context: Context, uri: Uri): File? {
         null
     }
 }
+

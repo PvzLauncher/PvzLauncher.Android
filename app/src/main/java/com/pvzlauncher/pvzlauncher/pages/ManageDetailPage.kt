@@ -1,6 +1,8 @@
 package com.pvzlauncher.pvzlauncher.pages
 
+import android.os.Environment
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -18,6 +20,7 @@ import androidx.compose.material.icons.filled.StarOutline
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -48,9 +51,16 @@ import com.pvzlauncher.pvzlauncher.utils.SaveConfig
 import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
 import com.pvzlauncher.pvzlauncher.utils.WriteJson
 import com.pvzlauncher.pvzlauncher.controls.XW_InputDialog
+import com.pvzlauncher.pvzlauncher.controls.XW_LoadingMask
 import com.pvzlauncher.pvzlauncher.controls.XW_ManageInformationCard
 import com.pvzlauncher.pvzlauncher.utils.ManagelistIndex
 import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
+import com.pvzlauncher.pvzlauncher.utils.OBBPickerLauncher
+import com.pvzlauncher.pvzlauncher.utils.createTempFileFromUri
+import com.pvzlauncher.pvzlauncher.utils.createTempOBBFileFromUri
+import com.pvzlauncher.pvzlauncher.utils.deleteOBBFile
+import com.pvzlauncher.pvzlauncher.utils.getFileName
+import com.pvzlauncher.pvzlauncher.utils.isAppInstalled
 import com.pvzlauncher.pvzlauncher.utils.uninstallApk
 import kotlinx.coroutines.launch
 import java.io.File
@@ -104,6 +114,8 @@ public fun ManageDetailPage()
         }
     }
     val scrollState = rememberScrollState()
+    val all = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
+
     if(isRendered)
     {
         Column(
@@ -113,7 +125,7 @@ public fun ManageDetailPage()
         )
         {
 
-            val all = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
+
             if(ManageIndex < all.ListIndex[ManagelistIndex].GameIndex.count())
             {
                 Row(
@@ -220,41 +232,130 @@ public fun ManageDetailPage()
                                 CurrentDestination = AppDestinations.ManagePage
                             })
                     }
-                    Column()
+                    if(!isAppInstalled(lc,all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].PackageName))
                     {
-                        Row(verticalAlignment = Alignment.CenterVertically)
+                        Box(Modifier.fillMaxSize())
                         {
-                            var isDialogVisible by rememberSaveable { mutableStateOf(false) }
-                            val cfg = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
-                            var names = emptyList<String>().toMutableList()
-                            for(i in cfg.ListIndex)
-                            {
-                                names.add(i.listname)
-                            }
-                            RadioDialog(isDialogVisible,"提示","请选择要移入的收藏夹",names.toList(),{isDialogVisible = false},{j ->
-                                val v1 = all.ListIndex[ManagelistIndex].GameIndex[ManageIndex]
-                                val v0 = all.ListIndex[ManagelistIndex].GameIndex.toMutableList()
-                                v0.remove(v1)
-                                all.ListIndex[ManagelistIndex].GameIndex = v0.toList()
-                                WriteJson(SAVECONFIGNAME, all, lc)
-                                ManagelistIndex = j
-                                val v2 = all.ListIndex[j].GameIndex.toMutableList()
-                                v2.add(v1)
-                                all.ListIndex[j].GameIndex = v2.toList()
-                                WriteJson(SAVECONFIGNAME, all, lc)
-                                isDialogVisible = false
-                                RefreshDetail()})
-                            Text("所在收藏夹：${all.ListIndex[ManagelistIndex].listname}")
-                            TextButton(onClick = {
-                                isDialogVisible = true
-                            })
-                            {
-                                Text("修改所在收藏夹")
+                            Column(Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("此游戏对应的应用程序不存在",fontSize = 18.sp, fontWeight = Bold)
+                                Text("请重新导入", fontSize = 14.sp)
                             }
                         }
-                        Text("入库时间:${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].AddTime}")
-                        Text("启动次数:${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].LaunchTimes}")
                     }
+                    else
+                    {
+                        Column()
+                        {
+                            Row(verticalAlignment = Alignment.CenterVertically)
+                            {
+                                var isDialogVisible by rememberSaveable { mutableStateOf(false) }
+                                val cfg = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
+                                var names = emptyList<String>().toMutableList()
+                                for(i in cfg.ListIndex)
+                                {
+                                    names.add(i.listname)
+                                }
+                                RadioDialog(isDialogVisible,"提示","请选择要移入的收藏夹",names.toList(),{isDialogVisible = false},{j ->
+                                    val v1 = all.ListIndex[ManagelistIndex].GameIndex[ManageIndex]
+                                    val v0 = all.ListIndex[ManagelistIndex].GameIndex.toMutableList()
+                                    v0.remove(v1)
+                                    all.ListIndex[ManagelistIndex].GameIndex = v0.toList()
+                                    WriteJson(SAVECONFIGNAME, all, lc)
+                                    ManagelistIndex = j
+                                    val v2 = all.ListIndex[j].GameIndex.toMutableList()
+                                    v2.add(v1)
+                                    all.ListIndex[j].GameIndex = v2.toList()
+                                    WriteJson(SAVECONFIGNAME, all, lc)
+                                    isDialogVisible = false
+                                    RefreshDetail()})
+                                Text("所在收藏夹：${all.ListIndex[ManagelistIndex].listname}")
+                                TextButton(onClick = {
+                                    isDialogVisible = true
+                                })
+                                {
+                                    Text("修改所在收藏夹")
+                                }
+                            }
+
+                            fun IsCostumOBBInUse() : Boolean{
+                                if(File(
+                                        Environment.getExternalStorageDirectory(),
+                                        "Android/obb/${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].PackageName}"
+                                    ).exists())
+                                {
+                                    if(File(
+                                            Environment.getExternalStorageDirectory(),
+                                            "Android/obb/${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].PackageName}"
+                                        ).listFiles()
+                                            ?.any { it.isFile && it.extension.equals("obb", ignoreCase = true) }
+                                            ?: false)
+                                    {
+                                        return true
+                                    }
+                                    return false
+                                }
+                                return false
+                            }
+                            var m = XW_LoadingMask(lc,"请稍候……")
+                            var ischecked by rememberSaveable {mutableStateOf(IsCostumOBBInUse())}
+                            val scope = rememberCoroutineScope()
+                            var a = OBBPickerLauncher({ i ->
+                                try {
+                                    if (getFileName(lc,i)?.endsWith(".obb", true) == true) {
+                                        m.show()
+                                        if(!File(Environment.getExternalStorageDirectory(),"Android/obb/${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].PackageName}").exists())
+                                        {
+                                            File(Environment.getExternalStorageDirectory(),"Android/obb/${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].PackageName}").mkdirs()
+                                        }
+                                        scope.launch {
+                                            createTempOBBFileFromUri(lc,i,"${Environment.getExternalStorageDirectory()}/Android/obb/${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].PackageName}/${getFileName(lc,i)}")
+                                            ischecked = true
+                                            m.hide()
+                                        }
+
+                                    }
+                                    else
+                                    {
+                                        ischecked = false
+                                        XW_ToastMessage("文件不是obb格式，请重新选择！")
+                                    }
+
+                                }
+                                catch(e: Exception)
+                                {
+                                    XW_ToastMessage("无法复制obb,${i}")
+                                    ischecked = false
+                                }
+                            },{ i->
+                                ischecked = false
+                            })
+                            Row(verticalAlignment = Alignment.CenterVertically)
+                            {
+                                Text("使用自定义OBB:",Modifier.padding(0.dp,0.dp,5.dp,0.dp))
+                                Switch(ischecked,{ischecked = it
+                                    if(ischecked)
+                                    {
+                                        a("*/*")
+                                    }
+                                    else
+                                    {
+                                        //File(Environment.getExternalStorageDirectory(),"Android/obb/${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].PackageName}").delete()
+                                        scope.launch {
+                                            m.show()
+                                            deleteOBBFile("${Environment.getExternalStorageDirectory()}/Android/obb/${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].PackageName}")
+                                            m.hide()
+                                            ischecked = IsCostumOBBInUse()
+                                        }
+                                    }
+
+                                })
+
+                            }
+                            Text("入库时间:${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].AddTime}")
+                            Text("启动次数:${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].LaunchTimes}")
+                        }
+                    }
+
                 }
             }
             else

@@ -76,7 +76,9 @@ import com.pvzlauncher.pvzlauncher.utils.FavoriteListsConfig
 import com.pvzlauncher.pvzlauncher.utils.SaveConfig
 import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
 import com.pvzlauncher.pvzlauncher.utils.WriteJson
+import com.pvzlauncher.pvzlauncher.utils.requestObbPermission
 import com.pvzlauncher.pvzlauncher.utils.snackbarHostState
+import android.content.Context
 
 
 class MainActivity : ComponentActivity() {
@@ -228,12 +230,32 @@ enum class AppDestinations(
 @Composable
 fun InitializeAppInterface()
 {
+
     var lc = LocalContext.current
     globalContext = LocalContext.current
     APP_VERSION = (lc.packageManager.getPackageInfo(lc.packageName,0).versionName ?: "1.0.0")
     var startupcheckupdate by rememberSaveable { mutableStateOf(false) }
     var requestappinstall by rememberSaveable { mutableStateOf(false) }
     var checkinternetconnect by rememberSaveable { mutableStateOf(false) }
+    val obbLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocumentTree()
+    ) { uri ->
+
+        if (uri != null) {
+            lc.contentResolver.takePersistableUriPermission(
+                uri,
+                Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            )
+            lc.getSharedPreferences(
+                "obb_permission",
+                Context.MODE_PRIVATE
+            )
+                .edit()
+                .putString("uri", uri.toString())
+                .apply()
+        }
+    }
     val dir = File("${lc.filesDir}/temp")
     if (!dir.exists()) {
         dir.mkdirs()
@@ -248,26 +270,13 @@ fun InitializeAppInterface()
                     contract = ActivityResultContracts.StartActivityForResult()
                 ) { _ ->
                     if (!lc.packageManager.canRequestPackageInstalls()) {
-                        XW_simpledialog(
-                            "警告",
-                            "警告,您未开启此权限，程序可能无法正常使用！是否前往打开此权限？",
-                            {
-                                val intent =
-                                    Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
-                                        data = Uri.parse("package:${lc.packageName}")
-                                    }
-                                // 启动跳转
 
-                            },
-                            {},
-                            lc
-                        )
                     }
 
                 }
 
                 XW_simpledialog(
-                    "提示",
+                    "权限申请(2/2)",
                     "本程序需要申请“应用内安装应用”权限来帮助您安装各版本Pvz和提供游戏，自身升级包，请您同意此权限来使用此程序",
                     {
 
@@ -278,22 +287,7 @@ fun InitializeAppInterface()
                         settingLauncher.launch(intent)
 
                     },
-                    {
-                        XW_simpledialog(
-                            "警告",
-                            "警告,如果您还不开启此权限，程序可能无法正常使用！是否前往打开此权限？",
-                            {
-                                val intent =
-                                    Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
-                                        data = Uri.parse("package:${lc.packageName}")
-                                    }
-                                // 启动跳转
-                                lc.startActivity(intent)
-                            },
-                            {requestappinstall = true},
-                            lc
-                        )
-                    },
+                    {},
                     lc
                 )
             }
@@ -318,11 +312,12 @@ fun InitializeAppInterface()
     }
 
     try{
-        ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
+        val a = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
         if(ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).ListIndex.count() < 1)
         {
             WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>()))),lc)
         }
+
     }
     catch(e:Exception) {
         WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>()))),lc)
@@ -334,7 +329,9 @@ fun InitializeAppInterface()
         .setConnectTimeout(30000)
         .build()
     PRDownloader.initialize(LocalContext.current, config)
+    requestObbPermission(lc)
     refreshInstalledapplist(lc)
+
     if(checkinternetconnect == false)
     {
 

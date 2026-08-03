@@ -57,14 +57,10 @@ public fun HomePage()
             contentScale = ContentScale.Crop)
         }
         if (ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText()).UseEnglishTitle) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_apptitle_en),
-                "123",
-                alignment = Alignment.TopCenter,
+            AsyncImage(File("${lc.filesDir}/Title.png"),"",alignment = Alignment.TopCenter,
                 modifier = Modifier
                     .padding(40.dp)
-                    .fillMaxWidth()
-            )
+                    .fillMaxWidth())
         } else {
             Image(
                 painter = painterResource(id = R.drawable.ic_apptitle_zh),

@@ -24,7 +24,7 @@ import kotlin.math.max
 @Composable
 fun rememberPhotoPickerLauncher(
     onSuccess: (File) -> Unit,
-    onError: (String) -> Unit
+    onError: (String) -> Unit,IsBlur : Boolean = true
 ): () -> Unit {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -41,13 +41,27 @@ fun rememberPhotoPickerLauncher(
             try {
                 var m = XW_LoadingMask(context,"请稍候……")
                 m.show()
-                val file = copyImageToPrivateDir(context, uri)
-                if (file != null && file.exists()) {
-                    m.hide()
-                    onSuccess(file)
-                } else {
-                    m.hide()
-                    onError("图片复制失败：文件未成功创建")
+                if(IsBlur)
+                {
+                    val file = copyImageToPrivateDir(context, uri,5)
+                    if (file != null && file.exists()) {
+                        m.hide()
+                        onSuccess(file)
+                    } else {
+                        m.hide()
+                        onError("图片复制失败：文件未成功创建")
+                    }
+                }
+                else
+                {
+                    val file = copyImageToPrivateDir(context, uri)
+                    if (file != null && file.exists()) {
+                        m.hide()
+                        onSuccess(file)
+                    } else {
+                        m.hide()
+                        onError("图片复制失败：文件未成功创建")
+                    }
                 }
             } catch (e: Exception) {
                 onError("处理图片时发生异常: ${e.localizedMessage}")
@@ -64,7 +78,7 @@ fun rememberPhotoPickerLauncher(
 
 private suspend fun copyImageToPrivateDir(
     context: Context,
-    uri: Uri
+    uri: Uri,radius:Int
 ): File? = withContext(Dispatchers.IO) {
 
     val destFile = File(context.filesDir, "Background.png")
@@ -103,7 +117,6 @@ private suspend fun copyImageToPrivateDir(
 
     val w = bitmap.width
     val h = bitmap.height
-    val radius = 5
 
     val pixels = IntArray(w * h)
 
@@ -216,5 +229,15 @@ private suspend fun copyImageToPrivateDir(
     result.recycle()
 
 
+    destFile
+}
+
+private suspend fun copyImageToPrivateDir(context: Context, uri: Uri): File? = withContext(Dispatchers.IO) {
+    val destFile = File(context.filesDir, "Title.png")
+    context.contentResolver.openInputStream(uri)?.use { input ->
+        destFile.outputStream().use { output ->
+            input.copyTo(output)
+        }
+    }
     destFile
 }
