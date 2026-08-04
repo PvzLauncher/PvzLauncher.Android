@@ -26,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -53,6 +54,7 @@ import com.pvzlauncher.pvzlauncher.utils.SAVECONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
 import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
 import com.pvzlauncher.pvzlauncher.utils.SaveConfig
+import com.pvzlauncher.pvzlauncher.utils.UseDarkTheme
 import com.pvzlauncher.pvzlauncher.utils.rememberPhotoPickerLauncher
 import com.pvzlauncher.pvzlauncher.utils.shareConfig
 import kotlinx.coroutines.delay
@@ -64,7 +66,19 @@ public fun SettingPage()
 {
     val lc = LocalContext.current
     val scope = rememberCoroutineScope()
-    var LocalSettings = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText())
+    var LocalSettings = LauncherConfig(
+        UseSystemTheme = true,
+        UseDarkTheme = false,
+        UseEnglishTitle = false,
+        CurrentGameIndex = CurrentIndex(0,0),
+        true, false,false
+    )
+    LaunchedEffect(Unit) {
+        scope.launch {
+            LocalSettings = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
+        }
+    }
+
     var isRendered by rememberSaveable { mutableStateOf(true) }
     Box(Modifier.fillMaxSize())
     {
@@ -74,11 +88,13 @@ public fun SettingPage()
                     "警告",
                     "此操作不可逆，确认要将所有设置覆盖吗？",
                     {
-                        val old = ReadJson<LauncherConfig>(i.readText())
-                        WriteJson<LauncherConfig>(LAUNCHERCONFIGNAME,old,lc)
-                        XW_simpledialog("提示","启动器需要重启以应用更改，应用即将退出……",{System.exit(0)},{System.exit(0)},lc)
+                       scope.launch {
+                           val old = ReadJson<LauncherConfig>(i)
+                           WriteJson<LauncherConfig>(LAUNCHERCONFIGNAME,old,lc)
+                           XW_simpledialog("提示","启动器需要重启以应用更改，应用即将退出……",{System.exit(0)},{System.exit(0)},lc,scope)
+                       }
                     },
-                    {},lc
+                    {},lc,scope
                 )
             }
             catch(e:Exception)
@@ -102,14 +118,15 @@ public fun SettingPage()
             }
             val openPicker = rememberPhotoPickerLauncher(
                 onSuccess = {
-                    LocalSettings.CostumBackground = true
-                    WriteJson<LauncherConfig>(
-                        LAUNCHERCONFIGNAME,
-                        LocalSettings,
-                        lc
-                    )
-                    isRendered = false
+
                     scope.launch {
+                        LocalSettings.CostumBackground = true
+                        WriteJson<LauncherConfig>(
+                            LAUNCHERCONFIGNAME,
+                            LocalSettings,
+                            lc
+                        )
+                        isRendered = false
                         delay(100)
                         isRendered = true
                     }
@@ -127,14 +144,15 @@ public fun SettingPage()
             )
             val openPicker2 = rememberPhotoPickerLauncher(
                 onSuccess = {
-                    LocalSettings.UseEnglishTitle = true
-                    WriteJson<LauncherConfig>(
-                        LAUNCHERCONFIGNAME,
-                        LocalSettings,
-                        lc
-                    )
-                    isRendered = false
+
                     scope.launch {
+                        LocalSettings.UseEnglishTitle = true
+                        WriteJson<LauncherConfig>(
+                            LAUNCHERCONFIGNAME,
+                            LocalSettings,
+                            lc
+                        )
+                        isRendered = false
                         delay(100)
                         isRendered = true
                     }
@@ -153,7 +171,7 @@ public fun SettingPage()
             val scrollState = rememberScrollState()
             if(isRendered)
             {
-                var LocalSettings = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText())
+
                 Column(Modifier.fillMaxSize().verticalScroll(scrollState))
                 {
 
@@ -168,15 +186,14 @@ public fun SettingPage()
                             modifier = Modifier.padding(0.dp),
                             fontSize = 18.sp
                         )
-                        if(false)
-                        {
-                            XW_Switch(
-                                Icons.Default.Brightness6,
-                                "自动切换主题",
-                                "使程序随系统主题切换而自动切换(默认)",
-                                modifier = Modifier.padding(0.dp),
-                                LocalSettings.UseSystemTheme,
-                                { isChecked ->
+                        XW_Switch(
+                            Icons.Default.Brightness6,
+                            "自动切换主题",
+                            "使程序随系统主题切换而自动切换(默认)",
+                            modifier = Modifier.padding(0.dp),
+                            LocalSettings.UseSystemTheme,
+                            { isChecked ->
+                                scope.launch {
                                     LocalSettings.UseSystemTheme = isChecked
 
                                     WriteJson<LauncherConfig>(
@@ -184,22 +201,34 @@ public fun SettingPage()
                                         LocalSettings,
                                         lc
                                     )
+                                    UseDarkTheme.value = !(UseDarkTheme.value)
 
-                                })
-                            XW_Switch(
-                                Icons.Default.DarkMode,
-                                "启用深色模式",
-                                "手动使程序保持深色主题，不随系统切换而切换",
-                                modifier = Modifier.padding(0.dp),
-                                LocalSettings.UseDarkTheme,
-                                { isChecked ->
+                                    isRendered = false
+                                    isRendered = true
+                                }
+
+
+                            })
+                        XW_Switch(
+                            Icons.Default.DarkMode,
+                            "启用深色模式",
+                            "手动使程序保持深色主题，不随系统切换而切换",
+                            modifier = Modifier.padding(0.dp),
+                            LocalSettings.UseDarkTheme,
+                            { isChecked ->
+                                scope.launch {
                                     LocalSettings.UseDarkTheme = isChecked
                                     WriteJson<LauncherConfig>(
                                         LAUNCHERCONFIGNAME,
                                         LocalSettings,
                                         lc
                                     )
-                                })
+                                    UseDarkTheme.value = !(UseDarkTheme.value)
+                                }
+                            },if(LocalSettings.UseSystemTheme){true}else{false})
+                        if(false)
+                        {
+
                             XW_Switch(
                                 Icons.Default.ColorLens,
                                 "自定义主题色",
@@ -207,12 +236,14 @@ public fun SettingPage()
                                 Modifier,
                                 LocalSettings.CostumThemeColor,
                                 { i ->
-                                    LocalSettings.CostumThemeColor = i
-                                    WriteJson<LauncherConfig>(
-                                        LAUNCHERCONFIGNAME,
-                                        LocalSettings,
-                                        lc
-                                    )
+                                    scope.launch {
+                                        LocalSettings.CostumThemeColor = i
+                                        WriteJson<LauncherConfig>(
+                                            LAUNCHERCONFIGNAME,
+                                            LocalSettings,
+                                            lc
+                                        )
+                                    }
                                 }
                             )
                         }
@@ -261,12 +292,14 @@ public fun SettingPage()
                                 }
                                 else
                                 {
-                                    LocalSettings.UseEnglishTitle = i
-                                    WriteJson<LauncherConfig>(
-                                        LAUNCHERCONFIGNAME,
-                                        LocalSettings,
-                                        lc
-                                    )
+                                    scope.launch {
+                                        LocalSettings.UseEnglishTitle = i
+                                        WriteJson<LauncherConfig>(
+                                            LAUNCHERCONFIGNAME,
+                                            LocalSettings,
+                                            lc
+                                        )
+                                    }
                                 }
                             }
 
@@ -283,12 +316,14 @@ public fun SettingPage()
                                 }
                                 else
                                 {
-                                    LocalSettings.CostumBackground = i
-                                    WriteJson<LauncherConfig>(
-                                        LAUNCHERCONFIGNAME,
-                                        LocalSettings,
-                                        lc
-                                    )
+                                    scope.launch {
+                                        LocalSettings.CostumBackground = i
+                                        WriteJson<LauncherConfig>(
+                                            LAUNCHERCONFIGNAME,
+                                            LocalSettings,
+                                            lc
+                                        )
+                                    }
                                 }
                             }
 
@@ -297,7 +332,7 @@ public fun SettingPage()
                     Column(modifier = Modifier.padding(10.dp, 2.dp))
                     {
                         Text(
-                            "游戏设置",
+                            "游戏",
                             fontWeight = Bold,
                             modifier = Modifier.padding(0.dp),
                             fontSize = 18.sp
@@ -313,9 +348,11 @@ public fun SettingPage()
                                     "警告",
                                     "此操作不可逆，确认要将游戏列表清空吗？",
                                     {
-                                        WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>()))),lc)
+                                       scope.launch {
+                                           WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>()))),lc)
+                                       }
                                     },
-                                    {},lc
+                                    {},lc,scope
                                 )
                             }
                         )
@@ -323,7 +360,7 @@ public fun SettingPage()
                     Column(modifier = Modifier.padding(10.dp, 2.dp))
                     {
                         Text(
-                            "更新设置",
+                            "更新",
                             fontWeight = Bold,
                             modifier = Modifier.padding(0.dp),
                             fontSize = 18.sp
@@ -335,12 +372,14 @@ public fun SettingPage()
                             modifier = Modifier.padding(0.dp),
                             LocalSettings.StartUpCheckUpdate,
                             { isChecked ->
-                                LocalSettings.StartUpCheckUpdate = isChecked
-                                WriteJson<LauncherConfig>(
-                                    LAUNCHERCONFIGNAME,
-                                    LocalSettings,
-                                    lc
-                                )
+                                scope.launch {
+                                    LocalSettings.StartUpCheckUpdate = isChecked
+                                    WriteJson<LauncherConfig>(
+                                        LAUNCHERCONFIGNAME,
+                                        LocalSettings,
+                                        lc
+                                    )
+                                }
                             })
                         XW_Button(
                             Icons.Default.Delete,
@@ -378,19 +417,21 @@ public fun SettingPage()
                                     "警告",
                                     "此操作不可逆，确认要将所有设置恢复默认值吗？",
                                     {
-                                        WriteJson<LauncherConfig>(
-                                            LAUNCHERCONFIGNAME, LauncherConfig(
-                                                UseSystemTheme = true,
-                                                UseDarkTheme = false,
-                                                UseEnglishTitle = false,
-                                                CurrentGameIndex = CurrentIndex(0,0),
-                                                true, false,false
-                                            ), lc
-                                        )
-                                        WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>()))),lc)
-                                        XW_simpledialog("提示","启动器需要重启以应用更改，应用即将退出……",{System.exit(0)},{System.exit(0)},lc)
+                                       scope.launch {
+                                           WriteJson<LauncherConfig>(
+                                               LAUNCHERCONFIGNAME, LauncherConfig(
+                                                   UseSystemTheme = true,
+                                                   UseDarkTheme = false,
+                                                   UseEnglishTitle = false,
+                                                   CurrentGameIndex = CurrentIndex(0,0),
+                                                   true, false,false
+                                               ), lc
+                                           )
+                                           WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>()))),lc)
+                                           XW_simpledialog("提示","启动器需要重启以应用更改，应用即将退出……",{System.exit(0)},{System.exit(0)},lc,scope)
+                                       }
                                     },
-                                    {},lc
+                                    {},lc,scope
                                 )
                             }
                         )

@@ -76,23 +76,51 @@ import com.pvzlauncher.pvzlauncher.utils.FavoriteListsConfig
 import com.pvzlauncher.pvzlauncher.utils.SaveConfig
 import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
 import com.pvzlauncher.pvzlauncher.utils.WriteJson
-import com.pvzlauncher.pvzlauncher.utils.requestObbPermission
 import com.pvzlauncher.pvzlauncher.utils.snackbarHostState
 import android.content.Context
+import android.os.Environment
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
+import com.pvzlauncher.pvzlauncher.ui.theme.XW_DarkTheme
+import com.pvzlauncher.pvzlauncher.ui.theme.XW_LightTheme
+import com.pvzlauncher.pvzlauncher.utils.UseDarkTheme
+import com.pvzlauncher.pvzlauncher.utils.checkedupdate
+import com.pvzlauncher.pvzlauncher.utils.checkinternetconnect
+import com.pvzlauncher.pvzlauncher.utils.requestappinstall
+import kotlinx.coroutines.launch
 
 
 class MainActivity : ComponentActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
         android.os.StrictMode.setThreadPolicy(android.os.StrictMode.ThreadPolicy.Builder().permitAll().build())
         super.onCreate(savedInstanceState)
         AndroidThreeTen.init(this)
         enableEdgeToEdge()
         setContent {
-            PvzLauncherAndroidTheme {
-                PvzLauncherAndroidApp()
+
+            if(UseDarkTheme.value)
+            {
+
+                    PvzLauncherAndroidTheme {
+                        PvzLauncherAndroidApp()
+                    }
+
             }
+            else
+            {
+
+                    PvzLauncherAndroidTheme {
+                        PvzLauncherAndroidApp()
+                    }
+
+            }
+
+
+
         }
 
 
@@ -130,7 +158,6 @@ fun PvzLauncherAndroidApp() {
     )
 
 
-
         NavigationSuiteScaffold(
             navigationSuiteItems = {
                 AppDestinations.entries.forEach {
@@ -162,7 +189,7 @@ fun PvzLauncherAndroidApp() {
                 }
             )
             {
-                p -> val a = p
+                    p -> val a = p
                 AnimatedContent(
                     targetState = CurrentDestination,
                     modifier = Modifier
@@ -205,6 +232,13 @@ fun PvzLauncherAndroidApp() {
 
         }
 
+
+
+
+
+
+
+
 }
 
 
@@ -233,125 +267,135 @@ fun InitializeAppInterface()
 
     var lc = LocalContext.current
     globalContext = LocalContext.current
+    val scope = rememberCoroutineScope()
     APP_VERSION = (lc.packageManager.getPackageInfo(lc.packageName,0).versionName ?: "1.0.0")
-    var startupcheckupdate by rememberSaveable { mutableStateOf(false) }
-    var requestappinstall by rememberSaveable { mutableStateOf(false) }
-    var checkinternetconnect by rememberSaveable { mutableStateOf(false) }
-    val obbLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.OpenDocumentTree()
-    ) { uri ->
-
-        if (uri != null) {
-            lc.contentResolver.takePersistableUriPermission(
-                uri,
-                Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                        Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-            )
-            lc.getSharedPreferences(
-                "obb_permission",
-                Context.MODE_PRIVATE
-            )
-                .edit()
-                .putString("uri", uri.toString())
-                .apply()
+    LaunchedEffect(Unit) {
+        val dir = File("${lc.filesDir}/temp")
+        if (!dir.exists()) {
+            dir.mkdirs()
         }
-    }
-    val dir = File("${lc.filesDir}/temp")
-    if (!dir.exists()) {
-        dir.mkdirs()
-    }
-    if(!requestappinstall)
-    {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+        if(!requestappinstall.value)
         {
-            if(!lc.packageManager.canRequestPackageInstalls())
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             {
-                val settingLauncher = rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.StartActivityForResult()
-                ) { _ ->
-                    if (!lc.packageManager.canRequestPackageInstalls()) {
+                if(!lc.packageManager.canRequestPackageInstalls())
+                {
 
-                    }
+
+                    XW_simpledialog(
+                        "权限申请(2/2)",
+                        "本程序需要申请“应用内安装应用”权限来帮助您安装各版本Pvz和提供游戏，自身升级包，请您同意此权限来使用此程序",
+                        {
+
+
+
+                            val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                                data = Uri.parse("package:${lc.packageName}")
+                            }
+
+                            intent.data = Uri.parse(
+                                "package:${lc.packageName}"
+                            )
+
+                            lc.startActivity(intent)
+
+                        },
+                        {},
+                        lc,scope
+                    )
+                }
+            }
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if(!Environment.isExternalStorageManager())
+                {
+                    XW_simpledialog("权限申请(1/2)","此程序需要申请读取存储权限来管理并安装您的游戏obb，请您批准！",{
+                        val intent = Intent(
+                            Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
+                        )
+
+                        intent.data = Uri.parse(
+                            "package:${lc.packageName}"
+                        )
+
+                        lc.startActivity(intent)
+                    },{},lc,scope)
 
                 }
-
-                XW_simpledialog(
-                    "权限申请(2/2)",
-                    "本程序需要申请“应用内安装应用”权限来帮助您安装各版本Pvz和提供游戏，自身升级包，请您同意此权限来使用此程序",
-                    {
-
-                        val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
-                            data = Uri.parse("package:${lc.packageName}")
-                        }
-                        // 启动跳转
-                        settingLauncher.launch(intent)
-
-                    },
-                    {},
-                    lc
+            }
+            else
+            {
+                requestappinstall.value = true
+            }
+        }
+        try{
+            scope.launch {
+                ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
+            }
+        }
+        catch(e:Exception) {
+            scope.launch {
+                WriteJson<LauncherConfig>(
+                    LAUNCHERCONFIGNAME, LauncherConfig(
+                        UseSystemTheme = true,
+                        UseDarkTheme = false,
+                        UseEnglishTitle = false,
+                        CurrentGameIndex = CurrentIndex(0,0),
+                        true, false,false
+                    ), lc
                 )
             }
         }
-        else{
-            requestappinstall = true
-        }
-    }
-    try{
-        ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText())
-    }
-    catch(e:Exception) {
-        WriteJson<LauncherConfig>(
-            LAUNCHERCONFIGNAME, LauncherConfig(
-                UseSystemTheme = true,
-                UseDarkTheme = false,
-                UseEnglishTitle = false,
-                CurrentGameIndex = CurrentIndex(0,0),
-                true, false,false
-            ), LocalContext.current
-        )
-    }
 
-    try{
-        val a = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
-        if(ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).ListIndex.count() < 1)
-        {
+        try{
+            scope.launch {
+                val a = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
+                if(ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}")).ListIndex.count() < 1)
+                {
+                    WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>()))),lc)
+                }
+            }
+
+        }
+        catch(e:Exception) {
             WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>()))),lc)
         }
 
-    }
-    catch(e:Exception) {
-        WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>()))),lc)
-    }
 
+        val config = PRDownloaderConfig.newBuilder()
+            .setReadTimeout(30000)
+            .setConnectTimeout(30000)
+            .build()
+        PRDownloader.initialize(lc, config)
 
-    val config = PRDownloaderConfig.newBuilder()
-        .setReadTimeout(30000)
-        .setConnectTimeout(30000)
-        .build()
-    PRDownloader.initialize(LocalContext.current, config)
-    requestObbPermission(lc)
-    refreshInstalledapplist(lc)
+        refreshInstalledapplist(lc)
 
-    if(checkinternetconnect == false)
-    {
-
-        try
+        if(checkinternetconnect.value == false)
         {
-            GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json")
-            RefreshGamelist(lc)
+
+            try
+            {
+                GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json")
+                RefreshGamelist(lc,scope)
+            }
+            catch(e:Exception){
+                XW_simpledialog("警告！","无法访问上游数据库，将无法进行游戏的下载与安装，是否退出程序？\r\n错误信息：${e.stackTraceToString()}",{System.exit(0)},{},lc,scope)
+            }
+            checkinternetconnect.value = true
         }
-        catch(e:Exception){
-            XW_simpledialog("警告！","无法访问上游数据库，将无法进行游戏的下载与安装，是否退出程序？\r\n错误信息：${e.stackTraceToString()}",{System.exit(0)},{},lc)
-        }
-        checkinternetconnect = true
-    }
-    if(startupcheckupdate == false)
-    {
-        if(ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText()).StartUpCheckUpdate == true)
+        if(checkedupdate.value == false)
         {
-            CheckUpdate(lc,true)
+            scope.launch {
+                if(ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}")).StartUpCheckUpdate == true)
+                {
+                    CheckUpdate(lc,true,scope)
+                }
+                checkedupdate.value = true
+            }
+
         }
-        startupcheckupdate = true
     }
+
+
 }
 

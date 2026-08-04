@@ -1,6 +1,7 @@
 package com.pvzlauncher.pvzlauncher.pages
 
 import android.content.Context
+import androidx.annotation.RestrictTo
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +31,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -57,13 +59,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import com.pvzlauncher.pvzlauncher.ui.theme.XW_LightTheme
 import com.pvzlauncher.pvzlauncher.utils.GameKindsConfig
+import com.pvzlauncher.pvzlauncher.utils.ReadJsonfromText
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 
 @Composable
 public fun DownloadPage()
 {
     var isRendered by rememberSaveable{ mutableStateOf(true) }
-    val coroutineScope = rememberCoroutineScope()
+    val scope = rememberCoroutineScope()
     var lc = LocalContext.current
     Box(Modifier.fillMaxSize())
     {
@@ -100,7 +105,7 @@ public fun DownloadPage()
                     TextButton(
                         onClick = {
                             isRendered = false
-                            RefreshGamelist(lc)
+                            RefreshGamelist(lc,scope)
                             isRendered = true
 
                         },
@@ -149,11 +154,13 @@ public fun DownloadPage()
     }
 }
 
-public fun RefreshGamelist(lc : Context)
+public fun RefreshGamelist(lc : Context,scope : CoroutineScope)
 {
 
     try {
-        GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameIndex.json")
+        scope.launch{
+            GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameIndex.json")
+        }
     }
     catch (e:Exception)
     {
@@ -173,6 +180,20 @@ public fun RefreshGamelist(lc : Context)
     Downloadlist =  mutableStateOf(@Composable{
         val scrollState = rememberScrollState()
         var search by rememberSaveable {mutableStateOf("")}
+        var gameindex = emptyList<GameKindsConfig>()
+        LaunchedEffect(Unit) {
+
+            try {
+                scope.launch{
+                    val cont = GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameIndex.json")
+                    gameindex = ReadJsonfromText<GameListConfig>(cont).ListIndex
+                }
+
+            } catch (e: Exception) {
+
+            }
+
+        }
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -181,14 +202,7 @@ public fun RefreshGamelist(lc : Context)
                 .verticalScroll(scrollState)
         )
         {
-            var gameindex = emptyList<GameKindsConfig>()
-            try {
-                gameindex =
-                    ReadJson<GameListConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameIndex.json")).ListIndex
 
-            } catch (e: Exception) {
-
-            }
             var selecteditem by rememberSaveable { mutableStateOf(0) }
             SecondaryScrollableTabRow(selecteditem)
             {
@@ -322,7 +336,7 @@ public fun RefreshGamelist(lc : Context)
                                         )
                                     },
                                     {},
-                                    lc
+                                    lc,scope
                                 )
 
                             },

@@ -87,25 +87,3 @@ fun OBBPickerLauncher(
 }
 
 
-fun requestObbPermission(
-    context: Context,
-) {
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        if(!Environment.isExternalStorageManager())
-        {
-            XW_simpledialog("权限申请(1/2)","此程序需要申请读取存储权限来管理并安装您的游戏obb，请您批准！",{
-                val intent = Intent(
-                    Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
-                )
-
-                intent.data = Uri.parse(
-                    "package:${context.packageName}"
-                )
-
-                context.startActivity(intent)
-            },{},context)
-
-        }
-    }
-}

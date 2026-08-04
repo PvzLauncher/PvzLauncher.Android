@@ -73,7 +73,7 @@ public fun XW_TaskInformationCard(procfg : ProcessConfig, lc : Context)
                                 ))
                                 intProcessList.remove(procfg.p_id)
                             }
-                        },{},lc)
+                        },{},lc,scope)
 
 
 

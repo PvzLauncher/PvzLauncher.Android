@@ -9,6 +9,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import com.pvzlauncher.pvzlauncher.AppDestinations
 import kotlinx.coroutines.CoroutineScope
@@ -36,7 +37,10 @@ var MDR_FileName : String = ""
 var MDR_MDContent : String = ""
 val snackbarHostState = SnackbarHostState()
 val snackbarScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
-
+var UseDarkTheme = mutableStateOf(true)
+var checkedupdate = mutableStateOf(false)
+var requestappinstall = mutableStateOf(false)
+var checkinternetconnect = mutableStateOf(false)
 data class ProcessConfig(
     var p_info : GameConfig,
     var p_id : Int

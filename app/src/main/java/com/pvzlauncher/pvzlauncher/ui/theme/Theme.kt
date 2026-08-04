@@ -10,11 +10,21 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.material3.Typography
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.pvzlauncher.pvzlauncher.utils.CurrentIndex
+import com.pvzlauncher.pvzlauncher.utils.LAUNCHERCONFIGNAME
+import com.pvzlauncher.pvzlauncher.utils.LauncherConfig
+import com.pvzlauncher.pvzlauncher.utils.ReadJson
+import com.pvzlauncher.pvzlauncher.utils.UseDarkTheme
+import com.pvzlauncher.pvzlauncher.utils.WriteJson
+import kotlinx.coroutines.launch
+import java.io.File
 
 val XW_LightTheme = lightColorScheme(
     primary = Color(0xFF63A002),
@@ -50,15 +60,79 @@ fun PvzLauncherAndroidTheme(
 
     content: @Composable () -> Unit
 ) {
-    val XW_ColorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
+    val lc = LocalContext.current
+    val scope = rememberCoroutineScope()
+    var a = LauncherConfig(
+        UseSystemTheme = true,
+        UseDarkTheme = false,
+        UseEnglishTitle = false,
+        CurrentGameIndex = CurrentIndex(0,0),
+        true, false,false
+    )
+    LaunchedEffect(Unit) {
+        scope.launch {
+            try{
 
-        darkTheme -> XW_DarkTheme
-        else -> XW_LightTheme
+                    ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
+
+            }
+            catch(e:Exception) {
+                WriteJson<LauncherConfig>(
+                    LAUNCHERCONFIGNAME, LauncherConfig(
+                        UseSystemTheme = true,
+                        UseDarkTheme = false,
+                        UseEnglishTitle = false,
+                        CurrentGameIndex = CurrentIndex(0,0),
+                        true, false,false
+                    ), lc
+                )
+            }
+            a = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
+
+        }
     }
+    val XW_ColorScheme = when {
+
+        darkTheme -> {
+            if(a.UseSystemTheme)
+            {
+                XW_DarkTheme
+
+            }
+            else{
+                if(a.UseDarkTheme)
+                {
+                    XW_DarkTheme
+
+                }
+                else
+                {
+                    XW_LightTheme
+
+                }
+            }
+        }
+        else -> {
+            if(a.UseSystemTheme)
+            {
+                XW_LightTheme
+
+            }
+            else{
+                if(a.UseDarkTheme)
+                {
+                    XW_DarkTheme
+
+                }
+                else
+                {
+                    XW_LightTheme
+
+                }
+            }
+        }
+    }
+
     MaterialTheme(
         colorScheme = XW_ColorScheme,
         typography = XW_Typography,
