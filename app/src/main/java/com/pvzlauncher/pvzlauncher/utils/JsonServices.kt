@@ -13,9 +13,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import androidx.core.content.FileProvider
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
 
 
@@ -108,36 +106,16 @@ public data class CurrentIndex(
 
 
 
-public inline fun <reified T> ReadJsonfromText(jsonString : String) : T
+public inline fun <reified T> ReadJson(jsonString : String) : T
 {
     return Json.decodeFromString<T>(jsonString)
-
-
 }
 
-public suspend inline fun <reified T> ReadJson(file : File) : T
+public inline fun <reified T> WriteJson(fileName: String, data: T,context: Context)
 {
-    return withContext(Dispatchers.IO) {
-        Json.decodeFromString<T>(file.readText())
-    }
-}
-
-public suspend inline fun <reified T> WriteJson(
-    filePath: String,
-    data: T,
-    context: Context
-) {
-    withContext(Dispatchers.IO) {
-
-        val jsonString = Json.encodeToString(data)
-
-        File(
-            filePath
-        ).writeText(
-            jsonString,
-            Charsets.UTF_8
-        )
-    }
+    val writepath = context.filesDir
+    val jsonString = Json.encodeToString(data)
+    File("${writepath}/${fileName}").writeText(jsonString, Charsets.UTF_8)
 }
 
 fun shareConfig(context: Context) {

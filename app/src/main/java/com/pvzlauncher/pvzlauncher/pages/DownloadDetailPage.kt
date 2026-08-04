@@ -24,11 +24,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -55,14 +53,12 @@ import com.pvzlauncher.pvzlauncher.controls.XW_GameInformationCard
 import com.pvzlauncher.pvzlauncher.controls.XW_InputDialog
 import com.pvzlauncher.pvzlauncher.controls.XW_PhotoMask
 import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
-import com.pvzlauncher.pvzlauncher.utils.FavoriteListsConfig
 import com.pvzlauncher.pvzlauncher.utils.installApk
 import com.pvzlauncher.pvzlauncher.utils.intProcessList
 import com.pvzlauncher.pvzlauncher.utils.intProcessProgressList
 import com.pvzlauncher.pvzlauncher.utils.intProcessSpeedList
 import com.pvzlauncher.pvzlauncher.utils.totalprogress
 import com.pvzlauncher.pvzlauncher.utils.totalspeed
-import kotlinx.coroutines.launch
 import org.threeten.bp.ZoneId
 import org.threeten.bp.ZonedDateTime
 import org.threeten.bp.format.DateTimeFormatter
@@ -74,11 +70,6 @@ import kotlin.collections.plus
 public fun DownloadDetailPage()
 {
     var lc = LocalContext.current
-    val scope = rememberCoroutineScope()
-    var sl = SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>())))
-    LaunchedEffect(Unit) {
-        sl = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
-    }
     TopAppBar(
         title = {
             Text(
@@ -210,7 +201,8 @@ public fun DownloadDetailPage()
                                         File("${lc.filesDir}/temp/${dlc.GameName}.apk"),
                                         {
 
-
+                                            var sl =
+                                                ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
                                             sl.ListIndex[0].GameIndex += SaveConfig(
                                                 GameName = ProcessList[intProcessList.indexOf(
                                                     pid
@@ -239,29 +231,27 @@ public fun DownloadDetailPage()
                                                 like = false
 
                                             )
-                                            scope.launch {
-                                                WriteJson<SaveConfigList>(
-                                                    SAVECONFIGNAME,
-                                                    sl,
-                                                    lc
-                                                )
+                                            WriteJson<SaveConfigList>(
+                                                SAVECONFIGNAME,
+                                                sl,
+                                                lc
+                                            )
 
-                                                intProcessProgressList.removeAt(
-                                                    index = intProcessList.indexOf(
-                                                        pid
-                                                    )
-                                                )
-
-                                                ProcessList.removeAt(
-                                                    index = intProcessList.indexOf(
-                                                        pid
-                                                    )
-                                                )
-                                                intProcessSpeedList.removeAt(intProcessList.indexOf(
+                                            intProcessProgressList.removeAt(
+                                                index = intProcessList.indexOf(
                                                     pid
-                                                ))
-                                                intProcessList.remove(pid)
-                                            }
+                                                )
+                                            )
+
+                                            ProcessList.removeAt(
+                                                index = intProcessList.indexOf(
+                                                    pid
+                                                )
+                                            )
+                                            intProcessSpeedList.removeAt(intProcessList.indexOf(
+                                                pid
+                                            ))
+                                            intProcessList.remove(pid)
 
                                         },
                                         {

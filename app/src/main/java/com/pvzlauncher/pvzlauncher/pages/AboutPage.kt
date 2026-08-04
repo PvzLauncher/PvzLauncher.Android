@@ -15,7 +15,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -39,7 +38,6 @@ import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
 public fun AboutPage()
 {
     val lc = LocalContext.current
-    val scope = rememberCoroutineScope()
     Column(modifier = Modifier.padding(10.dp, 35.dp)) {
         Box(modifier = Modifier.fillMaxWidth())
         {
@@ -103,7 +101,7 @@ public fun AboutPage()
                         )
                         TextButton(
                             onClick = {
-                                CheckUpdate(lc, false,scope)
+                                CheckUpdate(lc, false)
                             }, modifier = Modifier
 
 
@@ -142,7 +140,7 @@ public fun AboutPage()
                             try {
                                 MDR_FileName = "许可协议"
                                 MDR_MDContent =
-                                    "https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/Files/EULA.md"
+                                    GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/Files/EULA.md")
                                 CurrentDestination =
                                     AppDestinations.MDReaderPage
                             } catch (e: Exception) {
@@ -163,7 +161,7 @@ public fun AboutPage()
                             try {
                                 MDR_FileName = "常见问题"
                                 MDR_MDContent =
-                                    "https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/Files/QandA.md"
+                                    GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/Files/QandA.md")
                                 CurrentDestination =
                                     AppDestinations.MDReaderPage
                             } catch (e: Exception) {

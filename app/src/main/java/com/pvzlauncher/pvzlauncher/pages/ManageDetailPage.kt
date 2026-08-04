@@ -25,7 +25,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,8 +55,6 @@ import com.pvzlauncher.pvzlauncher.controls.XW_LoadingMask
 import com.pvzlauncher.pvzlauncher.controls.XW_ManageInformationCard
 import com.pvzlauncher.pvzlauncher.utils.ManagelistIndex
 import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
-import com.pvzlauncher.pvzlauncher.utils.CurrentIndex
-import com.pvzlauncher.pvzlauncher.utils.FavoriteListsConfig
 import com.pvzlauncher.pvzlauncher.utils.OBBPickerLauncher
 import com.pvzlauncher.pvzlauncher.utils.createTempFileFromUri
 import com.pvzlauncher.pvzlauncher.utils.createTempOBBFileFromUri
@@ -108,21 +105,7 @@ public fun ManageDetailPage()
             }
         }
     )
-    var lcg = LauncherConfig(
-        UseSystemTheme = true,
-        UseDarkTheme = false,
-        UseEnglishTitle = false,
-        CurrentGameIndex = CurrentIndex(0,0),
-        true, false,false
-    )
-    var all = SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>())))
-    var scope = rememberCoroutineScope()
-    LaunchedEffect(Unit) {
-        scope.launch {
-            lcg =  ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
-            all = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
-        }
-    }
+    val scope = rememberCoroutineScope()
     fun RefreshDetail()
     {
         isRendered = false
@@ -131,7 +114,7 @@ public fun ManageDetailPage()
         }
     }
     val scrollState = rememberScrollState()
-
+    val all = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
 
     if(isRendered)
     {
@@ -157,11 +140,9 @@ public fun ManageDetailPage()
                         XW_ManageInformationCard(
                             args = all.ListIndex[ManagelistIndex].GameIndex[ManageIndex],
                             onBack = {
-                                scope.launch {
-                                    all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].like = true
+                                all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].like = true
                                     WriteJson(SAVECONFIGNAME, all, lc)
-                                    RefreshDetail()
-                                }
+                                RefreshDetail()
 
                             }, IsButtonEnable = true,icon = Icons.Default.StarOutline
 
@@ -172,17 +153,15 @@ public fun ManageDetailPage()
                         XW_ManageInformationCard(
                             args = all.ListIndex[ManagelistIndex].GameIndex[ManageIndex],
                             onBack = {
-                               scope.launch {
-                                   all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].like = false
-                                   val svc = all.ListIndex[ManagelistIndex].GameIndex[ManageIndex]
-                                   val v1 = all.ListIndex[ManagelistIndex].GameIndex.toMutableList()
-                                   v1.removeAt(ManageIndex)
-                                   v1.add(0,svc)
-                                   val v2 = v1.toList()
-                                   all.ListIndex[ManagelistIndex].GameIndex = v2
-                                   WriteJson(SAVECONFIGNAME, all, lc)
-                                   RefreshDetail()
-                               }
+                                all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].like = false
+                                val svc = all.ListIndex[ManagelistIndex].GameIndex[ManageIndex]
+                                val v1 = all.ListIndex[ManagelistIndex].GameIndex.toMutableList()
+                                v1.removeAt(ManageIndex)
+                                v1.add(0,svc)
+                                val v2 = v1.toList()
+                                all.ListIndex[ManagelistIndex].GameIndex = v2
+                                    WriteJson(SAVECONFIGNAME, all, lc)
+                                RefreshDetail()
 
                             }, IsButtonEnable = true,icon = Icons.Default.Star
                         )
@@ -197,13 +176,13 @@ public fun ManageDetailPage()
 
 
                         OutlinedButton(onClick = {
-                            scope.launch {
-                                lcg.CurrentGameIndex.GameIndex = ManageIndex
-                                lcg.CurrentGameIndex.ListIndex = ManagelistIndex
-                                WriteJson("${LAUNCHERCONFIGNAME}", lcg, lc)
-                                XW_ToastMessage("操作成功", lc)
-                                CurrentDestination = AppDestinations.ManagePage
-                            }
+                            var kk =
+                                ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText())
+                            kk.CurrentGameIndex.GameIndex = ManageIndex
+                            kk.CurrentGameIndex.ListIndex = ManagelistIndex
+                            WriteJson("${LAUNCHERCONFIGNAME}", kk, lc)
+                            XW_ToastMessage("操作成功", lc)
+                            CurrentDestination = AppDestinations.ManagePage
                         }, Modifier.padding(2.dp)) {
                             Text("设为活动")
                         }
@@ -221,17 +200,15 @@ public fun ManageDetailPage()
                             require = "一并卸载对应应用",
                             onDismiss = { isDialogVisible = false },
                             onConfirm = { i ->
-                                scope.launch {
-                                    if (i == true) {
-                                        uninstallApk(lc,all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].PackageName)
-                                    }
-                                    var a2 = all.ListIndex[ManagelistIndex].GameIndex.toMutableList()
-                                    a2.removeAt(ManageIndex)
-                                    all.ListIndex[ManagelistIndex].GameIndex = a2.toList()
-                                    WriteJson(SAVECONFIGNAME, all, lc)
-                                    isDialogVisible = false
-                                    CurrentDestination = AppDestinations.ManagePage
+                                if (i == true) {
+                                    uninstallApk(lc,all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].PackageName)
                                 }
+                                var a2 = all.ListIndex[ManagelistIndex].GameIndex.toMutableList()
+                                a2.removeAt(ManageIndex)
+                                all.ListIndex[ManagelistIndex].GameIndex = a2.toList()
+                                WriteJson(SAVECONFIGNAME, all, lc)
+                                isDialogVisible = false
+                                CurrentDestination = AppDestinations.ManagePage
                             }
                         )
                         OutlinedButton(onClick = {
@@ -247,12 +224,12 @@ public fun ManageDetailPage()
                             onDismiss = { isDialogVisible2 = false },
                             value = "",
                             onConfirm = { text ->
-                                scope.launch {
-                                    all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].GameName = text
-                                    WriteJson(SAVECONFIGNAME, all, lc)
-                                    XW_ToastMessage("操作成功", lc)
-                                    CurrentDestination = AppDestinations.ManagePage
-                                }
+
+                                all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].GameName = text
+                                WriteJson(SAVECONFIGNAME, all, lc)
+
+                                XW_ToastMessage("操作成功", lc)
+                                CurrentDestination = AppDestinations.ManagePage
                             })
                     }
                     if(!isAppInstalled(lc,all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].PackageName))
@@ -272,28 +249,25 @@ public fun ManageDetailPage()
                             Row(verticalAlignment = Alignment.CenterVertically)
                             {
                                 var isDialogVisible by rememberSaveable { mutableStateOf(false) }
+                                val cfg = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
                                 var names = emptyList<String>().toMutableList()
-                                for(i in all.ListIndex)
+                                for(i in cfg.ListIndex)
                                 {
                                     names.add(i.listname)
                                 }
                                 RadioDialog(isDialogVisible,"提示","请选择要移入的收藏夹",names.toList(),{isDialogVisible = false},{j ->
-
-                                    scope.launch {
-                                        val v1 = all.ListIndex[ManagelistIndex].GameIndex[ManageIndex]
-                                        val v0 = all.ListIndex[ManagelistIndex].GameIndex.toMutableList()
-                                        v0.remove(v1)
-                                        all.ListIndex[ManagelistIndex].GameIndex = v0.toList()
-                                        WriteJson(SAVECONFIGNAME, all, lc)
-                                        ManagelistIndex = j
-                                        val v2 = all.ListIndex[j].GameIndex.toMutableList()
-                                        v2.add(v1)
-                                        all.ListIndex[j].GameIndex = v2.toList()
-                                        WriteJson(SAVECONFIGNAME, all, lc)
-                                        isDialogVisible = false
-                                        RefreshDetail()
-                                    }
-                                })
+                                    val v1 = all.ListIndex[ManagelistIndex].GameIndex[ManageIndex]
+                                    val v0 = all.ListIndex[ManagelistIndex].GameIndex.toMutableList()
+                                    v0.remove(v1)
+                                    all.ListIndex[ManagelistIndex].GameIndex = v0.toList()
+                                    WriteJson(SAVECONFIGNAME, all, lc)
+                                    ManagelistIndex = j
+                                    val v2 = all.ListIndex[j].GameIndex.toMutableList()
+                                    v2.add(v1)
+                                    all.ListIndex[j].GameIndex = v2.toList()
+                                    WriteJson(SAVECONFIGNAME, all, lc)
+                                    isDialogVisible = false
+                                    RefreshDetail()})
                                 Text("所在收藏夹：${all.ListIndex[ManagelistIndex].listname}")
                                 TextButton(onClick = {
                                     isDialogVisible = true

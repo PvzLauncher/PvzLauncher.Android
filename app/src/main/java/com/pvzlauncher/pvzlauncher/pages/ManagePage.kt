@@ -28,7 +28,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,7 +54,6 @@ import com.pvzlauncher.pvzlauncher.controls.XW_ManageInformationCard
 import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
 import com.pvzlauncher.pvzlauncher.controls.XW_simpledialog
 import com.pvzlauncher.pvzlauncher.ui.theme.XW_LightTheme
-import com.pvzlauncher.pvzlauncher.utils.CurrentIndex
 import com.pvzlauncher.pvzlauncher.utils.FavoriteListsConfig
 import com.pvzlauncher.pvzlauncher.utils.LAUNCHERCONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.LauncherConfig
@@ -70,23 +68,8 @@ import java.io.File
 public fun ManagePage()
 {
     var lc = LocalContext.current
-    val scope = rememberCoroutineScope()
     var isRendered by rememberSaveable { mutableStateOf(true) }
-    var cfg = SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>())))
-        var lcg = LauncherConfig(
-            UseSystemTheme = true,
-    UseDarkTheme = false,
-    UseEnglishTitle = false,
-    CurrentGameIndex = CurrentIndex(0,0),
-    true, false,false
-    )
-    LaunchedEffect(Unit) {
-        scope.launch {
-            lcg = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
-            cfg = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
-        }
-    }
-
+    val scope = rememberCoroutineScope()
     Box(Modifier.fillMaxSize())
     {
         Column(modifier = Modifier.padding(10.dp, 35.dp, 10.dp, 5.dp)) {
@@ -111,7 +94,7 @@ public fun ManagePage()
                 var search by rememberSaveable {mutableStateOf("")}
                 Box(Modifier.fillMaxSize())
                 {
-
+                    val cfg = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
                     fun getnames() : List<String>
                     {
                         var names = emptyList<String>().toMutableList()
@@ -145,30 +128,26 @@ public fun ManagePage()
 
                         RadioDialog(isDialogVisible,"提示","请选择要删除的收藏夹：",getnames().toList(),{isDialogVisible = false},{j ->
                             XW_simpledialog("警告","您确定要删除收藏夹吗？其中的游戏将永久消失！",{
-
-                                scope.launch {
-                                    val v1 = cfg.ListIndex.toMutableList()
-                                    v1.removeAt(j)
-                                    cfg.ListIndex = v1.toList()
-                                    WriteJson(SAVECONFIGNAME, cfg, lc)
-                                    if(selecteditem == j)
-                                    {
-                                        selecteditem = 0
-                                    }
-                                    if(lcg.CurrentGameIndex.ListIndex == j)
-                                    {
-
-                                        lcg.CurrentGameIndex.ListIndex = 0
-                                        lcg.CurrentGameIndex.GameIndex = 0
-                                        WriteJson<LauncherConfig>(
-                                            LAUNCHERCONFIGNAME,lcg,lc)
-                                    }
-                                    isDialogVisible = false
-                                    isRendered = false
-                                    isRendered = true
+                                val v1 = cfg.ListIndex.toMutableList()
+                                v1.removeAt(j)
+                                cfg.ListIndex = v1.toList()
+                                WriteJson(SAVECONFIGNAME, cfg, lc)
+                                if(selecteditem == j)
+                                {
+                                    selecteditem = 0
                                 }
-
-                            },{},lc,scope)
+                                if(ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText()).CurrentGameIndex.ListIndex == j)
+                                {
+                                    val cfg = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText())
+                                    cfg.CurrentGameIndex.ListIndex = 0
+                                    cfg.CurrentGameIndex.GameIndex = 0
+                                    WriteJson<LauncherConfig>(
+                                        LAUNCHERCONFIGNAME,cfg,lc)
+                                }
+                                isDialogVisible = false
+                                isRendered = false
+                                isRendered = true
+                            },{},lc)
                         })
                         RadioDialog(isDialogVisible2,"提示","请选择要改名的收藏夹：",getnames().toList(),{isDialogVisible2 = false},{j ->
                             tmpsel = j
@@ -176,15 +155,13 @@ public fun ManagePage()
                             isDialogVisible2 = false
                         })
                         XW_InputDialog(isDialogVisible3,"提示","请输入新名字","请输入……","",{isDialogVisible3 = false},{k ->
-                            scope.launch {
-                                val v1 = cfg.ListIndex.toMutableList()
-                                v1[tmpsel].listname = k
-                                cfg.ListIndex = v1.toList()
-                                WriteJson(SAVECONFIGNAME, cfg, lc)
-                                isDialogVisible3 = false
-                                isRendered = false
-                                isRendered = true
-                            }
+                            val v1 = cfg.ListIndex.toMutableList()
+                            v1[tmpsel].listname = k
+                            cfg.ListIndex = v1.toList()
+                            WriteJson(SAVECONFIGNAME, cfg, lc)
+                            isDialogVisible3 = false
+                            isRendered = false
+                            isRendered = true
                         })
 
 
@@ -260,14 +237,12 @@ public fun ManagePage()
                                     XW_ManageInformationCard(
                                         args = i,
                                         onBack = {
-                                           scope.launch {
-                                               ManagelistIndex = selecteditem
-                                               ManageIndex =
-                                                   ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}")).ListIndex[selecteditem].GameIndex.indexOf(
-                                                       i
-                                                   )
-                                               CurrentDestination = AppDestinations.ManageDetailPage
-                                           }
+                                            ManagelistIndex = selecteditem
+                                            ManageIndex =
+                                                ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).ListIndex[selecteditem].GameIndex.indexOf(
+                                                    i
+                                                )
+                                            CurrentDestination = AppDestinations.ManageDetailPage
                                         },
                                         IsButtonEnable = true,
 
@@ -296,15 +271,13 @@ public fun ManagePage()
         var isDialogVisible by remember { mutableStateOf(false) }
         var isDialogVisible2 by remember { mutableStateOf(false) }
         XW_InputDialog(isDialogVisible2,"提示","请输入收藏夹名","请输入……","",{isDialogVisible2 = false},{ s ->
-
-            scope.launch {
-                val v0 = cfg.ListIndex.toMutableList()
-                v0.add(FavoriteListsConfig(s,emptyList()))
-                cfg.ListIndex = v0.toList()
-                WriteJson(SAVECONFIGNAME, cfg, lc)
-                isRendered = false
-                isRendered = true
-            }
+            val cfg = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
+            val v0 = cfg.ListIndex.toMutableList()
+            v0.add(FavoriteListsConfig(s,emptyList()))
+            cfg.ListIndex = v0.toList()
+            WriteJson(SAVECONFIGNAME, cfg, lc)
+            isRendered = false
+            isRendered = true
 
         })
         RadioDialog(isDialogVisible,"提示","请选择添加内容",listOf("添加游戏","添加收藏夹"),{isDialogVisible=false},{ i ->

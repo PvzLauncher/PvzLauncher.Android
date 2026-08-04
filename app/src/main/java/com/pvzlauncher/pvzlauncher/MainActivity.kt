@@ -80,15 +80,12 @@ import com.pvzlauncher.pvzlauncher.utils.snackbarHostState
 import android.content.Context
 import android.os.Environment
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
 import com.pvzlauncher.pvzlauncher.ui.theme.XW_DarkTheme
 import com.pvzlauncher.pvzlauncher.ui.theme.XW_LightTheme
 import com.pvzlauncher.pvzlauncher.utils.UseDarkTheme
 import com.pvzlauncher.pvzlauncher.utils.checkedupdate
 import com.pvzlauncher.pvzlauncher.utils.checkinternetconnect
 import com.pvzlauncher.pvzlauncher.utils.requestappinstall
-import kotlinx.coroutines.launch
 
 
 class MainActivity : ComponentActivity() {
@@ -267,135 +264,130 @@ fun InitializeAppInterface()
 
     var lc = LocalContext.current
     globalContext = LocalContext.current
-    val scope = rememberCoroutineScope()
     APP_VERSION = (lc.packageManager.getPackageInfo(lc.packageName,0).versionName ?: "1.0.0")
-    LaunchedEffect(Unit) {
-        val dir = File("${lc.filesDir}/temp")
-        if (!dir.exists()) {
-            dir.mkdirs()
-        }
-        if(!requestappinstall.value)
+
+
+    val dir = File("${lc.filesDir}/temp")
+    if (!dir.exists()) {
+        dir.mkdirs()
+    }
+    if(!requestappinstall.value)
+    {
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
         {
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            if(!lc.packageManager.canRequestPackageInstalls())
             {
-                if(!lc.packageManager.canRequestPackageInstalls())
-                {
+                val settingLauncher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.StartActivityForResult()
+                ) { _ ->
+                    if (!lc.packageManager.canRequestPackageInstalls()) {
 
+                    }
 
-                    XW_simpledialog(
-                        "权限申请(2/2)",
-                        "本程序需要申请“应用内安装应用”权限来帮助您安装各版本Pvz和提供游戏，自身升级包，请您同意此权限来使用此程序",
-                        {
-
-
-
-                            val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
-                                data = Uri.parse("package:${lc.packageName}")
-                            }
-
-                            intent.data = Uri.parse(
-                                "package:${lc.packageName}"
-                            )
-
-                            lc.startActivity(intent)
-
-                        },
-                        {},
-                        lc,scope
-                    )
                 }
-            }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                if(!Environment.isExternalStorageManager())
-                {
-                    XW_simpledialog("权限申请(1/2)","此程序需要申请读取存储权限来管理并安装您的游戏obb，请您批准！",{
-                        val intent = Intent(
-                            Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
-                        )
+                XW_simpledialog(
+                    "权限申请(2/2)",
+                    "本程序需要申请“应用内安装应用”权限来帮助您安装各版本Pvz和提供游戏，自身升级包，请您同意此权限来使用此程序",
+                    {
+
+
+
+                        val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                            data = Uri.parse("package:${lc.packageName}")
+                        }
 
                         intent.data = Uri.parse(
                             "package:${lc.packageName}"
                         )
 
                         lc.startActivity(intent)
-                    },{},lc,scope)
 
-                }
-            }
-            else
-            {
-                requestappinstall.value = true
-            }
-        }
-        try{
-            scope.launch {
-                ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
-            }
-        }
-        catch(e:Exception) {
-            scope.launch {
-                WriteJson<LauncherConfig>(
-                    LAUNCHERCONFIGNAME, LauncherConfig(
-                        UseSystemTheme = true,
-                        UseDarkTheme = false,
-                        UseEnglishTitle = false,
-                        CurrentGameIndex = CurrentIndex(0,0),
-                        true, false,false
-                    ), lc
+                    },
+                    {},
+                    lc
                 )
             }
         }
 
-        try{
-            scope.launch {
-                val a = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
-                if(ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}")).ListIndex.count() < 1)
-                {
-                    WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>()))),lc)
-                }
-            }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if(!Environment.isExternalStorageManager())
+            {
+                XW_simpledialog("权限申请(1/2)","此程序需要申请读取存储权限来管理并安装您的游戏obb，请您批准！",{
+                    val intent = Intent(
+                        Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
+                    )
 
+                    intent.data = Uri.parse(
+                        "package:${lc.packageName}"
+                    )
+
+                    lc.startActivity(intent)
+                },{},lc)
+
+            }
         }
-        catch(e:Exception) {
+        else
+        {
+            requestappinstall.value = true
+        }
+    }
+    try{
+        ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText())
+    }
+    catch(e:Exception) {
+        WriteJson<LauncherConfig>(
+            LAUNCHERCONFIGNAME, LauncherConfig(
+                UseSystemTheme = true,
+                UseDarkTheme = false,
+                UseEnglishTitle = false,
+                CurrentGameIndex = CurrentIndex(0,0),
+                true, false,false
+            ), LocalContext.current
+        )
+    }
+
+    try{
+        val a = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
+        if(ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).ListIndex.count() < 1)
+        {
             WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>()))),lc)
         }
 
-
-        val config = PRDownloaderConfig.newBuilder()
-            .setReadTimeout(30000)
-            .setConnectTimeout(30000)
-            .build()
-        PRDownloader.initialize(lc, config)
-
-        refreshInstalledapplist(lc)
-
-        if(checkinternetconnect.value == false)
-        {
-
-            try
-            {
-                GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json")
-                RefreshGamelist(lc,scope)
-            }
-            catch(e:Exception){
-                XW_simpledialog("警告！","无法访问上游数据库，将无法进行游戏的下载与安装，是否退出程序？\r\n错误信息：${e.stackTraceToString()}",{System.exit(0)},{},lc,scope)
-            }
-            checkinternetconnect.value = true
-        }
-        if(checkedupdate.value == false)
-        {
-            scope.launch {
-                if(ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}")).StartUpCheckUpdate == true)
-                {
-                    CheckUpdate(lc,true,scope)
-                }
-                checkedupdate.value = true
-            }
-
-        }
+    }
+    catch(e:Exception) {
+        WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>()))),lc)
     }
 
 
+    val config = PRDownloaderConfig.newBuilder()
+        .setReadTimeout(30000)
+        .setConnectTimeout(30000)
+        .build()
+    PRDownloader.initialize(LocalContext.current, config)
+
+    refreshInstalledapplist(lc)
+
+    if(checkinternetconnect.value == false)
+    {
+
+        try
+        {
+            GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json")
+            RefreshGamelist(lc)
+        }
+        catch(e:Exception){
+            XW_simpledialog("警告！","无法访问上游数据库，将无法进行游戏的下载与安装，是否退出程序？\r\n错误信息：${e.stackTraceToString()}",{System.exit(0)},{},lc)
+        }
+        checkinternetconnect.value = true
+    }
+    if(checkedupdate.value == false)
+    {
+        if(ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText()).StartUpCheckUpdate == true)
+        {
+            CheckUpdate(lc,true)
+        }
+        checkedupdate.value = true
+    }
 }
 

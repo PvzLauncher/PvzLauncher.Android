@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-public fun XW_Switch(icon:ImageVector,title : String,desc :String,modifier: Modifier,isEnabled : Boolean,OnChanged : (isChecked : Boolean) -> Unit,IsBanned : Boolean = false) {
+public fun XW_Switch(icon:ImageVector,title : String,desc :String,modifier: Modifier,isEnabled : Boolean,OnChanged : (isChecked : Boolean) -> Unit,IsBanned : Boolean  = false) {
     var checked by remember { mutableStateOf(isEnabled) }
     Box(Modifier.fillMaxWidth())
     {

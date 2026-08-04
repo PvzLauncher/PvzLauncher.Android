@@ -18,8 +18,6 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,36 +29,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.pvzlauncher.pvzlauncher.R
-import com.pvzlauncher.pvzlauncher.utils.CurrentIndex
-import com.pvzlauncher.pvzlauncher.utils.FavoriteListsConfig
 import com.pvzlauncher.pvzlauncher.utils.LAUNCHERCONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.LauncherConfig
 import com.pvzlauncher.pvzlauncher.utils.ReadJson
 import com.pvzlauncher.pvzlauncher.utils.SAVECONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.SaveConfig
 import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
-import kotlinx.coroutines.launch
 import java.io.File
 
 @Composable
 public fun XW_ImportInformationCard(args : SaveConfig, onBack: () -> Unit, IsButtonEnable :  Boolean,icon : ImageVector = Icons.Default.ArrowForward)
 {
-    var lc = LocalContext.current
-    var lcg = LauncherConfig(
-        UseSystemTheme = true,
-        UseDarkTheme = false,
-        UseEnglishTitle = false,
-        CurrentGameIndex = CurrentIndex(0,0),
-        true, false,false
-    )
-    var cfg = SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>())))
-    var scope = rememberCoroutineScope()
-    LaunchedEffect(Unit) {
-        scope.launch {
-            lcg =  ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
-            cfg = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
-        }
-    }
+
     return OutlinedCard(modifier = Modifier.padding(5.dp).fillMaxWidth())
     {
         Box(modifier = Modifier.padding(5.dp).fillMaxWidth())
@@ -86,13 +66,13 @@ public fun XW_ImportInformationCard(args : SaveConfig, onBack: () -> Unit, IsBut
                         }
                         Box(Modifier.padding(2.dp)){}
 //
+                        val rj =  ReadJson<SaveConfigList>(File("${cont.filesDir}/${SAVECONFIGNAME}").readText()).ListIndex
 
-
-                        for(ij in 0 until cfg.ListIndex.count())
+                        for(ij in 0 until rj.count())
                         {
-                            if(ij == lcg.CurrentGameIndex.ListIndex)
+                            if(ij == ReadJson<LauncherConfig>(File("${cont.filesDir}/${LAUNCHERCONFIGNAME}").readText()).CurrentGameIndex.ListIndex)
                             {
-                                if(cfg.ListIndex[ij].GameIndex.indexOf(args) == lcg.CurrentGameIndex.GameIndex)
+                                if(rj[ij].GameIndex.indexOf(args) == ReadJson<LauncherConfig>(File("${cont.filesDir}/${LAUNCHERCONFIGNAME}").readText()).CurrentGameIndex.GameIndex)
                                 {
                                     Box(modifier = Modifier.background(Color.Red, RoundedCornerShape(7.5.dp))
                                         .padding(4.dp,2.dp))

@@ -26,7 +26,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.toMutableStateList
@@ -53,28 +52,17 @@ import java.io.File
 import kotlin.collections.plus
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import com.pvzlauncher.pvzlauncher.controls.XW_ImportInformationCard
 import com.pvzlauncher.pvzlauncher.utils.APKPickerLauncher
-import com.pvzlauncher.pvzlauncher.utils.FavoriteListsConfig
 import com.pvzlauncher.pvzlauncher.utils.installApk
-import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 public fun ImportPage()
 {
     val lc = LocalContext.current
-    val scope = rememberCoroutineScope()
-    var aaa = SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>())))
-    LaunchedEffect(Unit) {
-        scope.launch {
-            aaa = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
-        }
-    }
-
     var isRendered by rememberSaveable{ mutableStateOf(true) }
     TopAppBar(
         title = {
@@ -114,7 +102,8 @@ public fun ImportPage()
     )
     {
         var listcount by rememberSaveable { mutableStateOf(0) }
-
+        var aaa =
+            ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
         if(isRendered)
         {
             Installedappindex.forEach outer@ { i ->
@@ -147,16 +136,13 @@ public fun ImportPage()
                             gameversion = GetApkInfo(i.packageName, lc).versionName ?: "1.0.0",
                             like = false
                         )
-                        scope.launch {
-                            WriteJson<SaveConfigList>(
-                                "${lc.filesDir}/${SAVECONFIGNAME}",
-                                aaa,
-                                lc
-                            )
-                            Installedappindex.remove(i)
-                            XW_ToastMessage("导入成功", lc)}
-                        })
-
+                        WriteJson<SaveConfigList>(
+                            SAVECONFIGNAME,
+                            aaa,
+                            lc
+                        )
+                        Installedappindex.remove(i)
+                        XW_ToastMessage("导入成功", lc)})
 
                     XW_ImportInformationCard(SaveConfig("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameAssets/Default.png",GetApkInfo(i.packageName, lc).versionName ?: "1.0.0","${lc.packageManager.getApplicationLabel(lc.packageManager.getApplicationInfo(i.packageName, 0)).toString()}",i.packageName,ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")),0,0,false),{isdialogvisible = true},true)
 
