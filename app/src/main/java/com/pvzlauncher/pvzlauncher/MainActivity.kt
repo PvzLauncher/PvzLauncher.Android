@@ -333,11 +333,11 @@ fun InitializeAppInterface()
         }
     }
     try{
-        ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText())
+        ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
     }
     catch(e:Exception) {
         WriteJson<LauncherConfig>(
-            LAUNCHERCONFIGNAME, LauncherConfig(
+            File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"), LauncherConfig(
                 UseSystemTheme = true,
                 UseDarkTheme = false,
                 UseEnglishTitle = false,
@@ -348,15 +348,15 @@ fun InitializeAppInterface()
     }
 
     try{
-        val a = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
-        if(ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).ListIndex.count() < 1)
+        val a = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
+        if(ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}")).ListIndex.count() < 1)
         {
-            WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>()))),lc)
+            WriteJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"), SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>()))),lc)
         }
 
     }
     catch(e:Exception) {
-        WriteJson<SaveConfigList>(SAVECONFIGNAME, SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>()))),lc)
+        WriteJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"), SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>()))),lc)
     }
 
 
@@ -383,7 +383,7 @@ fun InitializeAppInterface()
     }
     if(checkedupdate.value == false)
     {
-        if(ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText()).StartUpCheckUpdate == true)
+        if(ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}")).StartUpCheckUpdate == true)
         {
             CheckUpdate(lc,true)
         }

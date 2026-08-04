@@ -114,7 +114,7 @@ public fun ManageDetailPage()
         }
     }
     val scrollState = rememberScrollState()
-    val all = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
+    val all = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
 
     if(isRendered)
     {
@@ -141,7 +141,7 @@ public fun ManageDetailPage()
                             args = all.ListIndex[ManagelistIndex].GameIndex[ManageIndex],
                             onBack = {
                                 all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].like = true
-                                    WriteJson(SAVECONFIGNAME, all, lc)
+                                    WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), all, lc)
                                 RefreshDetail()
 
                             }, IsButtonEnable = true,icon = Icons.Default.StarOutline
@@ -160,7 +160,7 @@ public fun ManageDetailPage()
                                 v1.add(0,svc)
                                 val v2 = v1.toList()
                                 all.ListIndex[ManagelistIndex].GameIndex = v2
-                                    WriteJson(SAVECONFIGNAME, all, lc)
+                                    WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), all, lc)
                                 RefreshDetail()
 
                             }, IsButtonEnable = true,icon = Icons.Default.Star
@@ -177,10 +177,10 @@ public fun ManageDetailPage()
 
                         OutlinedButton(onClick = {
                             var kk =
-                                ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText())
+                                ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
                             kk.CurrentGameIndex.GameIndex = ManageIndex
                             kk.CurrentGameIndex.ListIndex = ManagelistIndex
-                            WriteJson("${LAUNCHERCONFIGNAME}", kk, lc)
+                            WriteJson(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"), kk, lc)
                             XW_ToastMessage("操作成功", lc)
                             CurrentDestination = AppDestinations.ManagePage
                         }, Modifier.padding(2.dp)) {
@@ -206,7 +206,7 @@ public fun ManageDetailPage()
                                 var a2 = all.ListIndex[ManagelistIndex].GameIndex.toMutableList()
                                 a2.removeAt(ManageIndex)
                                 all.ListIndex[ManagelistIndex].GameIndex = a2.toList()
-                                WriteJson(SAVECONFIGNAME, all, lc)
+                                WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), all, lc)
                                 isDialogVisible = false
                                 CurrentDestination = AppDestinations.ManagePage
                             }
@@ -226,7 +226,7 @@ public fun ManageDetailPage()
                             onConfirm = { text ->
 
                                 all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].GameName = text
-                                WriteJson(SAVECONFIGNAME, all, lc)
+                                WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), all, lc)
 
                                 XW_ToastMessage("操作成功", lc)
                                 CurrentDestination = AppDestinations.ManagePage
@@ -249,7 +249,7 @@ public fun ManageDetailPage()
                             Row(verticalAlignment = Alignment.CenterVertically)
                             {
                                 var isDialogVisible by rememberSaveable { mutableStateOf(false) }
-                                val cfg = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
+                                val cfg = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
                                 var names = emptyList<String>().toMutableList()
                                 for(i in cfg.ListIndex)
                                 {
@@ -260,12 +260,12 @@ public fun ManageDetailPage()
                                     val v0 = all.ListIndex[ManagelistIndex].GameIndex.toMutableList()
                                     v0.remove(v1)
                                     all.ListIndex[ManagelistIndex].GameIndex = v0.toList()
-                                    WriteJson(SAVECONFIGNAME, all, lc)
+                                    WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), all, lc)
                                     ManagelistIndex = j
                                     val v2 = all.ListIndex[j].GameIndex.toMutableList()
                                     v2.add(v1)
                                     all.ListIndex[j].GameIndex = v2.toList()
-                                    WriteJson(SAVECONFIGNAME, all, lc)
+                                    WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), all, lc)
                                     isDialogVisible = false
                                     RefreshDetail()})
                                 Text("所在收藏夹：${all.ListIndex[ManagelistIndex].listname}")

@@ -58,11 +58,11 @@ fun PvzLauncherAndroidTheme(
 ) {
     val lc = LocalContext.current
     try{
-        ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText())
+        ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
     }
     catch(e:Exception) {
         WriteJson<LauncherConfig>(
-            LAUNCHERCONFIGNAME, LauncherConfig(
+            File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"), LauncherConfig(
                 UseSystemTheme = true,
                 UseDarkTheme = false,
                 UseEnglishTitle = false,
@@ -71,7 +71,7 @@ fun PvzLauncherAndroidTheme(
             ), lc
         )
     }
-    val a = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText())
+    val a = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
     val XW_ColorScheme = when {
 
         darkTheme -> {

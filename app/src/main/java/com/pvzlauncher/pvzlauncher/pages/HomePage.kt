@@ -50,13 +50,14 @@ import java.io.File
 public fun HomePage()
 {   var lc = LocalContext.current
     var showAnimation by rememberSaveable {mutableStateOf(false)}
+    val lcc = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
     Box(modifier = Modifier.fillMaxSize()) {
-        if(ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText()).CostumBackground)
+        if(lcc.CostumBackground)
         {
             AsyncImage(File("${lc.filesDir}/Background.png"),"", Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop)
         }
-        if (ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText()).UseEnglishTitle) {
+        if (lcc.UseEnglishTitle) {
             AsyncImage(File("${lc.filesDir}/Title.png"),"",alignment = Alignment.TopCenter,
                 modifier = Modifier
                     .padding(40.dp)
@@ -71,8 +72,8 @@ public fun HomePage()
                     .fillMaxWidth()
             )
         }
-        var current = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText()).CurrentGameIndex
-        if (ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).ListIndex[current.ListIndex].GameIndex.count() != 0)
+
+        if (ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}")).ListIndex[lcc.CurrentGameIndex.ListIndex].GameIndex.count() != 0)
         {
             Column(
                 modifier = Modifier
@@ -86,11 +87,11 @@ public fun HomePage()
                     LaunchAnimation {
 
                         val new =
-                            ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
-                        new.ListIndex[current.ListIndex].GameIndex[current.GameIndex].LaunchTimes += 1
-                        WriteJson<SaveConfigList>(SAVECONFIGNAME, new, lc)
+                            ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
+                        new.ListIndex[lcc.CurrentGameIndex.ListIndex].GameIndex[lcc.CurrentGameIndex.GameIndex].LaunchTimes += 1
+                        WriteJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"), new, lc)
                         showAnimation = false
-                        launchApp(lc, new.ListIndex[current.ListIndex].GameIndex[current.GameIndex].PackageName)
+                        launchApp(lc, new.ListIndex[lcc.CurrentGameIndex.ListIndex].GameIndex[lcc.CurrentGameIndex.GameIndex].PackageName)
 
                     }
                 }
@@ -110,9 +111,9 @@ public fun HomePage()
                 {
                     Text("当前游戏：", fontSize = 12.sp)
 
-                    val cur = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText()).CurrentGameIndex
+                    val cur = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}")).CurrentGameIndex
                     val current =
-                        ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).ListIndex[cur.ListIndex].GameIndex[cur.GameIndex]
+                        ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}")).ListIndex[cur.ListIndex].GameIndex[cur.GameIndex]
                     Text(
                         "${current.GameName}",
                         fontSize = 12.sp,

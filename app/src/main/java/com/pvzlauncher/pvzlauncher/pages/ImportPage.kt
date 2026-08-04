@@ -103,7 +103,7 @@ public fun ImportPage()
     {
         var listcount by rememberSaveable { mutableStateOf(0) }
         var aaa =
-            ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
+            ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
         if(isRendered)
         {
             Installedappindex.forEach outer@ { i ->
@@ -137,7 +137,7 @@ public fun ImportPage()
                             like = false
                         )
                         WriteJson<SaveConfigList>(
-                            SAVECONFIGNAME,
+                            File("${lc.filesDir}/${SAVECONFIGNAME}"),
                             aaa,
                             lc
                         )

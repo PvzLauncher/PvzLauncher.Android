@@ -202,7 +202,7 @@ public fun DownloadDetailPage()
                                         {
 
                                             var sl =
-                                                ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
+                                                ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
                                             sl.ListIndex[0].GameIndex += SaveConfig(
                                                 GameName = ProcessList[intProcessList.indexOf(
                                                     pid
@@ -232,7 +232,7 @@ public fun DownloadDetailPage()
 
                                             )
                                             WriteJson<SaveConfigList>(
-                                                SAVECONFIGNAME,
+                                                File("${lc.filesDir}/${SAVECONFIGNAME}"),
                                                 sl,
                                                 lc
                                             )

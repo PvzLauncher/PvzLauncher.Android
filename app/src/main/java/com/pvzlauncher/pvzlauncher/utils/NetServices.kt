@@ -31,7 +31,7 @@ public fun CheckUpdate(lc : Context,isSilent : Boolean)
 {
     try {
         val jsondata = GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json")
-        val ConfigInline = ReadJson<UpdateConfig>(jsondata)
+        val ConfigInline = ReadJsonfromText<UpdateConfig>(jsondata)
         if(ConfigInline.LatestVersion == APP_VERSION)
         {
             if(!isSilent) {
@@ -46,7 +46,7 @@ public fun CheckUpdate(lc : Context,isSilent : Boolean)
                 var loa = XW_LoadingMask(lc,"请稍候……")
                 loa.show()
                 var dprogress = 0
-                var ltscfg = ReadJson<UpdateConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json"))
+                var ltscfg = ReadJsonfromText<UpdateConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json"))
                 PRDownloader.download(
                     ltscfg.LatestLink,
                     "${lc.filesDir}/temp",

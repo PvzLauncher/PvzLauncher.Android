@@ -104,18 +104,21 @@ public data class CurrentIndex(
 )
 
 
+public inline fun <reified T> ReadJson(file: File) : T
+{
+    return Json.decodeFromString<T>(file.readText())
+}
 
-
-public inline fun <reified T> ReadJson(jsonString : String) : T
+public inline fun <reified T> ReadJsonfromText(jsonString : String) : T
 {
     return Json.decodeFromString<T>(jsonString)
 }
 
-public inline fun <reified T> WriteJson(fileName: String, data: T,context: Context)
+public inline fun <reified T> WriteJson(file : File, data: T,context: Context)
 {
-    val writepath = context.filesDir
+
     val jsonString = Json.encodeToString(data)
-    File("${writepath}/${fileName}").writeText(jsonString, Charsets.UTF_8)
+    file.writeText(jsonString, Charsets.UTF_8)
 }
 
 fun shareConfig(context: Context) {

@@ -66,13 +66,13 @@ public fun XW_ImportInformationCard(args : SaveConfig, onBack: () -> Unit, IsBut
                         }
                         Box(Modifier.padding(2.dp)){}
 //
-                        val rj =  ReadJson<SaveConfigList>(File("${cont.filesDir}/${SAVECONFIGNAME}").readText()).ListIndex
+                        val rj =  ReadJson<SaveConfigList>(File("${cont.filesDir}/${SAVECONFIGNAME}")).ListIndex
 
                         for(ij in 0 until rj.count())
                         {
-                            if(ij == ReadJson<LauncherConfig>(File("${cont.filesDir}/${LAUNCHERCONFIGNAME}").readText()).CurrentGameIndex.ListIndex)
+                            if(ij == ReadJson<LauncherConfig>(File("${cont.filesDir}/${LAUNCHERCONFIGNAME}")).CurrentGameIndex.ListIndex)
                             {
-                                if(rj[ij].GameIndex.indexOf(args) == ReadJson<LauncherConfig>(File("${cont.filesDir}/${LAUNCHERCONFIGNAME}").readText()).CurrentGameIndex.GameIndex)
+                                if(rj[ij].GameIndex.indexOf(args) == ReadJson<LauncherConfig>(File("${cont.filesDir}/${LAUNCHERCONFIGNAME}")).CurrentGameIndex.GameIndex)
                                 {
                                     Box(modifier = Modifier.background(Color.Red, RoundedCornerShape(7.5.dp))
                                         .padding(4.dp,2.dp))

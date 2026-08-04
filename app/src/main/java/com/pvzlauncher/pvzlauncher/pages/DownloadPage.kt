@@ -57,6 +57,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import com.pvzlauncher.pvzlauncher.ui.theme.XW_LightTheme
 import com.pvzlauncher.pvzlauncher.utils.GameKindsConfig
+import com.pvzlauncher.pvzlauncher.utils.ReadJsonfromText
 
 
 @Composable
@@ -184,7 +185,7 @@ public fun RefreshGamelist(lc : Context)
             var gameindex = emptyList<GameKindsConfig>()
             try {
                 gameindex =
-                    ReadJson<GameListConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameIndex.json")).ListIndex
+                    ReadJsonfromText<GameListConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameIndex.json")).ListIndex
 
             } catch (e: Exception) {
 

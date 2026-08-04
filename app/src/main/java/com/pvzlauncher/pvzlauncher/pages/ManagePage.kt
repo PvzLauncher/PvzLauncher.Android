@@ -94,7 +94,7 @@ public fun ManagePage()
                 var search by rememberSaveable {mutableStateOf("")}
                 Box(Modifier.fillMaxSize())
                 {
-                    val cfg = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
+                    val cfg = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
                     fun getnames() : List<String>
                     {
                         var names = emptyList<String>().toMutableList()
@@ -131,18 +131,18 @@ public fun ManagePage()
                                 val v1 = cfg.ListIndex.toMutableList()
                                 v1.removeAt(j)
                                 cfg.ListIndex = v1.toList()
-                                WriteJson(SAVECONFIGNAME, cfg, lc)
+                                WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), cfg, lc)
                                 if(selecteditem == j)
                                 {
                                     selecteditem = 0
                                 }
-                                if(ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText()).CurrentGameIndex.ListIndex == j)
+                                if(ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}")).CurrentGameIndex.ListIndex == j)
                                 {
-                                    val cfg = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}").readText())
+                                    val cfg = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
                                     cfg.CurrentGameIndex.ListIndex = 0
                                     cfg.CurrentGameIndex.GameIndex = 0
                                     WriteJson<LauncherConfig>(
-                                        LAUNCHERCONFIGNAME,cfg,lc)
+                                        File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"),cfg,lc)
                                 }
                                 isDialogVisible = false
                                 isRendered = false
@@ -158,7 +158,7 @@ public fun ManagePage()
                             val v1 = cfg.ListIndex.toMutableList()
                             v1[tmpsel].listname = k
                             cfg.ListIndex = v1.toList()
-                            WriteJson(SAVECONFIGNAME, cfg, lc)
+                            WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), cfg, lc)
                             isDialogVisible3 = false
                             isRendered = false
                             isRendered = true
@@ -239,7 +239,7 @@ public fun ManagePage()
                                         onBack = {
                                             ManagelistIndex = selecteditem
                                             ManageIndex =
-                                                ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText()).ListIndex[selecteditem].GameIndex.indexOf(
+                                                ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}")).ListIndex[selecteditem].GameIndex.indexOf(
                                                     i
                                                 )
                                             CurrentDestination = AppDestinations.ManageDetailPage
@@ -271,11 +271,11 @@ public fun ManagePage()
         var isDialogVisible by remember { mutableStateOf(false) }
         var isDialogVisible2 by remember { mutableStateOf(false) }
         XW_InputDialog(isDialogVisible2,"提示","请输入收藏夹名","请输入……","",{isDialogVisible2 = false},{ s ->
-            val cfg = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}").readText())
+            val cfg = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
             val v0 = cfg.ListIndex.toMutableList()
             v0.add(FavoriteListsConfig(s,emptyList()))
             cfg.ListIndex = v0.toList()
-            WriteJson(SAVECONFIGNAME, cfg, lc)
+            WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), cfg, lc)
             isRendered = false
             isRendered = true
 
