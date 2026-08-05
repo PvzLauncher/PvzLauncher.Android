@@ -1,5 +1,6 @@
 package com.pvzlauncher.pvzlauncher
 
+import android.app.AppOpsManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -48,6 +49,11 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.pm.PackageManager
+import androidx.core.app.ActivityCompat
 import androidx.compose.animation.togetherWith
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationRailItemDefaults
@@ -80,48 +86,47 @@ import com.pvzlauncher.pvzlauncher.utils.snackbarHostState
 import android.content.Context
 import android.os.Environment
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.core.app.ActivityCompat.requestPermissions
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.core.content.PermissionChecker.checkSelfPermission
+import com.pvzlauncher.pvzlauncher.pages.SavePage
 import com.pvzlauncher.pvzlauncher.ui.theme.XW_DarkTheme
 import com.pvzlauncher.pvzlauncher.ui.theme.XW_LightTheme
 import com.pvzlauncher.pvzlauncher.utils.UseDarkTheme
 import com.pvzlauncher.pvzlauncher.utils.checkedupdate
 import com.pvzlauncher.pvzlauncher.utils.checkinternetconnect
+import com.pvzlauncher.pvzlauncher.utils.hasUsageStatsPermission
 import com.pvzlauncher.pvzlauncher.utils.requestappinstall
+import com.pvzlauncher.pvzlauncher.utils.launchedgame
 
 
 class MainActivity : ComponentActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
-
         android.os.StrictMode.setThreadPolicy(android.os.StrictMode.ThreadPolicy.Builder().permitAll().build())
         super.onCreate(savedInstanceState)
         AndroidThreeTen.init(this)
         enableEdgeToEdge()
         setContent {
-
             if(UseDarkTheme.value)
             {
-
                     PvzLauncherAndroidTheme {
                         PvzLauncherAndroidApp()
                     }
-
             }
             else
             {
-
                     PvzLauncherAndroidTheme {
                         PvzLauncherAndroidApp()
                     }
-
             }
-
-
-
         }
-
-
     }
+
+
+
+
 }
 
 @PreviewScreenSizes
@@ -141,6 +146,7 @@ fun PvzLauncherAndroidApp() {
             AppDestinations.MDReaderPage -> CurrentDestination = AppDestinations.AboutPage
             AppDestinations.SettingPage -> CurrentDestination = AppDestinations.HomePage
             AppDestinations.TaskPage -> CurrentDestination = AppDestinations.DownloadPage
+            AppDestinations.SavePage -> CurrentDestination = AppDestinations.ManageDetailPage
         }
     }
     val NaviColor = NavigationSuiteDefaults.itemColors(
@@ -221,6 +227,7 @@ fun PvzLauncherAndroidApp() {
                         AppDestinations.TaskPage -> TaskPage()
                         AppDestinations.MDReaderPage -> MDReaderPage()
                         AppDestinations.ImportPage -> ImportPage()
+                        AppDestinations.SavePage -> SavePage()
 
 
                     }
@@ -255,7 +262,9 @@ enum class AppDestinations(
     DownloadDetailPage(label="",icon=Icons.Default.QuestionMark),
     TaskPage(label="",icon=Icons.Default.QuestionMark),
     MDReaderPage(label="",icon=Icons.Default.QuestionMark),
-    ImportPage(label="",icon=Icons.Default.QuestionMark)
+    ImportPage(label="",icon=Icons.Default.QuestionMark),
+
+    SavePage(label="",icon=Icons.Default.QuestionMark)
 }
 
 @Composable
@@ -277,17 +286,10 @@ fun InitializeAppInterface()
         {
             if(!lc.packageManager.canRequestPackageInstalls())
             {
-                val settingLauncher = rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.StartActivityForResult()
-                ) { _ ->
-                    if (!lc.packageManager.canRequestPackageInstalls()) {
 
-                    }
-
-                }
 
                 XW_simpledialog(
-                    "权限申请(2/2)",
+                    "权限申请(3/3)",
                     "本程序需要申请“应用内安装应用”权限来帮助您安装各版本Pvz和提供游戏，自身升级包，请您同意此权限来使用此程序",
                     {
 
@@ -313,7 +315,7 @@ fun InitializeAppInterface()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             if(!Environment.isExternalStorageManager())
             {
-                XW_simpledialog("权限申请(1/2)","此程序需要申请读取存储权限来管理并安装您的游戏obb，请您批准！",{
+                XW_simpledialog("权限申请(2/3)","此程序需要申请读取存储权限来管理并安装您的游戏obb，请您批准！",{
                     val intent = Intent(
                         Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
                     )
@@ -327,10 +329,55 @@ fun InitializeAppInterface()
 
             }
         }
-        else
-        {
-            requestappinstall.value = true
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+
+            if (ActivityCompat.checkSelfPermission(
+                    lc,Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                val launcher = rememberLauncherForActivityResult(
+                    ActivityResultContracts.RequestPermission()
+                ) { granted ->
+
+                }
+                XW_simpledialog("权限申请(1/3)","此程序需要申请通知功能以在下载完毕时通知您！",{
+
+
+                    launcher.launch(
+                        Manifest.permission.POST_NOTIFICATIONS
+                    )
+                },{},lc)
+            }
         }
+
+
+        if(!hasUsageStatsPermission(lc) && false)
+        {
+            XW_simpledialog("权限申请(1/3)","此程序需要申请访问程序使用状态以记录游戏使用时间，请批准。",{
+                val intent = Intent(
+                    Settings.ACTION_USAGE_ACCESS_SETTINGS
+                )
+
+                lc.startActivity(intent)
+            },{},lc)
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            val channel = NotificationChannel(
+                "default_channel",
+                "默认通知",
+                NotificationManager.IMPORTANCE_HIGH
+            )
+
+            val manager = lc.getSystemService(
+                NotificationManager::class.java
+            )
+
+            manager.createNotificationChannel(channel)
+        }
+
+            requestappinstall.value = true
+
     }
     try{
         ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))

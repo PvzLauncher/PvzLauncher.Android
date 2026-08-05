@@ -49,8 +49,8 @@ public fun XW_TaskInformationCard(procfg : ProcessConfig, lc : Context)
         )
         {
             val scope = rememberCoroutineScope()
-            if(intProcessProgressList[intProcessList.indexOf(procfg.p_id)] != 100.toFloat())
-            {
+
+
                 TextButton(
                     onClick = {
                         XW_simpledialog("提示","是否删除任务:${procfg.p_info.GameName}？",{
@@ -94,7 +94,7 @@ public fun XW_TaskInformationCard(procfg : ProcessConfig, lc : Context)
                     )
 
                 }
-            }
+
 
 
             Column(

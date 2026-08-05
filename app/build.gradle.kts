@@ -15,7 +15,7 @@ android {
     defaultConfig {
         applicationId = "com.pvzlauncher.pvzlauncher"
         minSdk = 24
-        targetSdk = 36
+        targetSdk = 37
 
         //更新时一定要更改此区域
         versionCode = 16

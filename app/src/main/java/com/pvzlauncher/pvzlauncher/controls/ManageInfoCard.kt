@@ -36,6 +36,7 @@ import com.pvzlauncher.pvzlauncher.utils.GetWebSiteContent
 import com.pvzlauncher.pvzlauncher.utils.LAUNCHERCONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.LauncherConfig
 import com.pvzlauncher.pvzlauncher.utils.ReadJson
+import com.pvzlauncher.pvzlauncher.utils.ReadJsonfromText
 import com.pvzlauncher.pvzlauncher.utils.SAVECONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.SaveConfig
 import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
@@ -88,6 +89,41 @@ public fun XW_ManageInformationCard(args : SaveConfig, onBack: () -> Unit, IsBut
 
 
                         }
+                        try {
+                            GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameIndex.json")
+                        }
+                        catch (e:Exception)
+                        {
+                            return@OutlinedCard
+                        }
+                        Box(Modifier.padding(2.dp)){}
+                        val gameindex = ReadJsonfromText<GameListConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameIndex.json"))
+
+
+                            for(i in gameindex.ListIndex)
+                            {
+                                for(j in i.GameIndex)
+                                {
+                                    for(k in j.GameLink)
+                                    {
+                                        if(args.PackageName == k.VersionPackageName && k.VersionNeedUpdate)
+                                        {
+                                            if(args.gameversion != k.VersionVer)
+                                            {
+                                                Box(modifier = Modifier.background(Color(0xFF18cb2b), RoundedCornerShape(7.5.dp))
+                                                    .padding(4.dp,2.dp))
+                                                {
+                                                    Text("更新可用", color = Color.White, fontSize = 14.sp)
+                                                }
+                                            }
+
+
+                                        }
+                                    }
+                                }
+                            }
+
+
 
 
 

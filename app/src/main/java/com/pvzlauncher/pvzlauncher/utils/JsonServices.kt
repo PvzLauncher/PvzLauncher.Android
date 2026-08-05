@@ -14,6 +14,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.io.File
 
 
@@ -42,6 +43,8 @@ public data class VersionConfig(
     val VersionLink:String,
     val VersionSize:String,
     val VersionVer : String,
+    val VersionPackageName : String,
+    val VersionNeedUpdate : Boolean
 
 )
 
@@ -71,7 +74,8 @@ public data class SaveConfig(
     val AddTime : String,
     var PlayTime : Long,
     var LaunchTimes : Long,
-    var like : Boolean
+    var like : Boolean,
+    var latestlaunchtime : Long
 
 )
 
@@ -106,12 +110,16 @@ public data class CurrentIndex(
 
 public inline fun <reified T> ReadJson(file: File) : T
 {
-    return Json.decodeFromString<T>(file.readText())
+    return runBlocking {
+        Json.decodeFromString<T>(file.readText())
+    }
 }
 
 public inline fun <reified T> ReadJsonfromText(jsonString : String) : T
 {
-    return Json.decodeFromString<T>(jsonString)
+    return runBlocking {
+        Json.decodeFromString<T>(jsonString)
+    }
 }
 
 public inline fun <reified T> WriteJson(file : File, data: T,context: Context)

@@ -13,6 +13,9 @@ import androidx.compose.runtime.Composable
 import com.pvzlauncher.pvzlauncher.controls.XW_simpledialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import org.threeten.bp.Instant
+import org.threeten.bp.ZoneId
+import org.threeten.bp.format.DateTimeFormatter
 import java.io.File
 
 suspend fun createTempOBBFileFromUri(
@@ -87,25 +90,16 @@ fun OBBPickerLauncher(
 }
 
 
-fun requestObbPermission(
-    context: Context,
-) {
+fun millisToDate(millis: Long): String {
+    val instant = Instant.ofEpochMilli(millis)
 
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        if(!Environment.isExternalStorageManager())
-        {
-            XW_simpledialog("权限申请(1/2)","此程序需要申请读取存储权限来管理并安装您的游戏obb，请您批准！",{
-                val intent = Intent(
-                    Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
-                )
+    val zoneDateTime = instant
+        .atZone(ZoneId.systemDefault())
+        .toLocalDateTime()
 
-                intent.data = Uri.parse(
-                    "package:${context.packageName}"
-                )
+    val formatter = DateTimeFormatter.ofPattern(
+        "yyyy/MM/dd HH:mm:ss"
+    )
 
-                context.startActivity(intent)
-            },{},context)
-
-        }
-    }
+    return zoneDateTime.format(formatter)
 }

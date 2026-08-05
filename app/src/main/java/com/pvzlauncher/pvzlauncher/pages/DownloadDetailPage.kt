@@ -51,6 +51,7 @@ import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
 import com.pvzlauncher.pvzlauncher.utils.WriteJson
 import com.pvzlauncher.pvzlauncher.controls.XW_GameInformationCard
 import com.pvzlauncher.pvzlauncher.controls.XW_InputDialog
+import com.pvzlauncher.pvzlauncher.controls.XW_NotifyMessage
 import com.pvzlauncher.pvzlauncher.controls.XW_PhotoMask
 import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
 import com.pvzlauncher.pvzlauncher.utils.installApk
@@ -193,7 +194,7 @@ public fun DownloadDetailPage()
                                         )].p_info.GameName
                                     } 完成", lc
                                 )
-
+                                XW_NotifyMessage(lc,"下载完成","您的任务 ${ProcessList[intProcessList.indexOf(pid)].p_info.GameName} 已下载完成，请回到启动器查看！")
 
                                 try {
                                     installApk(
@@ -228,7 +229,8 @@ public fun DownloadDetailPage()
                                                 gameversion = ProcessList[intProcessList.indexOf(
                                                     pid
                                                 )].p_info.GameLink[DownloadCount].VersionVer,
-                                                like = false
+                                                like = false,
+                                                latestlaunchtime = 0L
 
                                             )
                                             WriteJson<SaveConfigList>(

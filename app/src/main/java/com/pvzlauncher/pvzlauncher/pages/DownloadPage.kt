@@ -98,28 +98,7 @@ public fun DownloadPage()
                         )
 
                     }
-                    TextButton(
-                        onClick = {
-                            isRendered = false
-                            RefreshGamelist(lc)
-                            isRendered = true
 
-                        },
-                        modifier = Modifier
-                            .padding(5.dp)
-                            .size(32.dp),
-                        contentPadding = PaddingValues(0.dp),
-                        shape = CircleShape
-                    )
-                    {
-
-                        Icon(
-                            imageVector = Icons.Default.Refresh,
-                            "检测更新",
-                            modifier = Modifier.size(32.dp)
-                        )
-
-                    }
 
                 }
             }
@@ -171,7 +150,7 @@ public fun RefreshGamelist(lc : Context)
 
         return
     }
-    Downloadlist =  mutableStateOf(@Composable{
+    Downloadlist = mutableStateOf(@Composable{
         val scrollState = rememberScrollState()
         var search by rememberSaveable {mutableStateOf("")}
         Column(

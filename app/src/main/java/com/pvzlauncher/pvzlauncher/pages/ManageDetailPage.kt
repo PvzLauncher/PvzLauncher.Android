@@ -61,6 +61,7 @@ import com.pvzlauncher.pvzlauncher.utils.createTempOBBFileFromUri
 import com.pvzlauncher.pvzlauncher.utils.deleteOBBFile
 import com.pvzlauncher.pvzlauncher.utils.getFileName
 import com.pvzlauncher.pvzlauncher.utils.isAppInstalled
+import com.pvzlauncher.pvzlauncher.utils.millisToDate
 import com.pvzlauncher.pvzlauncher.utils.uninstallApk
 import kotlinx.coroutines.launch
 import java.io.File
@@ -141,7 +142,7 @@ public fun ManageDetailPage()
                             args = all.ListIndex[ManagelistIndex].GameIndex[ManageIndex],
                             onBack = {
                                 all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].like = true
-                                    WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), all, lc)
+                                WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), all, lc)
                                 RefreshDetail()
 
                             }, IsButtonEnable = true,icon = Icons.Default.StarOutline
@@ -160,7 +161,7 @@ public fun ManageDetailPage()
                                 v1.add(0,svc)
                                 val v2 = v1.toList()
                                 all.ListIndex[ManagelistIndex].GameIndex = v2
-                                    WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), all, lc)
+                                WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), all, lc)
                                 RefreshDetail()
 
                             }, IsButtonEnable = true,icon = Icons.Default.Star
@@ -351,8 +352,28 @@ public fun ManageDetailPage()
                                 })
 
                             }
+                            if(false)
+                            {
+                                Row(verticalAlignment = Alignment.CenterVertically)
+                                {
+                                    Text("存档管理：")
+                                    TextButton(
+                                        onClick = {
+                                            CurrentDestination = AppDestinations.SavePage
+                                        }
+                                    ) {
+                                        Text("进入存档管理页面")
+                                    }
+                                }
+                            }
                             Text("入库时间:${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].AddTime}")
                             Text("启动次数:${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].LaunchTimes}")
+                            Text("游玩时间:${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].PlayTime}分钟")
+                            if(all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].latestlaunchtime != 0L)
+                            {
+                                Text("最后启动时间:${millisToDate(all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].latestlaunchtime)}")
+                            }
+
                         }
                     }
 
@@ -362,7 +383,7 @@ public fun ManageDetailPage()
             {
                 Row(modifier = Modifier.padding(2.dp).fillMaxWidth())
                 {
-                    XW_ManageInformationCard(args = SaveConfig("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameAssets/Default.png","","","","",0,0,false), onBack = {}, IsButtonEnable = false)
+                    XW_ManageInformationCard(args = SaveConfig("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameAssets/Default.png","","","","",0,0,false,0L), onBack = {}, IsButtonEnable = false)
                 }
                 Column(Modifier) {
                     Row(Modifier.fillMaxWidth())
@@ -383,8 +404,13 @@ public fun ManageDetailPage()
                     }
                     Column()
                     {
-                        Text("入库时间:1970/01/01 00:00:00")
-                        Text("启动次数:0")
+                        Box(Modifier.fillMaxSize())
+                        {
+                            Column(Modifier.align(Alignment.Center), horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text("此游戏对应的应用程序不存在",fontSize = 18.sp, fontWeight = Bold)
+                                Text("请重新导入", fontSize = 14.sp)
+                            }
+                        }
                     }
                 }
             }

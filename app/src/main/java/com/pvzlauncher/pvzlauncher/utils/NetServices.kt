@@ -12,6 +12,7 @@ import com.pvzlauncher.pvzlauncher.controls.XW_simpledialog
 import com.pvzlauncher.pvzlauncher.controls.XW_LoadingMask
 import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
 import com.pvzlauncher.pvzlauncher.controls.XW_UpdateDialog
+import kotlinx.coroutines.runBlocking
 
 
 public fun OpenUrl(url : String,context : Context)
@@ -24,7 +25,9 @@ public fun OpenUrl(url : String,context : Context)
 }
 
 public fun GetWebSiteContent(url : String): String {
-    return URL(url).readText(Charsets.UTF_8)
+    return runBlocking {
+        URL(url).readText(Charsets.UTF_8)
+    }
 }
 
 public fun CheckUpdate(lc : Context,isSilent : Boolean)

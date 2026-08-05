@@ -41,6 +41,7 @@ var UseDarkTheme = mutableStateOf(true)
 var checkedupdate = mutableStateOf(false)
 var requestappinstall = mutableStateOf(false)
 var checkinternetconnect = mutableStateOf(false)
+var launchedgame = false
 data class ProcessConfig(
     var p_info : GameConfig,
     var p_id : Int

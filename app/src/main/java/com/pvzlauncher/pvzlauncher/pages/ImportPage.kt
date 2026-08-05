@@ -134,7 +134,8 @@ public fun ImportPage()
                             LaunchTimes = 0,
                             headImage = "https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameAssets/Default.png",
                             gameversion = GetApkInfo(i.packageName, lc).versionName ?: "1.0.0",
-                            like = false
+                            like = false,
+                            latestlaunchtime = 0L
                         )
                         WriteJson<SaveConfigList>(
                             File("${lc.filesDir}/${SAVECONFIGNAME}"),
@@ -144,7 +145,7 @@ public fun ImportPage()
                         Installedappindex.remove(i)
                         XW_ToastMessage("导入成功", lc)})
 
-                    XW_ImportInformationCard(SaveConfig("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameAssets/Default.png",GetApkInfo(i.packageName, lc).versionName ?: "1.0.0","${lc.packageManager.getApplicationLabel(lc.packageManager.getApplicationInfo(i.packageName, 0)).toString()}",i.packageName,ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")),0,0,false),{isdialogvisible = true},true)
+                    XW_ImportInformationCard(SaveConfig("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameAssets/Default.png",GetApkInfo(i.packageName, lc).versionName ?: "1.0.0","${lc.packageManager.getApplicationLabel(lc.packageManager.getApplicationInfo(i.packageName, 0)).toString()}",i.packageName,ZonedDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm")),0,0,false,0L),{isdialogvisible = true},true)
 
 
 

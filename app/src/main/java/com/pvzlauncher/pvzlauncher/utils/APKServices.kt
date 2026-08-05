@@ -1,5 +1,6 @@
 package com.pvzlauncher.pvzlauncher.utils
 
+import android.app.ActivityManager
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -30,6 +31,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import android.app.AppOpsManager
+import android.os.Process
+import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
 
 public fun GetApkInfo(pkg : String,context: Context) : PackageInfo
 {
@@ -265,5 +269,28 @@ public fun createTempFileFromUri(context: Context, uri: Uri): File? {
         e.printStackTrace()
         null
     }
+}
+
+fun hasUsageStatsPermission(context: Context): Boolean {
+    val appOps = context.getSystemService(
+        Context.APP_OPS_SERVICE
+    ) as AppOpsManager
+
+    val mode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        appOps.unsafeCheckOpNoThrow(
+            AppOpsManager.OPSTR_GET_USAGE_STATS,
+            Process.myUid(),
+            context.packageName
+        )
+    } else {
+        @Suppress("DEPRECATION")
+        appOps.checkOpNoThrow(
+            AppOpsManager.OPSTR_GET_USAGE_STATS,
+            Process.myUid(),
+            context.packageName
+        )
+    }
+
+    return mode == AppOpsManager.MODE_ALLOWED
 }
 

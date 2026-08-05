@@ -1,6 +1,7 @@
 package com.pvzlauncher.pvzlauncher.pages
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +18,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -69,7 +71,13 @@ public fun AboutPage()
                     Image(
                         painter = painterResource(id = R.drawable.ic_appicon_vector),
                         contentDescription = "AppIcon",
-                        modifier = Modifier.size(150.dp),
+                        modifier = Modifier.size(150.dp).pointerInput(Unit) {
+                            detectTapGestures(
+                                onLongPress = {
+                                   OpenUrl("https://music.163.com/#/mv?id=5308045",lc)
+                                }
+                            )
+                        },
 
                         )
 
