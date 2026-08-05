@@ -89,6 +89,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.core.app.ActivityCompat.requestPermissions
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.core.content.PermissionChecker.checkSelfPermission
+import com.pvzlauncher.pvzlauncher.controls.XW_MarkdownDialog
 import com.pvzlauncher.pvzlauncher.pages.SavePage
 import com.pvzlauncher.pvzlauncher.ui.theme.XW_DarkTheme
 import com.pvzlauncher.pvzlauncher.ui.theme.XW_LightTheme
@@ -282,22 +283,34 @@ fun InitializeAppInterface()
     }
     if(!requestappinstall.value)
     {
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
-        {
-            if(!lc.packageManager.canRequestPackageInstalls())
+        val launcher = rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { granted ->
+
+        }
+        XW_MarkdownDialog(lc,"权限申请","本程序需要申请以下权限来运行：","#### 1. 完整的网络访问权\r\n- 用途：用于下载，更新游戏，以及启动器检测更新\r\n#### 2. 请求删除应用程序\r\n- 用途：完全删除某个游戏版本时需要使用\r\n#### 3. 管理所有文件\r\n- 用途：管理游戏obb及存档\r\n#### 4. 请求安装此来源应用\r\n- 用途：用于安装启动器更新，游戏更新和游戏版本本体\r\n#### 5. 请求读取所有应用程序包\r\n- 用途：用于从所有应用中导入游戏版本\r\n#### 6.发送通知\r\n- 用途：在下载游戏完成时提醒您该安装了",{},{
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             {
+                if(!lc.packageManager.canRequestPackageInstalls())
+                {
+                            val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                                data = Uri.parse("package:${lc.packageName}")
+                            }
 
+                            intent.data = Uri.parse(
+                                "package:${lc.packageName}"
+                            )
 
-                XW_simpledialog(
-                    "权限申请(3/3)",
-                    "本程序需要申请“应用内安装应用”权限来帮助您安装各版本Pvz和提供游戏，自身升级包，请您同意此权限来使用此程序",
-                    {
+                            lc.startActivity(intent)
 
-
-
-                        val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
-                            data = Uri.parse("package:${lc.packageName}")
-                        }
+                }
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if(!Environment.isExternalStorageManager())
+                {
+                    val intent = Intent(
+                            Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
+                        )
 
                         intent.data = Uri.parse(
                             "package:${lc.packageName}"
@@ -305,76 +318,35 @@ fun InitializeAppInterface()
 
                         lc.startActivity(intent)
 
-                    },
-                    {},
-                    lc
-                )
-            }
-        }
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            if(!Environment.isExternalStorageManager())
-            {
-                XW_simpledialog("权限申请(2/3)","此程序需要申请读取存储权限来管理并安装您的游戏obb，请您批准！",{
-                    val intent = Intent(
-                        Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
-                    )
-
-                    intent.data = Uri.parse(
-                        "package:${lc.packageName}"
-                    )
-
-                    lc.startActivity(intent)
-                },{},lc)
-
-            }
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-
-            if (ActivityCompat.checkSelfPermission(
-                    lc,Manifest.permission.POST_NOTIFICATIONS
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                val launcher = rememberLauncherForActivityResult(
-                    ActivityResultContracts.RequestPermission()
-                ) { granted ->
 
                 }
-                XW_simpledialog("权限申请(1/3)","此程序需要申请通知功能以在下载完毕时通知您！",{
-
-
-                    launcher.launch(
-                        Manifest.permission.POST_NOTIFICATIONS
-                    )
-                },{},lc)
             }
-        }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
 
+                if (ActivityCompat.checkSelfPermission(
+                        lc,Manifest.permission.POST_NOTIFICATIONS
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                        launcher.launch(
+                            Manifest.permission.POST_NOTIFICATIONS
+                        )
+                }
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
-        if(!hasUsageStatsPermission(lc) && false)
-        {
-            XW_simpledialog("权限申请(1/3)","此程序需要申请访问程序使用状态以记录游戏使用时间，请批准。",{
-                val intent = Intent(
-                    Settings.ACTION_USAGE_ACCESS_SETTINGS
+                val channel = NotificationChannel(
+                    "pvzlauncher",
+                    "植物大战僵尸启动器",
+                    NotificationManager.IMPORTANCE_HIGH
                 )
 
-                lc.startActivity(intent)
-            },{},lc)
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val manager = lc.getSystemService(
+                    NotificationManager::class.java
+                )
 
-            val channel = NotificationChannel(
-                "default_channel",
-                "默认通知",
-                NotificationManager.IMPORTANCE_HIGH
-            )
-
-            val manager = lc.getSystemService(
-                NotificationManager::class.java
-            )
-
-            manager.createNotificationChannel(channel)
-        }
+                manager.createNotificationChannel(channel)
+            }
+        })
 
             requestappinstall.value = true
 

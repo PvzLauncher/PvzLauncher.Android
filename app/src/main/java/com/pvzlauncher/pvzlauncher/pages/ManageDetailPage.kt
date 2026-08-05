@@ -352,8 +352,8 @@ public fun ManageDetailPage()
                                 })
 
                             }
-                            if(false)
-                            {
+
+
                                 Row(verticalAlignment = Alignment.CenterVertically)
                                 {
                                     Text("存档管理：")
@@ -365,10 +365,13 @@ public fun ManageDetailPage()
                                         Text("进入存档管理页面")
                                     }
                                 }
-                            }
+
                             Text("入库时间:${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].AddTime}")
                             Text("启动次数:${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].LaunchTimes}")
-                            Text("游玩时间:${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].PlayTime}分钟")
+                            if(false)
+                            {
+                                Text("游玩时间:${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].PlayTime}分钟")
+                            }
                             if(all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].latestlaunchtime != 0L)
                             {
                                 Text("最后启动时间:${millisToDate(all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].latestlaunchtime)}")
