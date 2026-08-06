@@ -1,6 +1,5 @@
 package com.pvzlauncher.pvzlauncher.controls
 
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row

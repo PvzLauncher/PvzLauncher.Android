@@ -6,13 +6,12 @@ import android.net.Uri
 import com.downloader.Error
 import com.downloader.OnDownloadListener
 import com.downloader.PRDownloader
-import java.io.File
-import java.net.URL
-import com.pvzlauncher.pvzlauncher.controls.XW_simpledialog
 import com.pvzlauncher.pvzlauncher.controls.XW_LoadingMask
 import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
 import com.pvzlauncher.pvzlauncher.controls.XW_UpdateDialog
 import kotlinx.coroutines.runBlocking
+import java.io.File
+import java.net.URL
 
 
 public fun OpenUrl(url : String,context : Context)

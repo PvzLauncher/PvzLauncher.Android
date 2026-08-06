@@ -1,10 +1,28 @@
 package com.pvzlauncher.pvzlauncher
 
-import android.app.AppOpsManager
+import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.os.Environment
+import android.provider.Settings
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
@@ -14,56 +32,26 @@ import androidx.compose.material.icons.filled.Rocket
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.VideogameAsset
 import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
-import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
-import com.downloader.PRDownloader
-import com.downloader.PRDownloaderConfig
-import com.jakewharton.threetenabp.AndroidThreeTen
-import com.pvzlauncher.pvzlauncher.ui.theme.PvzLauncherAndroidTheme
-import com.pvzlauncher.pvzlauncher.utils.APP_VERSION
-import com.pvzlauncher.pvzlauncher.utils.GetWebSiteContent
-import com.pvzlauncher.pvzlauncher.utils.LAUNCHERCONFIGNAME
-import com.pvzlauncher.pvzlauncher.utils.LauncherConfig
-import com.pvzlauncher.pvzlauncher.utils.ReadJson
-import com.pvzlauncher.pvzlauncher.utils.SAVECONFIGNAME
-import com.pvzlauncher.pvzlauncher.controls.XW_simpledialog
-import java.io.File
-import android.content.Intent
-import android.net.Uri
-import android.os.Build
-import android.provider.Settings
-import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import android.Manifest
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.pm.PackageManager
-import androidx.core.app.ActivityCompat
-import androidx.compose.animation.togetherWith
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.pvzlauncher.pvzlauncher.utils.CheckUpdate
-import com.pvzlauncher.pvzlauncher.utils.globalContext
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import androidx.core.app.ActivityCompat
+import com.downloader.PRDownloader
+import com.downloader.PRDownloaderConfig
+import com.jakewharton.threetenabp.AndroidThreeTen
+import com.pvzlauncher.pvzlauncher.controls.XW_MarkdownDialog
+import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
+import com.pvzlauncher.pvzlauncher.controls.XW_simpledialog
 import com.pvzlauncher.pvzlauncher.pages.AboutPage
 import com.pvzlauncher.pvzlauncher.pages.DownloadDetailPage
 import com.pvzlauncher.pvzlauncher.pages.DownloadPage
@@ -73,41 +61,49 @@ import com.pvzlauncher.pvzlauncher.pages.MDReaderPage
 import com.pvzlauncher.pvzlauncher.pages.ManageDetailPage
 import com.pvzlauncher.pvzlauncher.pages.ManagePage
 import com.pvzlauncher.pvzlauncher.pages.RefreshGamelist
+import com.pvzlauncher.pvzlauncher.pages.SavePage
 import com.pvzlauncher.pvzlauncher.pages.SettingPage
 import com.pvzlauncher.pvzlauncher.pages.TaskPage
 import com.pvzlauncher.pvzlauncher.pages.refreshInstalledapplist
+import com.pvzlauncher.pvzlauncher.ui.theme.PvzLauncherAndroidTheme
+import com.pvzlauncher.pvzlauncher.utils.APP_VERSION
+import com.pvzlauncher.pvzlauncher.utils.CanEditSaves
+import com.pvzlauncher.pvzlauncher.utils.CheckUpdate
 import com.pvzlauncher.pvzlauncher.utils.CurrentDestination
-import com.pvzlauncher.pvzlauncher.utils.CurrentIndex
 import com.pvzlauncher.pvzlauncher.utils.FavoriteListsConfig
+import com.pvzlauncher.pvzlauncher.utils.GetWebSiteContent
+import com.pvzlauncher.pvzlauncher.utils.LAUNCHERCONFIGNAME
+import com.pvzlauncher.pvzlauncher.utils.LauncherConfig
+import com.pvzlauncher.pvzlauncher.utils.REQ_STORAGE
+import com.pvzlauncher.pvzlauncher.utils.ReadJson
+import com.pvzlauncher.pvzlauncher.utils.SAVECONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.SaveConfig
 import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
-import com.pvzlauncher.pvzlauncher.utils.WriteJson
-import com.pvzlauncher.pvzlauncher.utils.snackbarHostState
-import android.content.Context
-import android.os.Environment
-import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.core.app.ActivityCompat.requestPermissions
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.content.PermissionChecker.checkSelfPermission
-import com.pvzlauncher.pvzlauncher.controls.XW_MarkdownDialog
-import com.pvzlauncher.pvzlauncher.pages.SavePage
-import com.pvzlauncher.pvzlauncher.ui.theme.XW_DarkTheme
-import com.pvzlauncher.pvzlauncher.ui.theme.XW_LightTheme
 import com.pvzlauncher.pvzlauncher.utils.UseDarkTheme
+import com.pvzlauncher.pvzlauncher.utils.WriteJson
 import com.pvzlauncher.pvzlauncher.utils.checkedupdate
 import com.pvzlauncher.pvzlauncher.utils.checkinternetconnect
-import com.pvzlauncher.pvzlauncher.utils.hasUsageStatsPermission
-import com.pvzlauncher.pvzlauncher.utils.requestappinstall
-import com.pvzlauncher.pvzlauncher.utils.launchedgame
+import com.pvzlauncher.pvzlauncher.utils.currentactivity
+import com.pvzlauncher.pvzlauncher.utils.destroyLintFile
+import com.pvzlauncher.pvzlauncher.utils.globalContext
+import com.pvzlauncher.pvzlauncher.utils.initLintFile
+import com.pvzlauncher.pvzlauncher.utils.onSafActivityResult
+import com.pvzlauncher.pvzlauncher.utils.onStoragePermissionResult
+import com.pvzlauncher.pvzlauncher.utils.requestAndroidDataAccess
+import com.pvzlauncher.pvzlauncher.utils.snackbarHostState
+import java.io.File
 
 
 class MainActivity : ComponentActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        android.os.StrictMode.setThreadPolicy(android.os.StrictMode.ThreadPolicy.Builder().permitAll().build())
+
         super.onCreate(savedInstanceState)
+        initLintFile(this)
+        android.os.StrictMode.setThreadPolicy(android.os.StrictMode.ThreadPolicy.Builder().permitAll().build())
         AndroidThreeTen.init(this)
+        currentactivity = this
         enableEdgeToEdge()
         setContent {
             if(UseDarkTheme.value)
@@ -123,6 +119,24 @@ class MainActivity : ComponentActivity() {
                     }
             }
         }
+    }
+
+    override fun onDestroy() {
+        destroyLintFile()
+        super.onDestroy()
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        onStoragePermissionResult(requestCode, grantResults)   // ← 必须
+    }
+
+    @Suppress("DEPRECATION")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        onSafActivityResult(this, requestCode, resultCode, data)   // ← 必须
     }
 
 
@@ -271,7 +285,6 @@ enum class AppDestinations(
 @Composable
 fun InitializeAppInterface()
 {
-
     var lc = LocalContext.current
     globalContext = LocalContext.current
     APP_VERSION = (lc.packageManager.getPackageInfo(lc.packageName,0).versionName ?: "1.0.0")
@@ -281,14 +294,15 @@ fun InitializeAppInterface()
     if (!dir.exists()) {
         dir.mkdirs()
     }
-    if(!requestappinstall.value)
+    val cfg = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
+    if(!cfg.RequiredPermission)
     {
         val launcher = rememberLauncherForActivityResult(
             ActivityResultContracts.RequestPermission()
         ) { granted ->
 
         }
-        XW_MarkdownDialog(lc,"权限申请","本程序需要申请以下权限来运行：","#### 1. 完整的网络访问权\r\n- 用途：用于下载，更新游戏，以及启动器检测更新\r\n#### 2. 请求删除应用程序\r\n- 用途：完全删除某个游戏版本时需要使用\r\n#### 3. 管理所有文件\r\n- 用途：管理游戏obb及存档\r\n#### 4. 请求安装此来源应用\r\n- 用途：用于安装启动器更新，游戏更新和游戏版本本体\r\n#### 5. 请求读取所有应用程序包\r\n- 用途：用于从所有应用中导入游戏版本\r\n#### 6.发送通知\r\n- 用途：在下载游戏完成时提醒您该安装了",{},{
+        XW_MarkdownDialog(lc,"权限申请","本程序需要申请以下权限来运行：","1. 完整的网络访问权\r\n    - 用途：用于下载，更新游戏，以及启动器检测更新\r\n2. 请求删除应用程序\r\n    - 用途：完全删除某个游戏版本时需要使用\r\n3. 管理所有文件\r\n    - 用途：管理游戏obb及存档\r\n4. 请求安装来自此来源的应用\r\n    - 用途：用于安装启动器更新，游戏更新和游戏版本本体\r\n5. 请求读取所有应用程序包\r\n    - 用途：用于从所有应用中导入游戏版本\r\n6. 发送通知\r\n    - 用途：在下载游戏完成时提醒您该安装了",{},{
             if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
             {
                 if(!lc.packageManager.canRequestPackageInstalls())
@@ -346,25 +360,36 @@ fun InitializeAppInterface()
 
                 manager.createNotificationChannel(channel)
             }
+            if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q)
+            {
+                ActivityCompat.requestPermissions(
+                    currentactivity,
+                    arrayOf(
+                        android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                        android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    ),
+                    REQ_STORAGE
+                )
+            }
+            requestAndroidDataAccess(
+                context = lc,
+                onSuccess = { CanEditSaves = true },
+                onFailed  = { XW_ToastMessage("您的设备不支持进行存档操作") }
+            )
+            cfg.RequiredPermission = true
+            WriteJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"),cfg,lc)
         })
 
-            requestappinstall.value = true
+
 
     }
-    try{
-        ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
-    }
-    catch(e:Exception) {
-        WriteJson<LauncherConfig>(
-            File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"), LauncherConfig(
-                UseSystemTheme = true,
-                UseDarkTheme = false,
-                UseEnglishTitle = false,
-                CurrentGameIndex = CurrentIndex(0,0),
-                true, false,false
-            ), LocalContext.current
-        )
-    }
+
+    requestAndroidDataAccess(
+        context = lc,
+        onSuccess = { CanEditSaves = true },
+        onFailed  = {  }
+    )
+
 
     try{
         val a = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))

@@ -1,39 +1,39 @@
 package com.pvzlauncher.pvzlauncher.utils
 
-import android.app.ActivityManager
+import android.app.AppOpsManager
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
-import android.content.pm.PackageInfo
-import android.content.pm.PackageManager
-import android.os.Build
-import kotlin.concurrent.thread
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.PackageInfo
 import android.content.pm.PackageInstaller
+import android.content.pm.PackageManager
 import android.net.Uri
-import android.os.Environment
-import android.widget.Toast
-import androidx.core.content.FileProvider
-import java.io.File
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import android.provider.OpenableColumns
-import android.provider.Settings
+import android.os.Process
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
-import com.pvzlauncher.pvzlauncher.controls.XW_simpledialog
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import androidx.core.content.FileProvider
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import android.app.AppOpsManager
-import android.os.Process
-import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
+import java.io.File
+import kotlin.concurrent.thread
+import android.annotation.SuppressLint
+
+
+import android.provider.Settings
+
+import java.io.FileInputStream
+import java.util.UUID
+import java.util.concurrent.atomic.AtomicBoolean
+
+private const val EXTRA_INSTALL_TOKEN = "extra_install_token"
 
 public fun GetApkInfo(pkg : String,context: Context) : PackageInfo
 {
@@ -100,112 +100,191 @@ fun installApklegacy(context: Context, apkFile: File) {
     context.startActivity(intent)
 }
 
+
+@SuppressLint("ExportedReceiver", "UnspecifiedRegisterReceiverFlag", "MutablePendingIntent")
 fun installApk(
     context: Context,
     apkFile: File,
     onSuccess: () -> Unit,
     onFailed: () -> Unit
 ) {
-    if (!apkFile.exists()) {
-        onFailed()
+    val appContext = context.applicationContext
+    val mainHandler = Handler(Looper.getMainLooper())
+
+    fun post(block: () -> Unit) {
+        mainHandler.post { block() }
+    }
+
+    if (!apkFile.exists() || !apkFile.canRead()) {
+        post(onFailed)
         return
     }
 
-    val installer = context.packageManager.packageInstaller
-    val action = "${context.packageName}.INSTALL_STATUS"
+    /*
+     * Android 8.0+ 安装未知来源应用需要“允许安装未知应用”权限。
+     * 如果你已经在外部处理过权限申请，可以删除这一段。
+     */
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+        !appContext.packageManager.canRequestPackageInstalls()
+    ) {
+        try {
+            val settingsIntent = Intent(
+                Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                Uri.parse("package:${appContext.packageName}")
+            ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            appContext.startActivity(settingsIntent)
+        } catch (_: Exception) {
+        }
+        post(onFailed)
+        return
+    }
 
-    // 1. 动态接收广播
-    val statusReceiver = object : BroadcastReceiver() {
-        override fun onReceive(receiverContext: Context, intent: Intent) {
-            val status = intent.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE)
+    val installer = appContext.packageManager.packageInstaller
+    val sessionParams = PackageInstaller.SessionParams(
+        PackageInstaller.SessionParams.MODE_FULL_INSTALL
+    ).apply {
+        setSize(apkFile.length())
+    }
+
+    val sessionId = try {
+        installer.createSession(sessionParams)
+    } catch (e: Exception) {
+        post(onFailed)
+        return
+    }
+
+    val action = "${appContext.packageName}.INSTALL_STATUS_$sessionId"
+    val token = UUID.randomUUID().toString()
+
+    val callbackDelivered = AtomicBoolean(false)
+    var receiverRef: BroadcastReceiver? = null
+
+    fun finishWithResult(success: Boolean) {
+        if (!callbackDelivered.compareAndSet(false, true)) return
+
+        receiverRef?.let {
+            try {
+                appContext.unregisterReceiver(it)
+            } catch (_: Exception) {
+            }
+        }
+
+        post(if (success) onSuccess else onFailed)
+    }
+
+    val receiver = object : BroadcastReceiver() {
+        override fun onReceive(ctx: Context, intent: Intent) {
+            if (intent.getIntExtra(PackageInstaller.EXTRA_SESSION_ID, -1) != sessionId) return
+            if (intent.getStringExtra(EXTRA_INSTALL_TOKEN) != token) return
+
+            val status = intent.getIntExtra(
+                PackageInstaller.EXTRA_STATUS,
+                PackageInstaller.STATUS_FAILURE
+            )
 
             when (status) {
                 PackageInstaller.STATUS_PENDING_USER_ACTION -> {
-                    // 拉起系统确认弹窗
+                    // 普通应用安装时，系统需要用户确认，这里拉起系统安装确认页
                     val confirmIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                         intent.getParcelableExtra(Intent.EXTRA_INTENT, Intent::class.java)
                     } else {
                         @Suppress("DEPRECATION")
                         intent.getParcelableExtra(Intent.EXTRA_INTENT)
                     }
-                    confirmIntent?.let {
-                        it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        receiverContext.startActivity(it)
+
+                    if (confirmIntent == null) {
+                        finishWithResult(false)
+                        return
+                    }
+
+                    try {
+                        confirmIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        ctx.startActivity(confirmIntent)
+                    } catch (e: Exception) {
+                        finishWithResult(false)
                     }
                 }
+
                 PackageInstaller.STATUS_SUCCESS -> {
-                    // 1. 先安全注销广播
-                    try {
-                        receiverContext.unregisterReceiver(this)
-                    } catch (_: Exception) {}
-
-                    // 2. 回传成功（如果是安装别的App，这里会完美触发。如果是更新自己，进程即将被杀）
-                    Handler(Looper.getMainLooper()).post {
-                        onSuccess()
-                    }
+                    finishWithResult(true)
                 }
+
                 else -> {
-                    // 失败或取消
-                    try {
-                        receiverContext.unregisterReceiver(this)
-                    } catch (_: Exception) {}
-
-                    Handler(Looper.getMainLooper()).post {
-                        onFailed()
-                    }
+                    finishWithResult(false)
                 }
             }
         }
     }
+    receiverRef = receiver
 
-    // 2. 注册广播
-    val filter = IntentFilter(action)
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        context.registerReceiver(statusReceiver, filter, Context.RECEIVER_EXPORTED)
-    } else {
-        context.registerReceiver(statusReceiver, filter)
-    }
-
-    // 3. 写入 Session 并提交
-    thread {
+    try {
+        val filter = IntentFilter(action)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            appContext.registerReceiver(receiver, filter, Context.RECEIVER_EXPORTED)
+        } else {
+            appContext.registerReceiver(receiver, filter)
+        }
+    } catch (e: Exception) {
         try {
-            val params = PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL)
-            val sessionId = installer.createSession(params)
-            val session = installer.openSession(sessionId)
-
-            session.openWrite("temp_install", 0, apkFile.length()).use { outStream ->
-                apkFile.inputStream().use { inStream ->
-                    inStream.copyTo(outStream)
-                }
-            }
-
-            val broadcastIntent = Intent(action).apply {
-                setPackage(context.packageName)
-            }
-
-            val pendingIntent = PendingIntent.getBroadcast(
-                context,
-                sessionId,
-                broadcastIntent,
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
-                } else {
-                    PendingIntent.FLAG_UPDATE_CURRENT
-                }
-            )
-
-            session.commit(pendingIntent.intentSender)
-            session.close()
-        } catch (e: Exception) {
-            e.printStackTrace()
-
-
-            try {
-                context.unregisterReceiver(statusReceiver)
-                onFailed()
-            } catch (_: Exception) {}
-            Handler(Looper.getMainLooper()).post { onFailed() }
+            installer.abandonSession(sessionId)
+        } catch (_: Exception) {
         }
+        post(onFailed)
+        return
+    }
+
+    val session = try {
+        installer.openSession(sessionId)
+    } catch (e: Exception) {
+        finishWithResult(false)
+        try {
+            installer.abandonSession(sessionId)
+        } catch (_: Exception) {
+        }
+        return
+    }
+
+    try {
+        FileInputStream(apkFile).use { input ->
+            session.openWrite("base.apk", 0, apkFile.length()).use { output ->
+                input.copyTo(output)
+                session.fsync(output)
+            }
+        }
+
+        val pendingIntentFlags = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+        } else {
+            PendingIntent.FLAG_UPDATE_CURRENT
+        }
+
+        val statusIntent = Intent(action)
+            .setPackage(appContext.packageName)
+            .putExtra(EXTRA_INSTALL_TOKEN, token)
+
+        val statusReceiver = PendingIntent.getBroadcast(
+            appContext,
+            sessionId,
+            statusIntent,
+            pendingIntentFlags
+        )
+
+        session.commit(statusReceiver.intentSender)
+
+        try {
+            session.close()
+        } catch (_: Exception) {
+        }
+    } catch (e: Exception) {
+        try {
+            session.close()
+        } catch (_: Exception) {
+        }
+        try {
+            installer.abandonSession(sessionId)
+        } catch (_: Exception) {
+        }
+        finishWithResult(false)
     }
 }
 

@@ -16,7 +16,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Task
 import androidx.compose.material.icons.filled.Upload
@@ -30,9 +29,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -43,20 +45,16 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.pvzlauncher.pvzlauncher.AppDestinations
 import com.pvzlauncher.pvzlauncher.R
-import com.pvzlauncher.pvzlauncher.utils.CurrentDestination
-import com.pvzlauncher.pvzlauncher.utils.Downloadlist
-import com.pvzlauncher.pvzlauncher.utils.GameListConfig
-import com.pvzlauncher.pvzlauncher.utils.GetWebSiteContent
-import com.pvzlauncher.pvzlauncher.utils.OpenUrl
-import com.pvzlauncher.pvzlauncher.utils.ReadJson
 import com.pvzlauncher.pvzlauncher.controls.XW_GameInformationCard
 import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
 import com.pvzlauncher.pvzlauncher.controls.XW_simpledialog
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import com.pvzlauncher.pvzlauncher.ui.theme.XW_LightTheme
+import com.pvzlauncher.pvzlauncher.utils.CurrentDestination
+import com.pvzlauncher.pvzlauncher.utils.Downloadlist
 import com.pvzlauncher.pvzlauncher.utils.GameKindsConfig
+import com.pvzlauncher.pvzlauncher.utils.GameListConfig
+import com.pvzlauncher.pvzlauncher.utils.GetWebSiteContent
+import com.pvzlauncher.pvzlauncher.utils.OpenUrl
 import com.pvzlauncher.pvzlauncher.utils.ReadJsonfromText
 
 

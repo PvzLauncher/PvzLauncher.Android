@@ -6,16 +6,13 @@ plugins {
 
 android {
     namespace = "com.pvzlauncher.pvzlauncher"
-    compileSdk {
-        version = release(36) {
-            minorApiLevel = 1
-        }
-    }
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.pvzlauncher.pvzlauncher"
         minSdk = 24
-        targetSdk = 37
+        targetSdk = 29
+
 
         //更新时一定要更改此区域
         versionCode = 17
@@ -60,6 +57,7 @@ dependencies {
     implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.compose.material3.adaptive.navigation.suite)
     implementation("com.github.amitshekhariitbhu:PRDownloader:1.0.2")
+    implementation("io.github.qbhx224:lint-file:2.1.1")
     implementation("androidx.navigation:navigation-compose:2.9.8")
     implementation("com.jakewharton.threetenabp:threetenabp:1.4.7")
     implementation("androidx.appcompat:appcompat:1.7.0")
@@ -69,7 +67,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
     implementation("com.github.jeziellago:compose-markdown:0.5.0")
     implementation("androidx.compose.material:material-icons-extended")
-    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material3:material3:1.5.0-alpha24")
     implementation("io.coil-kt.coil3:coil-compose:3.3.0")
     implementation("io.coil-kt.coil3:coil-network-okhttp:3.3.0")
     implementation(libs.androidx.compose.ui)

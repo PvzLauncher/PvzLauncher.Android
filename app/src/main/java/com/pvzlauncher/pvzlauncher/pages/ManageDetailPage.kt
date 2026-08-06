@@ -41,22 +41,24 @@ import androidx.compose.ui.unit.sp
 import com.pvzlauncher.pvzlauncher.AppDestinations
 import com.pvzlauncher.pvzlauncher.controls.RadioDialog
 import com.pvzlauncher.pvzlauncher.controls.XW_CheckBoxDialog
+import com.pvzlauncher.pvzlauncher.controls.XW_InputDialog
+import com.pvzlauncher.pvzlauncher.controls.XW_LoadingMask
+import com.pvzlauncher.pvzlauncher.controls.XW_ManageInformationCard
+import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
+import com.pvzlauncher.pvzlauncher.utils.CanEditSaves
 import com.pvzlauncher.pvzlauncher.utils.CurrentDestination
 import com.pvzlauncher.pvzlauncher.utils.LAUNCHERCONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.LauncherConfig
 import com.pvzlauncher.pvzlauncher.utils.ManageIndex
+import com.pvzlauncher.pvzlauncher.utils.ManagelistIndex
+import com.pvzlauncher.pvzlauncher.utils.OBBPickerLauncher
+import com.pvzlauncher.pvzlauncher.utils.OBBShare
 import com.pvzlauncher.pvzlauncher.utils.ReadJson
 import com.pvzlauncher.pvzlauncher.utils.SAVECONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.SaveConfig
 import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
 import com.pvzlauncher.pvzlauncher.utils.WriteJson
-import com.pvzlauncher.pvzlauncher.controls.XW_InputDialog
-import com.pvzlauncher.pvzlauncher.controls.XW_LoadingMask
-import com.pvzlauncher.pvzlauncher.controls.XW_ManageInformationCard
-import com.pvzlauncher.pvzlauncher.utils.ManagelistIndex
-import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
-import com.pvzlauncher.pvzlauncher.utils.OBBPickerLauncher
-import com.pvzlauncher.pvzlauncher.utils.createTempFileFromUri
+import com.pvzlauncher.pvzlauncher.utils.copyFile
 import com.pvzlauncher.pvzlauncher.utils.createTempOBBFileFromUri
 import com.pvzlauncher.pvzlauncher.utils.deleteOBBFile
 import com.pvzlauncher.pvzlauncher.utils.getFileName
@@ -65,7 +67,6 @@ import com.pvzlauncher.pvzlauncher.utils.millisToDate
 import com.pvzlauncher.pvzlauncher.utils.uninstallApk
 import kotlinx.coroutines.launch
 import java.io.File
-import kotlin.collections.listOf
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,6 +74,7 @@ public fun ManageDetailPage()
 {
     val lc = LocalContext.current
     var isRendered by rememberSaveable{ mutableStateOf(true) }
+    var usingCostumOBB by rememberSaveable{ mutableStateOf(false) }
     TopAppBar(
         title = {
             Text(
@@ -143,6 +145,17 @@ public fun ManageDetailPage()
                             onBack = {
                                 all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].like = true
                                 WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), all, lc)
+                                val svc = all.ListIndex[ManagelistIndex].GameIndex[ManageIndex]
+                                val v1 = all.ListIndex[ManagelistIndex].GameIndex.toMutableList()
+                                v1.remove(svc)
+                                v1.add(0,svc)
+                                val v2 = v1.toList()
+                                all.ListIndex[ManagelistIndex].GameIndex = v2
+                                ManageIndex = 0
+                                var kk = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
+                                kk.CurrentGameIndex.GameIndex = 0
+                                WriteJson(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"), kk, lc)
+                                WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), all, lc)
                                 RefreshDetail()
 
                             }, IsButtonEnable = true,icon = Icons.Default.StarOutline
@@ -155,12 +168,6 @@ public fun ManageDetailPage()
                             args = all.ListIndex[ManagelistIndex].GameIndex[ManageIndex],
                             onBack = {
                                 all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].like = false
-                                val svc = all.ListIndex[ManagelistIndex].GameIndex[ManageIndex]
-                                val v1 = all.ListIndex[ManagelistIndex].GameIndex.toMutableList()
-                                v1.removeAt(ManageIndex)
-                                v1.add(0,svc)
-                                val v2 = v1.toList()
-                                all.ListIndex[ManagelistIndex].GameIndex = v2
                                 WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), all, lc)
                                 RefreshDetail()
 
@@ -177,8 +184,7 @@ public fun ManageDetailPage()
 
 
                         OutlinedButton(onClick = {
-                            var kk =
-                                ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
+                            var kk = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
                             kk.CurrentGameIndex.GameIndex = ManageIndex
                             kk.CurrentGameIndex.ListIndex = ManagelistIndex
                             WriteJson(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"), kk, lc)
@@ -298,7 +304,7 @@ public fun ManageDetailPage()
                                 return false
                             }
                             var m = XW_LoadingMask(lc,"请稍候……")
-                            var ischecked by rememberSaveable {mutableStateOf(IsCostumOBBInUse())}
+                            usingCostumOBB = IsCostumOBBInUse()
                             val scope = rememberCoroutineScope()
                             var a = OBBPickerLauncher({ i ->
                                 try {
@@ -310,14 +316,14 @@ public fun ManageDetailPage()
                                         }
                                         scope.launch {
                                             createTempOBBFileFromUri(lc,i,"${Environment.getExternalStorageDirectory()}/Android/obb/${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].PackageName}/${getFileName(lc,i)}")
-                                            ischecked = true
+                                            usingCostumOBB = true
                                             m.hide()
                                         }
 
                                     }
                                     else
                                     {
-                                        ischecked = false
+                                        usingCostumOBB = false
                                         XW_ToastMessage("文件不是obb格式，请重新选择！")
                                     }
 
@@ -325,16 +331,69 @@ public fun ManageDetailPage()
                                 catch(e: Exception)
                                 {
                                     XW_ToastMessage("无法复制obb,${i}")
-                                    ischecked = false
+                                    usingCostumOBB = false
                                 }
                             },{ i->
-                                ischecked = false
+                                usingCostumOBB = false
+                            })
+                            var b = OBBPickerLauncher({ i ->
+                                try {
+                                    if (getFileName(lc,i)?.endsWith(".obb", true) == true) {
+                                        m.show()
+
+                                        scope.launch {
+                                            createTempOBBFileFromUri(lc,i,"${lc.filesDir}/temp/${getFileName(lc,i)}")
+
+                                            m.hide()
+
+                                            OBBShare(lc,File("${lc.filesDir}/temp/${getFileName(lc,i)}"))
+
+                                            m.hide()
+                                        }
+
+                                    }
+                                    else
+                                    {
+
+                                        XW_ToastMessage("文件不是obb格式，请重新选择！")
+                                    }
+
+                                }
+                                catch(e: Exception)
+                                {
+                                    XW_ToastMessage("无法复制obb,${i}")
+
+                                }
+                                m.hide()
+                            },{ i->
+                                XW_ToastMessage("无法复制obb,${i}")
+                                m.hide()
+                            })
+                            var isVisible by rememberSaveable{ mutableStateOf(false) }
+                            var fileslist = emptyList<String>().toMutableList()
+                            if(File(Environment.getExternalStorageDirectory(),"Android/obb/${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].PackageName}").exists())
+                            {
+                                for(i in File(Environment.getExternalStorageDirectory(),"Android/obb/${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].PackageName}").listFiles())
+                                {
+                                    fileslist.add(i.name)
+                                }
+                            }
+                            RadioDialog(isVisible,"提示","请选择要导出的OBB文件",fileslist.toList(),{isVisible = false},{i ->
+                                scope.launch {
+                                    isVisible = false
+                                    m.show()
+                                    copyFile(File("${Environment.getExternalStorageDirectory()}/Android/obb/${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].PackageName}/${fileslist[i]}"),File("${lc.filesDir}/temp/${fileslist[i]}"))
+                                    m.hide()
+                                    OBBShare(lc,File("${lc.filesDir}/temp/${fileslist[i]}"))
+                                    m.hide()
+
+                                }
                             })
                             Row(verticalAlignment = Alignment.CenterVertically)
                             {
                                 Text("使用自定义OBB:",Modifier.padding(0.dp,0.dp,5.dp,0.dp))
-                                Switch(ischecked,{ischecked = it
-                                    if(ischecked)
+                                Switch(usingCostumOBB,{usingCostumOBB = it
+                                    if(usingCostumOBB)
                                     {
                                         a("*/*")
                                     }
@@ -345,24 +404,35 @@ public fun ManageDetailPage()
                                             m.show()
                                             deleteOBBFile("${Environment.getExternalStorageDirectory()}/Android/obb/${all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].PackageName}")
                                             m.hide()
-                                            ischecked = IsCostumOBBInUse()
+                                            usingCostumOBB = IsCostumOBBInUse()
                                         }
                                     }
 
                                 })
+                                if(usingCostumOBB)
+                                {
+                                    TextButton(onClick = {
+
+
+                                        isVisible = true
+                                    }) {Text("导出obb") }
+                                }
 
                             }
 
 
-                                Row(verticalAlignment = Alignment.CenterVertically)
+                                if(CanEditSaves)
                                 {
-                                    Text("存档管理：")
-                                    TextButton(
-                                        onClick = {
-                                            CurrentDestination = AppDestinations.SavePage
+                                    Row(verticalAlignment = Alignment.CenterVertically)
+                                    {
+                                        Text("存档管理：")
+                                        TextButton(
+                                            onClick = {
+                                                CurrentDestination = AppDestinations.SavePage
+                                            }
+                                        ) {
+                                            Text("进入存档管理页面")
                                         }
-                                    ) {
-                                        Text("进入存档管理页面")
                                     }
                                 }
 

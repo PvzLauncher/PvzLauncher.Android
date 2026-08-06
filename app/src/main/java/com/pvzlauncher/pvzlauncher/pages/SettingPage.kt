@@ -2,13 +2,10 @@ package com.pvzlauncher.pvzlauncher.pages
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Brightness6
@@ -22,9 +19,7 @@ import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material.icons.filled.Title
 import androidx.compose.material.icons.filled.Update
 import androidx.compose.material.icons.filled.UploadFile
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,20 +35,20 @@ import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pvzlauncher.pvzlauncher.controls.XW_Button
-import com.pvzlauncher.pvzlauncher.utils.LAUNCHERCONFIGNAME
-import com.pvzlauncher.pvzlauncher.utils.LauncherConfig
-import com.pvzlauncher.pvzlauncher.utils.ReadJson
-import com.pvzlauncher.pvzlauncher.utils.WriteJson
 import com.pvzlauncher.pvzlauncher.controls.XW_Switch
+import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
 import com.pvzlauncher.pvzlauncher.controls.XW_simpledialog
 import com.pvzlauncher.pvzlauncher.utils.CurrentIndex
 import com.pvzlauncher.pvzlauncher.utils.FavoriteListsConfig
 import com.pvzlauncher.pvzlauncher.utils.JsonPickerLauncher
+import com.pvzlauncher.pvzlauncher.utils.LAUNCHERCONFIGNAME
+import com.pvzlauncher.pvzlauncher.utils.LauncherConfig
+import com.pvzlauncher.pvzlauncher.utils.ReadJson
 import com.pvzlauncher.pvzlauncher.utils.SAVECONFIGNAME
-import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
-import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
 import com.pvzlauncher.pvzlauncher.utils.SaveConfig
+import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
 import com.pvzlauncher.pvzlauncher.utils.UseDarkTheme
+import com.pvzlauncher.pvzlauncher.utils.WriteJson
 import com.pvzlauncher.pvzlauncher.utils.rememberPhotoPickerLauncher
 import com.pvzlauncher.pvzlauncher.utils.shareConfig
 import kotlinx.coroutines.delay
@@ -392,7 +387,7 @@ public fun SettingPage()
                                                 UseDarkTheme = false,
                                                 UseEnglishTitle = false,
                                                 CurrentGameIndex = CurrentIndex(0,0),
-                                                true, false,false
+                                                true, false,false,true
                                             ), lc
                                         )
                                         WriteJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"), SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>()))),lc)

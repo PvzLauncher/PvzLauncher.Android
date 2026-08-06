@@ -4,17 +4,16 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import androidx.core.content.FileProvider
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.io.File
 
 
@@ -98,7 +97,8 @@ public data class LauncherConfig(
     var CurrentGameIndex : CurrentIndex,
     var StartUpCheckUpdate : Boolean,
     var CostumThemeColor : Boolean,
-    var CostumBackground : Boolean
+    var CostumBackground : Boolean,
+    var RequiredPermission : Boolean
 )
 
 @Serializable
@@ -138,7 +138,7 @@ fun shareConfig(context: Context) {
     val sendIntent = Intent().apply {
         action = Intent.ACTION_SEND
         putExtra(Intent.EXTRA_STREAM, imageUri)
-        type = "json/*"
+        type = "*/*"
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
     val shareIntent = Intent.createChooser(sendIntent, "导出设置")

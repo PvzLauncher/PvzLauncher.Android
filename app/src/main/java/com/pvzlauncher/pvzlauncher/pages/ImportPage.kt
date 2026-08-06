@@ -1,8 +1,6 @@
 package com.pvzlauncher.pvzlauncher.pages
 
 import android.content.Context
-import com.pvzlauncher.pvzlauncher.controls.XW_InputDialog
-import com.pvzlauncher.pvzlauncher.controls.XW_ManageInformationCard
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageInfo
 import android.content.pm.PackageManager
@@ -26,15 +24,23 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toMutableStateList
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pvzlauncher.pvzlauncher.AppDestinations
+import com.pvzlauncher.pvzlauncher.controls.XW_ImportInformationCard
+import com.pvzlauncher.pvzlauncher.controls.XW_InputDialog
+import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
+import com.pvzlauncher.pvzlauncher.utils.APKPickerLauncher
 import com.pvzlauncher.pvzlauncher.utils.CurrentDestination
 import com.pvzlauncher.pvzlauncher.utils.GetApkInfo
 import com.pvzlauncher.pvzlauncher.utils.Installedappindex
@@ -43,20 +49,12 @@ import com.pvzlauncher.pvzlauncher.utils.SAVECONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.SaveConfig
 import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
 import com.pvzlauncher.pvzlauncher.utils.WriteJson
-import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
+import com.pvzlauncher.pvzlauncher.utils.installApk
 import com.pvzlauncher.pvzlauncher.utils.isAppInstalled
 import org.threeten.bp.ZoneId
 import org.threeten.bp.ZonedDateTime
 import org.threeten.bp.format.DateTimeFormatter
 import java.io.File
-import kotlin.collections.plus
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import com.pvzlauncher.pvzlauncher.controls.XW_ImportInformationCard
-import com.pvzlauncher.pvzlauncher.utils.APKPickerLauncher
-import com.pvzlauncher.pvzlauncher.utils.installApk
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

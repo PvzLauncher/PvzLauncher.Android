@@ -1,14 +1,11 @@
 package com.pvzlauncher.pvzlauncher.controls
 
-import androidx.appcompat.view.ContextThemeWrapper
 import android.content.Context
+import androidx.appcompat.view.ContextThemeWrapper
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
@@ -18,7 +15,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.pvzlauncher.pvzlauncher.R
 import com.pvzlauncher.pvzlauncher.ui.theme.PvzLauncherAndroidTheme
 import com.pvzlauncher.pvzlauncher.utils.APP_VERSION
-import com.pvzlauncher.pvzlauncher.utils.MDR_MDContent
 import com.pvzlauncher.pvzlauncher.utils.UpdateConfig
 import dev.jeziellago.compose.markdowntext.MarkdownText
 

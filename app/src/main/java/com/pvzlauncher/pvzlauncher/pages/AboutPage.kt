@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.pvzlauncher.pvzlauncher.AppDestinations
 import com.pvzlauncher.pvzlauncher.R
+import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
 import com.pvzlauncher.pvzlauncher.utils.APP_VERSION
 import com.pvzlauncher.pvzlauncher.utils.CheckUpdate
 import com.pvzlauncher.pvzlauncher.utils.CurrentDestination
@@ -34,7 +35,6 @@ import com.pvzlauncher.pvzlauncher.utils.GetWebSiteContent
 import com.pvzlauncher.pvzlauncher.utils.MDR_FileName
 import com.pvzlauncher.pvzlauncher.utils.MDR_MDContent
 import com.pvzlauncher.pvzlauncher.utils.OpenUrl
-import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
 
 @Composable
 public fun AboutPage()

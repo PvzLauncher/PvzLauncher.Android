@@ -3,20 +3,19 @@ package com.pvzlauncher.pvzlauncher.utils
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
-import android.os.Environment
 import android.provider.OpenableColumns
-import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
-import com.pvzlauncher.pvzlauncher.controls.XW_simpledialog
+import androidx.core.content.FileProvider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.threeten.bp.Instant
 import org.threeten.bp.ZoneId
 import org.threeten.bp.format.DateTimeFormatter
 import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 
 suspend fun createTempOBBFileFromUri(
     context: Context,
@@ -102,4 +101,46 @@ fun millisToDate(millis: Long): String {
     )
 
     return zoneDateTime.format(formatter)
+}
+
+fun OBBShare(context: Context,file: File) {
+    val imageUri: Uri = FileProvider.getUriForFile(
+        context,
+        "${context.packageName}.fileprovider",
+        file
+    )
+    val sendIntent = Intent().apply {
+        action = Intent.ACTION_SEND
+        putExtra(Intent.EXTRA_STREAM, imageUri)
+        type = "*/*"
+        addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    }
+    val shareIntent = Intent.createChooser(sendIntent, "导出OBB")
+    context.startActivity(shareIntent)
+}
+
+suspend fun copyFile(
+    source: File,
+    target: File
+): Boolean = withContext(Dispatchers.IO) {
+
+    try {
+        if (!source.exists() || !source.isFile) {
+            return@withContext false
+        }
+
+        target.parentFile?.mkdirs()
+
+        FileInputStream(source).use { input ->
+            FileOutputStream(target).use { output ->
+                input.copyTo(output)
+            }
+        }
+
+        true
+
+    } catch (e: Exception) {
+        e.printStackTrace()
+        false
+    }
 }
