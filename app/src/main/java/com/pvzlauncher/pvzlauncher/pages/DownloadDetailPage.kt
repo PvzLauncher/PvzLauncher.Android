@@ -50,6 +50,7 @@ import com.pvzlauncher.pvzlauncher.utils.DownloadCount
 import com.pvzlauncher.pvzlauncher.utils.ProcessConfig
 import com.pvzlauncher.pvzlauncher.utils.ProcessList
 import com.pvzlauncher.pvzlauncher.utils.ReadJson
+import com.pvzlauncher.pvzlauncher.utils.ReadJsonLegacy
 import com.pvzlauncher.pvzlauncher.utils.SAVECONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.SaveConfig
 import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
@@ -201,8 +202,7 @@ public fun DownloadDetailPage()
                                         File("${lc.filesDir}/temp/${dlc.GameName}.apk"),
                                         {
 
-                                            var sl =
-                                                ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
+                                            var sl = ReadJsonLegacy<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
                                             sl.ListIndex[0].GameIndex += SaveConfig(
                                                 GameName = ProcessList[intProcessList.indexOf(
                                                     pid
@@ -234,8 +234,7 @@ public fun DownloadDetailPage()
                                             )
                                             WriteJson<SaveConfigList>(
                                                 File("${lc.filesDir}/${SAVECONFIGNAME}"),
-                                                sl,
-                                                lc
+                                                sl
                                             )
 
                                             intProcessProgressList.removeAt(

@@ -32,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +46,7 @@ import com.pvzlauncher.pvzlauncher.controls.XW_LoadingMask
 import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
 import com.pvzlauncher.pvzlauncher.ui.theme.XW_LightTheme
 import com.pvzlauncher.pvzlauncher.utils.CurrentDestination
+import com.pvzlauncher.pvzlauncher.utils.DefaultSaveConfig
 import com.pvzlauncher.pvzlauncher.utils.DirectoryPicker
 import com.pvzlauncher.pvzlauncher.utils.ManageIndex
 import com.pvzlauncher.pvzlauncher.utils.ManagelistIndex
@@ -70,11 +72,14 @@ import java.io.File
 public fun SavePage()
 {
     val lc = LocalContext.current
-    val all = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
+    var all by remember { mutableStateOf(DefaultSaveConfig()) }
     var accessFile by remember { mutableStateOf<LintFile?>(null) }
     var canEdit by remember { mutableStateOf(false) }
     var expand by remember { mutableStateOf(false) }
     var datapath by remember { mutableStateOf("") }
+    LaunchedEffect(Unit) {
+        all = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
+    }
     LaunchedEffect(all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].PackageName) {
         var a = false
         accessAndroidData(currentactivity, all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].PackageName, "",)

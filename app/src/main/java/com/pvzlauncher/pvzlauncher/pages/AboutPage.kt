@@ -16,6 +16,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
@@ -35,11 +36,13 @@ import com.pvzlauncher.pvzlauncher.utils.GetWebSiteContent
 import com.pvzlauncher.pvzlauncher.utils.MDR_FileName
 import com.pvzlauncher.pvzlauncher.utils.MDR_MDContent
 import com.pvzlauncher.pvzlauncher.utils.OpenUrl
+import kotlinx.coroutines.launch
 
 @Composable
 public fun AboutPage()
 {
     val lc = LocalContext.current
+    val scope = rememberCoroutineScope()
     Column(modifier = Modifier.padding(10.dp, 35.dp)) {
         Box(modifier = Modifier.fillMaxWidth())
         {
@@ -109,7 +112,9 @@ public fun AboutPage()
                         )
                         TextButton(
                             onClick = {
-                                CheckUpdate(lc, false)
+                                scope.launch {
+                                    CheckUpdate(lc, false)
+                                }
                             }, modifier = Modifier
 
 
@@ -147,8 +152,7 @@ public fun AboutPage()
                             //OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/EULA.md",cont)
                             try {
                                 MDR_FileName = "许可协议"
-                                MDR_MDContent =
-                                    GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/Files/EULA.md")
+                                MDR_MDContent = "https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/Files/EULA.md"
                                 CurrentDestination =
                                     AppDestinations.MDReaderPage
                             } catch (e: Exception) {
@@ -168,8 +172,7 @@ public fun AboutPage()
                             //OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/QandA.md",cont)
                             try {
                                 MDR_FileName = "常见问题"
-                                MDR_MDContent =
-                                    GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/Files/QandA.md")
+                                MDR_MDContent = "https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/Files/QandA.md"
                                 CurrentDestination =
                                     AppDestinations.MDReaderPage
                             } catch (e: Exception) {

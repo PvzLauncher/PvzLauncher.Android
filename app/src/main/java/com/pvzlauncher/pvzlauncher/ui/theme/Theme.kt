@@ -13,9 +13,11 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.pvzlauncher.pvzlauncher.utils.CurrentIndex
+import com.pvzlauncher.pvzlauncher.utils.DefaultLauncherConfig
 import com.pvzlauncher.pvzlauncher.utils.LAUNCHERCONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.LauncherConfig
 import com.pvzlauncher.pvzlauncher.utils.ReadJson
+import com.pvzlauncher.pvzlauncher.utils.ReadJsonLegacy
 import com.pvzlauncher.pvzlauncher.utils.WriteJson
 import java.io.File
 
@@ -55,20 +57,14 @@ fun PvzLauncherAndroidTheme(
 ) {
     val lc = LocalContext.current
     try{
-        ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
+        ReadJsonLegacy<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
     }
     catch(e:Exception) {
         WriteJson<LauncherConfig>(
-            File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"), LauncherConfig(
-                UseSystemTheme = true,
-                UseDarkTheme = false,
-                UseEnglishTitle = false,
-                CurrentGameIndex = CurrentIndex(0,0),
-                true, false,false,false
-            ), lc
+            File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"), DefaultLauncherConfig()
         )
     }
-    val a = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
+    val a = ReadJsonLegacy<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
     val XW_ColorScheme = when {
 
         darkTheme -> {

@@ -18,6 +18,11 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,12 +34,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.pvzlauncher.pvzlauncher.R
+import com.pvzlauncher.pvzlauncher.utils.DefaultLauncherConfig
+import com.pvzlauncher.pvzlauncher.utils.DefaultSaveConfig
 import com.pvzlauncher.pvzlauncher.utils.LAUNCHERCONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.LauncherConfig
 import com.pvzlauncher.pvzlauncher.utils.ReadJson
 import com.pvzlauncher.pvzlauncher.utils.SAVECONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.SaveConfig
 import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
+import com.pvzlauncher.pvzlauncher.utils.globalContext
 import java.io.File
 
 @Composable
@@ -66,24 +74,9 @@ public fun XW_ImportInformationCard(args : SaveConfig, onBack: () -> Unit, IsBut
                         }
                         Box(Modifier.padding(2.dp)){}
 //
-                        val rj =  ReadJson<SaveConfigList>(File("${cont.filesDir}/${SAVECONFIGNAME}")).ListIndex
-
-                        for(ij in 0 until rj.count())
-                        {
-                            if(ij == ReadJson<LauncherConfig>(File("${cont.filesDir}/${LAUNCHERCONFIGNAME}")).CurrentGameIndex.ListIndex)
-                            {
-                                if(rj[ij].GameIndex.indexOf(args) == ReadJson<LauncherConfig>(File("${cont.filesDir}/${LAUNCHERCONFIGNAME}")).CurrentGameIndex.GameIndex)
-                                {
-                                    Box(modifier = Modifier.background(Color.Red, RoundedCornerShape(7.5.dp))
-                                        .padding(4.dp,2.dp))
-                                    {
-                                        Text("活动", color = Color.White, fontSize = 14.sp)
-                                    }
-                                }
-                            }
 
 
-                        }
+
 
 
 

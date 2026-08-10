@@ -18,6 +18,12 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,6 +35,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.pvzlauncher.pvzlauncher.R
+import com.pvzlauncher.pvzlauncher.utils.DefaultGameConfig
+import com.pvzlauncher.pvzlauncher.utils.DefaultLauncherConfig
+import com.pvzlauncher.pvzlauncher.utils.DefaultSaveConfig
 import com.pvzlauncher.pvzlauncher.utils.GameListConfig
 import com.pvzlauncher.pvzlauncher.utils.GetWebSiteContent
 import com.pvzlauncher.pvzlauncher.utils.LAUNCHERCONFIGNAME
@@ -38,12 +47,20 @@ import com.pvzlauncher.pvzlauncher.utils.ReadJsonfromText
 import com.pvzlauncher.pvzlauncher.utils.SAVECONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.SaveConfig
 import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
+import com.pvzlauncher.pvzlauncher.utils.globalContext
 import java.io.File
 
 @Composable
 public fun XW_ManageInformationCard(args : SaveConfig, onBack: () -> Unit, IsButtonEnable :  Boolean,icon : ImageVector = Icons.Default.ArrowForward,canLongPress : Boolean = false)
 {
-
+    var rj by remember { mutableStateOf(DefaultSaveConfig()) }
+    var lj by remember { mutableStateOf(DefaultLauncherConfig()) }
+    var gindex by remember { mutableStateOf(DefaultGameConfig()) }
+    LaunchedEffect(Unit) {
+        rj = ReadJson<SaveConfigList>(File("${globalContext.filesDir}/${SAVECONFIGNAME}"))
+        lj = ReadJson<LauncherConfig>(File("${globalContext.filesDir}/${LAUNCHERCONFIGNAME}"))
+        gindex = ReadJsonfromText(GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameIndex.json"))
+    }
     return OutlinedCard(modifier = Modifier.padding(5.dp).fillMaxWidth())
     {
         Box(modifier = Modifier.padding(5.dp).fillMaxWidth())
@@ -69,13 +86,13 @@ public fun XW_ManageInformationCard(args : SaveConfig, onBack: () -> Unit, IsBut
                         }
                         Box(Modifier.padding(2.dp)){}
 //
-                        val rj =  ReadJson<SaveConfigList>(File("${cont.filesDir}/${SAVECONFIGNAME}")).ListIndex
 
-                        for(ij in 0 until rj.count())
+
+                        for(ij in 0 until rj.ListIndex.count())
                         {
-                            if(ij == ReadJson<LauncherConfig>(File("${cont.filesDir}/${LAUNCHERCONFIGNAME}")).CurrentGameIndex.ListIndex)
+                            if(ij == lj.CurrentGameIndex.ListIndex)
                             {
-                                if(rj[ij].GameIndex.indexOf(args) == ReadJson<LauncherConfig>(File("${cont.filesDir}/${LAUNCHERCONFIGNAME}")).CurrentGameIndex.GameIndex)
+                                if(rj.ListIndex[ij].GameIndex.indexOf(args) == lj.CurrentGameIndex.GameIndex)
                                 {
                                     Box(modifier = Modifier.background(Color.Red, RoundedCornerShape(7.5.dp))
                                         .padding(4.dp,2.dp))
@@ -87,18 +104,12 @@ public fun XW_ManageInformationCard(args : SaveConfig, onBack: () -> Unit, IsBut
 
 
                         }
-                        try {
-                            GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameIndex.json")
-                        }
-                        catch (e:Exception)
-                        {
-                            return@OutlinedCard
-                        }
+
                         Box(Modifier.padding(2.dp)){}
-                        val gameindex = ReadJsonfromText<GameListConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/GameIndex.json"))
 
 
-                            for(i in gameindex.ListIndex)
+
+                            for(i in gindex.ListIndex)
                             {
                                 for(j in i.GameIndex)
                                 {

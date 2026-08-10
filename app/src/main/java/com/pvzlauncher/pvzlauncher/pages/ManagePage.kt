@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +46,8 @@ import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
 import com.pvzlauncher.pvzlauncher.controls.XW_simpledialog
 import com.pvzlauncher.pvzlauncher.ui.theme.XW_LightTheme
 import com.pvzlauncher.pvzlauncher.utils.CurrentDestination
+import com.pvzlauncher.pvzlauncher.utils.DefaultLauncherConfig
+import com.pvzlauncher.pvzlauncher.utils.DefaultSaveConfig
 import com.pvzlauncher.pvzlauncher.utils.FavoriteListsConfig
 import com.pvzlauncher.pvzlauncher.utils.LAUNCHERCONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.LauncherConfig
@@ -54,14 +57,25 @@ import com.pvzlauncher.pvzlauncher.utils.ReadJson
 import com.pvzlauncher.pvzlauncher.utils.SAVECONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
 import com.pvzlauncher.pvzlauncher.utils.WriteJson
+import kotlinx.coroutines.launch
 import java.io.File
 
 @Composable
 public fun ManagePage()
 {
     var lc = LocalContext.current
-    var isRendered by rememberSaveable { mutableStateOf(true) }
+    var isRendered by rememberSaveable { mutableStateOf(false) }
+    var lcfg by remember { mutableStateOf(DefaultLauncherConfig()) }
+    var scfg by remember { mutableStateOf(DefaultSaveConfig()) }
     val scope = rememberCoroutineScope()
+    LaunchedEffect(Unit) {
+        scope.launch {
+            scfg = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
+            lcfg = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
+            isRendered = true
+
+        }
+    }
     Box(Modifier.fillMaxSize())
     {
         Column(modifier = Modifier.padding(10.dp, 35.dp, 10.dp, 5.dp)) {
@@ -86,11 +100,11 @@ public fun ManagePage()
                 var search by rememberSaveable {mutableStateOf("")}
                 Box(Modifier.fillMaxSize())
                 {
-                    val cfg = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
+
                     fun getnames() : List<String>
                     {
                         var names = emptyList<String>().toMutableList()
-                        for(i in cfg.ListIndex)
+                        for(i in scfg.ListIndex)
                         {
                             names.add(i.listname)
                         }
@@ -120,21 +134,21 @@ public fun ManagePage()
 
                         RadioDialog(isDialogVisible,"提示","请选择要删除的收藏夹：",getnames().toList(),{isDialogVisible = false},{j ->
                             XW_simpledialog("警告","您确定要删除收藏夹吗？其中的游戏将永久消失！",{
-                                val v1 = cfg.ListIndex.toMutableList()
+                                val v1 = scfg.ListIndex.toMutableList()
                                 v1.removeAt(j)
-                                cfg.ListIndex = v1.toList()
-                                WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), cfg, lc)
+                                scfg.ListIndex = v1.toList()
+                                WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), scfg)
                                 if(selecteditem == j)
                                 {
                                     selecteditem = 0
                                 }
-                                if(ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}")).CurrentGameIndex.ListIndex == j)
+                                if(lcfg.CurrentGameIndex.ListIndex == j)
                                 {
-                                    val cfg = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
-                                    cfg.CurrentGameIndex.ListIndex = 0
-                                    cfg.CurrentGameIndex.GameIndex = 0
+
+                                    lcfg.CurrentGameIndex.ListIndex = 0
+                                    lcfg.CurrentGameIndex.GameIndex = 0
                                     WriteJson<LauncherConfig>(
-                                        File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"),cfg,lc)
+                                        File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"),lcfg)
                                 }
                                 isDialogVisible = false
                                 isRendered = false
@@ -147,10 +161,10 @@ public fun ManagePage()
                             isDialogVisible2 = false
                         })
                         XW_InputDialog(isDialogVisible3,"提示","请输入新名字","请输入……","",{isDialogVisible3 = false},{k ->
-                            val v1 = cfg.ListIndex.toMutableList()
+                            val v1 = scfg.ListIndex.toMutableList()
                             v1[tmpsel].listname = k
-                            cfg.ListIndex = v1.toList()
-                            WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), cfg, lc)
+                            scfg.ListIndex = v1.toList()
+                            WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), scfg)
                             isDialogVisible3 = false
                             isRendered = false
                             isRendered = true
@@ -162,7 +176,7 @@ public fun ManagePage()
                             SecondaryScrollableTabRow(
                                 selectedTabIndex = selecteditem, Modifier.weight(1f)
                             ) {
-                                cfg.ListIndex.forEachIndexed { i, c ->
+                                scfg.ListIndex.forEachIndexed { i, c ->
                                     Tab(
                                         selected = selecteditem == i,
                                         onClick = { selecteditem = i},
@@ -221,9 +235,9 @@ public fun ManagePage()
                                 fontSize = 14.sp
                             ))
                         }
-                        if(cfg.ListIndex[selecteditem].GameIndex.count() != 0)
+                        if(scfg.ListIndex[selecteditem].GameIndex.count() != 0)
                         {
-                            for (i in cfg.ListIndex[selecteditem].GameIndex) {
+                            for (i in scfg.ListIndex[selecteditem].GameIndex) {
                                 if(i.GameName.contains(search))
                                 {
                                     XW_ManageInformationCard(
@@ -231,7 +245,7 @@ public fun ManagePage()
                                         onBack = {
                                             ManagelistIndex = selecteditem
                                             ManageIndex =
-                                                ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}")).ListIndex[selecteditem].GameIndex.indexOf(
+                                                scfg.ListIndex[selecteditem].GameIndex.indexOf(
                                                     i
                                                 )
                                             CurrentDestination = AppDestinations.ManageDetailPage
@@ -263,11 +277,11 @@ public fun ManagePage()
         var isDialogVisible by remember { mutableStateOf(false) }
         var isDialogVisible2 by remember { mutableStateOf(false) }
         XW_InputDialog(isDialogVisible2,"提示","请输入收藏夹名","请输入……","",{isDialogVisible2 = false},{ s ->
-            val cfg = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
-            val v0 = cfg.ListIndex.toMutableList()
+
+            val v0 = scfg.ListIndex.toMutableList()
             v0.add(FavoriteListsConfig(s,emptyList()))
-            cfg.ListIndex = v0.toList()
-            WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), cfg, lc)
+            scfg.ListIndex = v0.toList()
+            WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), scfg)
             isRendered = false
             isRendered = true
 

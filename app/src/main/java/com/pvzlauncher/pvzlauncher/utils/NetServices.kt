@@ -9,7 +9,9 @@ import com.downloader.PRDownloader
 import com.pvzlauncher.pvzlauncher.controls.XW_LoadingMask
 import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
 import com.pvzlauncher.pvzlauncher.controls.XW_UpdateDialog
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.net.URL
 
@@ -23,18 +25,25 @@ public fun OpenUrl(url : String,context : Context)
     context.startActivity(intent)
 }
 
-public fun GetWebSiteContent(url : String): String {
-    return runBlocking {
+public suspend fun GetWebSiteContent(url : String): String = withContext(Dispatchers.IO) {
+
         URL(url).readText(Charsets.UTF_8)
-    }
+
 }
 
-public fun CheckUpdate(lc : Context,isSilent : Boolean)
+public  fun GetWebSiteContentLegacy(url : String): String {
+
+    return URL(url).readText(Charsets.UTF_8)
+
+}
+
+public suspend fun CheckUpdate(lc : Context,isSilent : Boolean)
 {
     try {
-        val jsondata = GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json")
-        val ConfigInline = ReadJsonfromText<UpdateConfig>(jsondata)
-        if(ConfigInline.LatestVersion == APP_VERSION)
+
+        var ltscfg = ReadJsonfromText<UpdateConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json"))
+
+        if(ltscfg.LatestVersion == APP_VERSION)
         {
             if(!isSilent) {
                 XW_ToastMessage("当前版本已经是最新版本", lc)
@@ -42,13 +51,11 @@ public fun CheckUpdate(lc : Context,isSilent : Boolean)
         }
         else
         {
+
             val info = GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateInfo.md")
-            ConfigInline.LatestDescription = info
-            XW_UpdateDialog(lc,ConfigInline,{},{
-                var loa = XW_LoadingMask(lc,"请稍候……")
-                loa.show()
-                var dprogress = 0
-                var ltscfg = ReadJsonfromText<UpdateConfig>(GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateIndex.json"))
+            ltscfg.LatestDescription = info
+            XW_UpdateDialog(lc,ltscfg,{},{
+
                 PRDownloader.download(
                     ltscfg.LatestLink,
                     "${lc.filesDir}/temp",
@@ -65,7 +72,7 @@ public fun CheckUpdate(lc : Context,isSilent : Boolean)
                         override fun onError(error: Error?) {
                             // 下载失败
                             XW_ToastMessage("下载出错: ${error?.serverErrorMessage}", lc)
-                            loa.dismiss()
+
                         }
 
 

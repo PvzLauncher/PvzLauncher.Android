@@ -21,8 +21,10 @@ import androidx.compose.material.icons.filled.Update
 import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -39,6 +41,7 @@ import com.pvzlauncher.pvzlauncher.controls.XW_Switch
 import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
 import com.pvzlauncher.pvzlauncher.controls.XW_simpledialog
 import com.pvzlauncher.pvzlauncher.utils.CurrentIndex
+import com.pvzlauncher.pvzlauncher.utils.DefaultLauncherConfig
 import com.pvzlauncher.pvzlauncher.utils.FavoriteListsConfig
 import com.pvzlauncher.pvzlauncher.utils.JsonPickerLauncher
 import com.pvzlauncher.pvzlauncher.utils.LAUNCHERCONFIGNAME
@@ -60,28 +63,15 @@ public fun SettingPage()
 {
     val lc = LocalContext.current
     val scope = rememberCoroutineScope()
-    var LocalSettings = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
-    var isRendered by rememberSaveable { mutableStateOf(true) }
+    var LocalSettings by remember { mutableStateOf(DefaultLauncherConfig()) }
+    var isRendered by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(Unit) {
+        LocalSettings = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
+        isRendered = true
+    }
     Box(Modifier.fillMaxSize())
     {
-        val openJsonPicker = JsonPickerLauncher({i ->
-            try {
-                XW_simpledialog(
-                    "警告",
-                    "此操作不可逆，确认要将所有设置覆盖吗？",
-                    {
-                        val old = ReadJson<LauncherConfig>(i)
-                        WriteJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"),old,lc)
-                        XW_simpledialog("提示","启动器需要重启以应用更改，应用即将退出……",{System.exit(0)},{System.exit(0)},lc)
-                    },
-                    {},lc
-                )
-            }
-            catch(e:Exception)
-            {
-                XW_ToastMessage("配置项不合法！",lc)
-            }
-        },{})
+
         Column(modifier = Modifier.padding(10.dp, 35.dp)) {
 
             Box(modifier = Modifier.fillMaxWidth())
@@ -101,8 +91,7 @@ public fun SettingPage()
                     LocalSettings.CostumBackground = true
                     WriteJson<LauncherConfig>(
                         File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"),
-                        LocalSettings,
-                        lc
+                        LocalSettings
                     )
                     isRendered = false
                     scope.launch {
@@ -126,8 +115,7 @@ public fun SettingPage()
                     LocalSettings.UseEnglishTitle = true
                     WriteJson<LauncherConfig>(
                         File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"),
-                        LocalSettings,
-                        lc
+                        LocalSettings
                     )
                     isRendered = false
                     scope.launch {
@@ -149,7 +137,6 @@ public fun SettingPage()
             val scrollState = rememberScrollState()
             if(isRendered)
             {
-                var LocalSettings = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
                 Column(Modifier.fillMaxSize().verticalScroll(scrollState))
                 {
 
@@ -175,8 +162,7 @@ public fun SettingPage()
 
                                 WriteJson<LauncherConfig>(
                                     File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"),
-                                    LocalSettings,
-                                    lc
+                                    LocalSettings
                                 )
                                 UseDarkTheme.value = !(UseDarkTheme.value)
 
@@ -195,8 +181,7 @@ public fun SettingPage()
                                 LocalSettings.UseDarkTheme = isChecked
                                 WriteJson<LauncherConfig>(
                                     File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"),
-                                    LocalSettings,
-                                    lc
+                                    LocalSettings
                                 )
                                 UseDarkTheme.value = !(UseDarkTheme.value)
                             },if(LocalSettings.UseSystemTheme){true}else{false})
@@ -213,32 +198,12 @@ public fun SettingPage()
                                     LocalSettings.CostumThemeColor = i
                                     WriteJson<LauncherConfig>(
                                         File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"),
-                                        LocalSettings,
-                                        lc
+                                        LocalSettings
                                     )
                                 }
                             )
                         }
-                        XW_Button(
-                            Icons.Default.FileOpen,
-                            "导出设置",
-                            "将设置导出，方便跨设备传输",
-                            "导出设置",
-                            Modifier,{
-                                shareConfig(lc)
-                            }
 
-                        )
-                        XW_Button(
-                            Icons.Default.UploadFile,
-                            "导入设置",
-                            "将设置导入，应用您的自定义属性",
-                            "导入设置",
-                            Modifier,{
-                                openJsonPicker("application/json")
-                            }
-
-                        )
 
 
                     }
@@ -267,8 +232,7 @@ public fun SettingPage()
                                     LocalSettings.UseEnglishTitle = i
                                     WriteJson<LauncherConfig>(
                                         File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"),
-                                        LocalSettings,
-                                        lc
+                                        LocalSettings
                                     )
                                 }
                             }
@@ -289,8 +253,7 @@ public fun SettingPage()
                                     LocalSettings.CostumBackground = i
                                     WriteJson<LauncherConfig>(
                                         File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"),
-                                        LocalSettings,
-                                        lc
+                                        LocalSettings
                                     )
                                 }
                             }
@@ -316,7 +279,7 @@ public fun SettingPage()
                                     "警告",
                                     "此操作不可逆，确认要将游戏列表清空吗？",
                                     {
-                                        WriteJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"), SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>()))),lc)
+                                        WriteJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"), SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>()))))
                                     },
                                     {},lc
                                 )
@@ -341,8 +304,7 @@ public fun SettingPage()
                                 LocalSettings.StartUpCheckUpdate = isChecked
                                 WriteJson<LauncherConfig>(
                                     File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"),
-                                    LocalSettings,
-                                    lc
+                                    LocalSettings
                                 )
                             })
                         XW_Button(
@@ -388,9 +350,9 @@ public fun SettingPage()
                                                 UseEnglishTitle = false,
                                                 CurrentGameIndex = CurrentIndex(0,0),
                                                 true, false,false,true
-                                            ), lc
+                                            )
                                         )
-                                        WriteJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"), SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>()))),lc)
+                                        WriteJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"), SaveConfigList(listOf(FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>()))))
                                         XW_simpledialog("提示","启动器需要重启以应用更改，应用即将退出……",{System.exit(0)},{System.exit(0)},lc)
                                     },
                                     {},lc

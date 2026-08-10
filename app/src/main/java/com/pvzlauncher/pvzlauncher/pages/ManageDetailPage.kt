@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,6 +48,8 @@ import com.pvzlauncher.pvzlauncher.controls.XW_ManageInformationCard
 import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
 import com.pvzlauncher.pvzlauncher.utils.CanEditSaves
 import com.pvzlauncher.pvzlauncher.utils.CurrentDestination
+import com.pvzlauncher.pvzlauncher.utils.DefaultLauncherConfig
+import com.pvzlauncher.pvzlauncher.utils.DefaultSaveConfig
 import com.pvzlauncher.pvzlauncher.utils.LAUNCHERCONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.LauncherConfig
 import com.pvzlauncher.pvzlauncher.utils.ManageIndex
@@ -73,8 +76,17 @@ import java.io.File
 public fun ManageDetailPage()
 {
     val lc = LocalContext.current
-    var isRendered by rememberSaveable{ mutableStateOf(true) }
+    var isRendered by rememberSaveable{ mutableStateOf(false) }
     var usingCostumOBB by rememberSaveable{ mutableStateOf(false) }
+
+    var lcfg by remember{ mutableStateOf(DefaultLauncherConfig()) }
+    var all by remember{ mutableStateOf(DefaultSaveConfig()) }
+    LaunchedEffect(Unit) {
+        lcfg = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
+        all = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
+        isRendered = true
+    }
+
     TopAppBar(
         title = {
             Text(
@@ -117,7 +129,7 @@ public fun ManageDetailPage()
         }
     }
     val scrollState = rememberScrollState()
-    val all = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
+
 
     if(isRendered)
     {
@@ -144,7 +156,7 @@ public fun ManageDetailPage()
                             args = all.ListIndex[ManagelistIndex].GameIndex[ManageIndex],
                             onBack = {
                                 all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].like = true
-                                WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), all, lc)
+                                WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), all)
                                 val svc = all.ListIndex[ManagelistIndex].GameIndex[ManageIndex]
                                 val v1 = all.ListIndex[ManagelistIndex].GameIndex.toMutableList()
                                 v1.remove(svc)
@@ -152,10 +164,9 @@ public fun ManageDetailPage()
                                 val v2 = v1.toList()
                                 all.ListIndex[ManagelistIndex].GameIndex = v2
                                 ManageIndex = 0
-                                var kk = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
-                                kk.CurrentGameIndex.GameIndex = 0
-                                WriteJson(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"), kk, lc)
-                                WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), all, lc)
+                                lcfg.CurrentGameIndex.GameIndex = 0
+                                WriteJson(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"), lcfg)
+                                WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), all)
                                 RefreshDetail()
 
                             }, IsButtonEnable = true,icon = Icons.Default.StarOutline
@@ -168,7 +179,7 @@ public fun ManageDetailPage()
                             args = all.ListIndex[ManagelistIndex].GameIndex[ManageIndex],
                             onBack = {
                                 all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].like = false
-                                WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), all, lc)
+                                WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), all)
                                 RefreshDetail()
 
                             }, IsButtonEnable = true,icon = Icons.Default.Star
@@ -184,10 +195,9 @@ public fun ManageDetailPage()
 
 
                         OutlinedButton(onClick = {
-                            var kk = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
-                            kk.CurrentGameIndex.GameIndex = ManageIndex
-                            kk.CurrentGameIndex.ListIndex = ManagelistIndex
-                            WriteJson(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"), kk, lc)
+                            lcfg.CurrentGameIndex.GameIndex = ManageIndex
+                            lcfg.CurrentGameIndex.ListIndex = ManagelistIndex
+                            WriteJson(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"), lcfg)
                             XW_ToastMessage("操作成功", lc)
                             CurrentDestination = AppDestinations.ManagePage
                         }, Modifier.padding(2.dp)) {
@@ -213,7 +223,7 @@ public fun ManageDetailPage()
                                 var a2 = all.ListIndex[ManagelistIndex].GameIndex.toMutableList()
                                 a2.removeAt(ManageIndex)
                                 all.ListIndex[ManagelistIndex].GameIndex = a2.toList()
-                                WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), all, lc)
+                                WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), all)
                                 isDialogVisible = false
                                 CurrentDestination = AppDestinations.ManagePage
                             }
@@ -233,7 +243,7 @@ public fun ManageDetailPage()
                             onConfirm = { text ->
 
                                 all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].GameName = text
-                                WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), all, lc)
+                                WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), all)
 
                                 XW_ToastMessage("操作成功", lc)
                                 CurrentDestination = AppDestinations.ManagePage
@@ -256,9 +266,8 @@ public fun ManageDetailPage()
                             Row(verticalAlignment = Alignment.CenterVertically)
                             {
                                 var isDialogVisible by rememberSaveable { mutableStateOf(false) }
-                                val cfg = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
                                 var names = emptyList<String>().toMutableList()
-                                for(i in cfg.ListIndex)
+                                for(i in all.ListIndex)
                                 {
                                     names.add(i.listname)
                                 }
@@ -267,12 +276,12 @@ public fun ManageDetailPage()
                                     val v0 = all.ListIndex[ManagelistIndex].GameIndex.toMutableList()
                                     v0.remove(v1)
                                     all.ListIndex[ManagelistIndex].GameIndex = v0.toList()
-                                    WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), all, lc)
+                                    WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), all)
                                     ManagelistIndex = j
                                     val v2 = all.ListIndex[j].GameIndex.toMutableList()
                                     v2.add(v1)
                                     all.ListIndex[j].GameIndex = v2.toList()
-                                    WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), all, lc)
+                                    WriteJson(File("${lc.filesDir}/${SAVECONFIGNAME}"), all)
                                     isDialogVisible = false
                                     RefreshDetail()})
                                 Text("所在收藏夹：${all.ListIndex[ManagelistIndex].listname}")

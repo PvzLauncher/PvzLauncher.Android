@@ -30,8 +30,6 @@ val intProcessProgressList = mutableStateListOf<Float>()
 val intProcessSpeedList = mutableStateListOf<Float>()
 var totalspeed = mutableStateOf(0.toFloat())
 var totalprogress = mutableStateOf(100.toFloat())
-lateinit var Downloadlist : MutableState<@Composable () -> Unit>
-var Installedappindex = mutableStateListOf<PackageInfo>()
 var MDR_FileName : String = ""
 var MDR_MDContent : String = ""
 val snackbarHostState = SnackbarHostState()

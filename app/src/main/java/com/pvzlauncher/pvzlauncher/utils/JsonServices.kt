@@ -9,8 +9,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.FileProvider
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -108,21 +110,27 @@ public data class CurrentIndex(
 )
 
 
-public inline fun <reified T> ReadJson(file: File) : T
+public suspend inline fun <reified T> ReadJson(file: File) : T = withContext(Dispatchers.IO)
 {
-    return runBlocking {
-        Json.decodeFromString<T>(file.readText())
-    }
+     Json.decodeFromString<T>(file.readText())
 }
 
-public inline fun <reified T> ReadJsonfromText(jsonString : String) : T
+public suspend inline fun <reified T> ReadJsonfromText(jsonString : String) : T = withContext(Dispatchers.IO)
 {
-    return runBlocking {
-        Json.decodeFromString<T>(jsonString)
-    }
+     Json.decodeFromString<T>(jsonString)
 }
 
-public inline fun <reified T> WriteJson(file : File, data: T,context: Context)
+public inline fun <reified T> ReadJsonLegacy(file: File) : T
+{
+    return Json.decodeFromString<T>(file.readText())
+}
+
+public inline fun <reified T> ReadJsonfromTextLegacy(jsonString : String) : T
+{
+    return Json.decodeFromString<T>(jsonString)
+}
+
+public inline fun <reified T> WriteJson(file : File, data: T)
 {
 
     val jsonString = Json.encodeToString(data)
@@ -177,4 +185,32 @@ fun JsonPickerLauncher(
     return { mimeType ->
         launcher.launch(mimeType)
     }
+}
+
+public fun DefaultLauncherConfig() : LauncherConfig
+{
+    return LauncherConfig(
+        UseSystemTheme = true,
+        UseDarkTheme = false,
+        UseEnglishTitle = false,
+        CurrentGameIndex = CurrentIndex(0,0),
+        true, false,false,false
+    )
+}
+
+public fun DefaultSaveConfig() : SaveConfigList
+{
+    return SaveConfigList(
+        listOf(
+                FavoriteListsConfig("默认收藏夹",emptyList<SaveConfig>()
+            )
+        )
+    )
+}
+
+public fun DefaultGameConfig() : GameListConfig
+{
+    return GameListConfig(
+        emptyList<GameKindsConfig>()
+    )
 }

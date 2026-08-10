@@ -14,8 +14,11 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -32,6 +35,8 @@ import com.pvzlauncher.pvzlauncher.R
 import com.pvzlauncher.pvzlauncher.controls.LaunchAnimation
 import com.pvzlauncher.pvzlauncher.controls.XW_ToastMessage
 import com.pvzlauncher.pvzlauncher.ui.theme.XW_LightTheme
+import com.pvzlauncher.pvzlauncher.utils.DefaultLauncherConfig
+import com.pvzlauncher.pvzlauncher.utils.DefaultSaveConfig
 import com.pvzlauncher.pvzlauncher.utils.LAUNCHERCONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.LauncherConfig
 import com.pvzlauncher.pvzlauncher.utils.ReadJson
@@ -39,20 +44,30 @@ import com.pvzlauncher.pvzlauncher.utils.SAVECONFIGNAME
 import com.pvzlauncher.pvzlauncher.utils.SaveConfigList
 import com.pvzlauncher.pvzlauncher.utils.WriteJson
 import com.pvzlauncher.pvzlauncher.utils.launchApp
+import kotlinx.coroutines.launch
 import java.io.File
 
 @Composable
 public fun HomePage()
 {   var lc = LocalContext.current
-    var showAnimation by rememberSaveable {mutableStateOf(false)}
-    val lcc = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
+    var showAnimation by remember {mutableStateOf(false)}
+    val scope = rememberCoroutineScope()
+    var lcfg by remember {mutableStateOf(DefaultLauncherConfig())}
+    var scfg by remember {mutableStateOf(DefaultSaveConfig())}
+    LaunchedEffect(Unit) {
+        scope.launch {
+            lcfg = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
+            scfg = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
-        if(lcc.CostumBackground)
+        if(lcfg.CostumBackground)
         {
             AsyncImage(File("${lc.filesDir}/Background.png"),"", Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop)
         }
-        if (lcc.UseEnglishTitle) {
+        if (lcfg.UseEnglishTitle) {
             AsyncImage(File("${lc.filesDir}/Title.png"),"",alignment = Alignment.TopCenter,
                 modifier = Modifier
                     .padding(40.dp)
@@ -68,7 +83,7 @@ public fun HomePage()
             )
         }
 
-        if (ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}")).ListIndex[lcc.CurrentGameIndex.ListIndex].GameIndex.count() != 0)
+        if (scfg.ListIndex[lcfg.CurrentGameIndex.ListIndex].GameIndex.count() != 0)
         {
 
                 Column(
@@ -82,13 +97,12 @@ public fun HomePage()
                     {
                         LaunchAnimation {
 
-                            val new =
-                                ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
-                            new.ListIndex[lcc.CurrentGameIndex.ListIndex].GameIndex[lcc.CurrentGameIndex.GameIndex].LaunchTimes += 1
-                            new.ListIndex[lcc.CurrentGameIndex.ListIndex].GameIndex[lcc.CurrentGameIndex.GameIndex].latestlaunchtime = System.currentTimeMillis()
-                            WriteJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"), new, lc)
+
+                            scfg.ListIndex[lcfg.CurrentGameIndex.ListIndex].GameIndex[lcfg.CurrentGameIndex.GameIndex].LaunchTimes += 1
+                            scfg.ListIndex[lcfg.CurrentGameIndex.ListIndex].GameIndex[lcfg.CurrentGameIndex.GameIndex].latestlaunchtime = System.currentTimeMillis()
+                            WriteJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"), scfg)
                             showAnimation = false
-                            launchApp(lc, new.ListIndex[lcc.CurrentGameIndex.ListIndex].GameIndex[lcc.CurrentGameIndex.GameIndex].PackageName)
+                            launchApp(lc, scfg.ListIndex[lcfg.CurrentGameIndex.ListIndex].GameIndex[lcfg.CurrentGameIndex.GameIndex].PackageName)
 
                         }
                     }
@@ -108,11 +122,10 @@ public fun HomePage()
                     {
                         Text("当前游戏：", fontSize = 12.sp)
 
-                        val cur = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}")).CurrentGameIndex
-                        val current =
-                            ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}")).ListIndex[cur.ListIndex].GameIndex[cur.GameIndex]
+                        //val cur = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}")).CurrentGameIndex
+                        //val current = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}")).ListIndex[cur.ListIndex].GameIndex[cur.GameIndex]
                         Text(
-                            "${current.GameName}",
+                            "${scfg.ListIndex[lcfg.CurrentGameIndex.ListIndex].GameIndex[lcfg.CurrentGameIndex.GameIndex].GameName}",
                             fontSize = 12.sp,
                             fontWeight = Bold
                         )
