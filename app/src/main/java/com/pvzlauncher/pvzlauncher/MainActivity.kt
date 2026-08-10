@@ -297,6 +297,18 @@ fun InitializeAppInterface() {
     val scope = rememberCoroutineScope()
     globalContext = LocalContext.current
     APP_VERSION = (lc.packageManager.getPackageInfo(lc.packageName, 0).versionName ?: "1.0.0")
+
+    try
+    {
+        ReadJsonLegacy<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
+    }
+    catch (e: Exception)
+    {
+        WriteJson<SaveConfigList>(
+            File("${lc.filesDir}/${SAVECONFIGNAME}"),
+            DefaultSaveConfig()
+        )
+    }
     var lcfg = ReadJsonLegacy<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
     var scfg = ReadJsonLegacy<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
     LaunchedEffect(Unit) {
@@ -415,20 +427,6 @@ fun InitializeAppInterface() {
 
 
 
-    try {
-        if (scfg.ListIndex.count() < 1) {
-            WriteJson<SaveConfigList>(
-                File("${lc.filesDir}/${SAVECONFIGNAME}"),
-                DefaultSaveConfig()
-            )
-        }
-
-    } catch (e: Exception) {
-        WriteJson<SaveConfigList>(
-            File("${lc.filesDir}/${SAVECONFIGNAME}"),
-            DefaultSaveConfig()
-        )
-    }
 
 
     val config = PRDownloaderConfig.newBuilder()

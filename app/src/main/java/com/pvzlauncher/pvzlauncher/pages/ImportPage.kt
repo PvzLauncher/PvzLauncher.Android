@@ -66,7 +66,7 @@ public fun ImportPage()
 {
     val lc = LocalContext.current
     var isRendered by remember{ mutableStateOf(false) }
-    var Installedappindex = remember { emptyList<PackageInfo>().toMutableStateList() }
+    var Installedappindex by remember { mutableStateOf(emptyList<PackageInfo>().toMutableStateList()) }
     var aaa by remember { mutableStateOf(DefaultSaveConfig()) }
     val scope = rememberCoroutineScope()
     LaunchedEffect(Unit) {
