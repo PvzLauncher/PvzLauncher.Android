@@ -77,10 +77,9 @@ public fun SavePage()
     var canEdit by remember { mutableStateOf(false) }
     var expand by remember { mutableStateOf(false) }
     var datapath by remember { mutableStateOf("") }
+
     LaunchedEffect(Unit) {
         all = ReadJson<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
-    }
-    LaunchedEffect(all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].PackageName) {
         var a = false
         accessAndroidData(currentactivity, all.ListIndex[ManagelistIndex].GameIndex[ManageIndex].PackageName, "",)
         {
