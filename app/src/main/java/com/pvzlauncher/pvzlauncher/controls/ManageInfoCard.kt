@@ -1,5 +1,6 @@
 package com.pvzlauncher.pvzlauncher.controls
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -70,80 +72,140 @@ public fun XW_ManageInformationCard(args : SaveConfig, onBack: () -> Unit, IsBut
                 val cont = LocalContext.current
 
                 AsyncImage(model = args.headImage,"", modifier = Modifier.padding(10.dp,5.dp).size(48.dp),placeholder = painterResource(R.drawable.ic_unknown), error = painterResource(R.drawable.ic_unknown))
+                val orientation = LocalConfiguration.current.orientation
 
-                Column()
-                {
-                    Text(args.GameName,modifier = Modifier.padding(2.dp), fontWeight = FontWeight.Bold, fontSize = 18.sp)
-                    Column(modifier = Modifier.padding(2.dp))
-                    {
-                        Box(modifier = Modifier
-                            .background(Color(0xFFA9A9A9), RoundedCornerShape(7.5.dp))
-                            .padding(4.dp,2.dp)
-                        )
-
+                when (orientation) {
+                    Configuration.ORIENTATION_LANDSCAPE -> {
+                        Column()
                         {
-                            Text(args.gameversion, color = Color.White, fontSize = 14.sp)
-                        }
-                        Box(Modifier.padding(2.dp)){}
+                            Text(args.GameName,modifier = Modifier.padding(2.dp), fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                            Row(modifier = Modifier.padding(2.dp))
+                            {
+                                Box(modifier = Modifier
+                                    .background(Color(0xFFA9A9A9), RoundedCornerShape(7.5.dp))
+                                    .padding(4.dp,2.dp)
+                                )
+
+                                {
+                                    Text(args.gameversion, color = Color.White, fontSize = 14.sp)
+                                }
+                                Box(Modifier.padding(2.dp)){}
 //
 
 
-                        for(ij in 0 until rj.ListIndex.count())
-                        {
-                            if(ij == lj.CurrentGameIndex.ListIndex)
-                            {
-                                if(rj.ListIndex[ij].GameIndex.indexOf(args) == lj.CurrentGameIndex.GameIndex)
+                                for(ij in 0 until rj.ListIndex.count())
                                 {
-                                    Box(modifier = Modifier.background(Color.Red, RoundedCornerShape(7.5.dp))
-                                        .padding(4.dp,2.dp))
+                                    if(ij == lj.CurrentGameIndex.ListIndex)
                                     {
-                                        Text("活动", color = Color.White, fontSize = 14.sp)
-                                    }
-                                }
-                            }
-
-
-                        }
-
-                        Box(Modifier.padding(2.dp)){}
-
-
-
-                            for(i in gindex.ListIndex)
-                            {
-                                for(j in i.GameIndex)
-                                {
-                                    for(k in j.GameLink)
-                                    {
-                                        if(args.PackageName == k.VersionPackageName && k.VersionNeedUpdate)
+                                        if(rj.ListIndex[ij].GameIndex.indexOf(args) == lj.CurrentGameIndex.GameIndex)
                                         {
-                                            if(args.gameversion != k.VersionVer)
+                                            Box(modifier = Modifier.background(Color.Red, RoundedCornerShape(7.5.dp))
+                                                .padding(4.dp,2.dp))
                                             {
-                                                Box(modifier = Modifier.background(Color(0xFF18cb2b), RoundedCornerShape(7.5.dp))
-                                                    .padding(4.dp,2.dp))
-                                                {
-                                                    Text("更新可用", color = Color.White, fontSize = 14.sp)
-                                                }
+                                                Text("活动", color = Color.White, fontSize = 14.sp)
                                             }
+                                        }
+                                    }
 
 
+                                }
+
+                                Box(Modifier.padding(2.dp)){}
+
+
+
+                                for(i in gindex.ListIndex)
+                                {
+                                    for(j in i.GameIndex)
+                                    {
+                                        for(k in j.GameLink)
+                                        {
+                                            if(args.PackageName == k.VersionPackageName && k.VersionNeedUpdate)
+                                            {
+                                                if(args.gameversion != k.VersionVer)
+                                                {
+                                                    Box(modifier = Modifier.background(Color(0xFF18cb2b), RoundedCornerShape(7.5.dp))
+                                                        .padding(4.dp,2.dp))
+                                                    {
+                                                        Text("更新可用", color = Color.White, fontSize = 14.sp)
+                                                    }
+                                                }
+
+
+                                            }
                                         }
                                     }
                                 }
                             }
+                        }
+                    }
+
+                    Configuration.ORIENTATION_PORTRAIT -> {
+                        Column()
+                        {
+                            Text(args.GameName,modifier = Modifier.padding(2.dp), fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                            Column(modifier = Modifier.padding(2.dp))
+                            {
+                                Box(modifier = Modifier
+                                    .background(Color(0xFFA9A9A9), RoundedCornerShape(7.5.dp))
+                                    .padding(4.dp,2.dp)
+                                )
+
+                                {
+                                    Text(args.gameversion, color = Color.White, fontSize = 14.sp)
+                                }
+                                Box(Modifier.padding(2.dp)){}
+//
+
+
+                                for(ij in 0 until rj.ListIndex.count())
+                                {
+                                    if(ij == lj.CurrentGameIndex.ListIndex)
+                                    {
+                                        if(rj.ListIndex[ij].GameIndex.indexOf(args) == lj.CurrentGameIndex.GameIndex)
+                                        {
+                                            Box(modifier = Modifier.background(Color.Red, RoundedCornerShape(7.5.dp))
+                                                .padding(4.dp,2.dp))
+                                            {
+                                                Text("活动", color = Color.White, fontSize = 14.sp)
+                                            }
+                                        }
+                                    }
+
+
+                                }
+
+                                Box(Modifier.padding(2.dp)){}
 
 
 
+                                for(i in gindex.ListIndex)
+                                {
+                                    for(j in i.GameIndex)
+                                    {
+                                        for(k in j.GameLink)
+                                        {
+                                            if(args.PackageName == k.VersionPackageName && k.VersionNeedUpdate)
+                                            {
+                                                if(args.gameversion != k.VersionVer)
+                                                {
+                                                    Box(modifier = Modifier.background(Color(0xFF18cb2b), RoundedCornerShape(7.5.dp))
+                                                        .padding(4.dp,2.dp))
+                                                    {
+                                                        Text("更新可用", color = Color.White, fontSize = 14.sp)
+                                                    }
+                                                }
 
 
-
-
-
-
-
-
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
+
             }
 
 

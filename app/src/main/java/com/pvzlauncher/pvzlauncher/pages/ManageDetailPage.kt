@@ -135,7 +135,7 @@ public fun ManageDetailPage()
     {
         Column(
             modifier = Modifier
-                .padding(0.dp, 75.dp, 0.dp, 0.dp)
+                .padding(0.dp, 90.dp, 0.dp, 0.dp)
                 .fillMaxSize().verticalScroll(scrollState)
         )
         {
@@ -213,36 +213,48 @@ public fun ManageDetailPage()
                                 CurrentDestination = AppDestinations.ManagePage
                             }
                         )
-                        Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally)
-                        {
-                            TextButton(onClick = {
+
+                        OutlinedButton(onClick = {
                                 lcfg.CurrentGameIndex.GameIndex = ManageIndex
                                 lcfg.CurrentGameIndex.ListIndex = ManagelistIndex
                                 WriteJson(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"), lcfg)
                                 XW_ToastMessage("操作成功", lc)
                                 CurrentDestination = AppDestinations.ManagePage
-                            }, Modifier,contentPadding = PaddingValues(0.dp)) {
+                            }, Modifier.padding(0.dp,2.dp,0.dp,2.dp), contentPadding = PaddingValues(
+                            start = 18.dp,
+                            top = 8.dp,
+                            end = 18.dp,
+                            bottom = 8.dp
+                        )) {
                                 Text("设为活动")
                             }
-                        }
-                        Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally)
-                        {
-                            TextButton(onClick = {
+
+
+                        OutlinedButton(onClick = {
                                 isDialogVisible = true
 
 
-                            }, Modifier,contentPadding = PaddingValues(0.dp)) {
+                            }, Modifier.padding(5.dp,2.dp,5.dp,2.dp), contentPadding = PaddingValues(
+                            start = 18.dp,
+                            top = 8.dp,
+                            end = 18.dp,
+                            bottom = 8.dp
+                        )) {
                                 Text("删除游戏", color = Color.Red)
                             }
-                        }
-                        Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally)
-                        {
-                            TextButton(onClick = {
+
+
+                        OutlinedButton(onClick = {
                                 isDialogVisible2 = true
-                            }, Modifier,contentPadding = PaddingValues(0.dp)) {
+                            }, Modifier.padding(0.dp,2.dp,0.dp,2.dp), contentPadding = PaddingValues(
+                            start = 18.dp,
+                            top = 8.dp,
+                            end = 18.dp,
+                            bottom = 8.dp
+                        )) {
                                 Text("更改名称")
                             }
-                        }
+
                         XW_InputDialog(
                             showDialog = isDialogVisible2,
                             title = "提示",

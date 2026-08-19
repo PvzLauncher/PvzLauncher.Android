@@ -108,7 +108,7 @@ public fun DownloadDetailPage()
     val scrollState = rememberScrollState()
     Column(
         modifier = Modifier
-            .padding(0.dp, 75.dp, 0.dp, 0.dp)
+            .padding(0.dp, 90.dp, 0.dp, 0.dp)
             .fillMaxWidth().verticalScroll(scrollState)
     )
     {

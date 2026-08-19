@@ -138,23 +138,21 @@ public fun AboutPage()
                     Row()
                     {
                         val cont = LocalContext.current
-                        Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally)
-                        {
-                            TextButton(onClick = {
+
+                        TextButton(onClick = {
                                 OpenUrl(
                                     "https://github.com/PvzLauncher/PvzLauncher.Android/issues/new?template=bug.yml",
                                     cont
                                 )
-                            },contentPadding = PaddingValues(0.dp))
+                            },Modifier.padding(2.dp))
                             {
 
                                 Text("反馈漏洞")
                             }
-                        }
 
-                        Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally)
-                        {
-                            TextButton(onClick = {
+
+
+                        TextButton(onClick = {
                                 //OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/EULA.md",cont)
                                 try {
                                     MDR_FileName = "许可协议"
@@ -168,16 +166,15 @@ public fun AboutPage()
                                     )
                                 }
 
-                            },contentPadding = PaddingValues(0.dp))
+                            },Modifier.padding(2.dp))
                             {
 
                                 Text("许可协议")
                             }
-                        }
 
-                        Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally)
-                        {
-                            TextButton(onClick = {
+
+
+                        TextButton(onClick = {
                                 //OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/QandA.md",cont)
                                 try {
                                     MDR_FileName = "常见问题"
@@ -190,12 +187,12 @@ public fun AboutPage()
                                         lc
                                     )
                                 }
-                            },contentPadding = PaddingValues(0.dp))
+                            },Modifier.padding(2.dp))
                             {
 
                                 Text("常见问题")
                             }
-                        }
+
 
 
                     }

@@ -217,11 +217,11 @@ fun PvzLauncherAndroidApp() {
                 }
             )
             {
-                innerpadding ->
+                innerpadding -> val a = innerpadding
                 AnimatedContent(
                     targetState = CurrentDestination,
                     modifier = Modifier
-                        .fillMaxSize().padding(innerpadding),
+                        .fillMaxSize(),
                     transitionSpec = {
                         val enterAnim = slideIntoContainer(
                             towards = AnimatedContentTransitionScope.SlideDirection.Right,
@@ -410,13 +410,14 @@ fun InitializeAppInterface() {
                         lcfg.RequiredPermission = true
                         WriteJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"), lcfg)
                     })
-                requestAndroidDataAccess(
-                    context = lc,
-                    onSuccess = { CanEditSaves = true },
-                    onFailed = { }
-                )
+
 
             }
+            requestAndroidDataAccess(
+                    context = lc,
+            onSuccess = { CanEditSaves = true },
+            onFailed = { }
+            )
         }
 
     }

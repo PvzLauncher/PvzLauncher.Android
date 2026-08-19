@@ -1,5 +1,6 @@
 package com.pvzlauncher.pvzlauncher.controls
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,20 +28,21 @@ public fun XW_Switch(icon:ImageVector,title : String,desc :String,modifier: Modi
     var checked by remember { mutableStateOf(isEnabled) }
     Box(Modifier.fillMaxWidth())
     {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier.align(Alignment.CenterStart).padding(5.dp,5.dp,64.dp,5.dp)) {
-            Icon(imageVector = icon,"检测更新", modifier = Modifier.size(48.dp).padding(5.dp))
-            Column(Modifier.padding(5.dp))
-            {
-                Text(title, fontSize = 18.sp, fontWeight = FontWeight.Bold,modifier = Modifier.padding(2.dp))
-                Text(desc, fontSize = 14.sp)
+        ListItem(
+            headlineContent = {Text(title, fontWeight = FontWeight.Bold)},
+            supportingContent = {Text(desc)},
+            leadingContent = {Icon(imageVector = icon,"检测更新")},
+            trailingContent = {Switch(
+                checked = checked,
+                onCheckedChange = { checked = it
+                    OnChanged(checked) }, enabled = !IsBanned
+            )},
+            modifier = Modifier.clickable {
+                checked = !checked
+                OnChanged(checked)
             }
-
-        }
-        Switch(
-            modifier = modifier.align(Alignment.CenterEnd),
-            checked = checked,
-            onCheckedChange = { checked = it
-                OnChanged(checked) }, enabled = !IsBanned
         )
+
     }
+
 }

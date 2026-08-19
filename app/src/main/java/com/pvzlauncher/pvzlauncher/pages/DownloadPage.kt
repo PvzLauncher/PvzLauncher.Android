@@ -1,6 +1,7 @@
 package com.pvzlauncher.pvzlauncher.pages
 
 import android.content.Context
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
@@ -225,43 +227,90 @@ public fun DownloadPage()
                                                 fontWeight = Bold,
                                                 fontSize = 18.sp
                                             )
-                                            Column(modifier = Modifier.padding(2.dp))
-                                            {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .background(
-                                                            Color(0xFFA9A9A9),
-                                                            RoundedCornerShape(7.5.dp)
+                                            val orientation = LocalConfiguration.current.orientation
+
+                                            when (orientation) {
+                                                Configuration.ORIENTATION_LANDSCAPE -> {
+                                                    Row(modifier = Modifier.padding(2.dp))
+                                                    {
+                                                        Box(
+                                                            modifier = Modifier
+                                                                .background(
+                                                                    Color(0xFFA9A9A9),
+                                                                    RoundedCornerShape(7.5.dp)
+                                                                )
+                                                                .padding(4.dp, 2.dp)
                                                         )
-                                                        .padding(4.dp, 2.dp)
-                                                )
 
-                                                {
-                                                    Text(
-                                                        "200+个版本",
-                                                        color = Color.White,
-                                                        fontSize = 14.sp
-                                                    )
+                                                        {
+                                                            Text(
+                                                                "200+个版本",
+                                                                color = Color.White,
+                                                                fontSize = 14.sp
+                                                            )
 
+                                                        }
+                                                        Box(modifier = Modifier.padding(2.5.dp)) { }
+                                                        Box(
+                                                            modifier = Modifier.background(
+                                                                Color(
+                                                                    0xFF31A9A9
+                                                                ), RoundedCornerShape(7.5.dp)
+                                                            )
+                                                                .padding(4.dp, 2.dp)
+                                                        )
+                                                        {
+                                                            Text(
+                                                                "55.42GB",
+                                                                color = Color.White,
+                                                                fontSize = 14.sp
+                                                            )
+
+                                                        }
+                                                    }
                                                 }
-                                                Box(modifier = Modifier.padding(2.5.dp)) { }
-                                                Box(
-                                                    modifier = Modifier.background(
-                                                        Color(
-                                                            0xFF31A9A9
-                                                        ), RoundedCornerShape(7.5.dp)
-                                                    )
-                                                        .padding(4.dp, 2.dp)
-                                                )
-                                                {
-                                                    Text(
-                                                        "55.42GB",
-                                                        color = Color.White,
-                                                        fontSize = 14.sp
-                                                    )
 
+                                                Configuration.ORIENTATION_PORTRAIT -> {
+                                                    Column(modifier = Modifier.padding(2.dp))
+                                                    {
+                                                        Box(
+                                                            modifier = Modifier
+                                                                .background(
+                                                                    Color(0xFFA9A9A9),
+                                                                    RoundedCornerShape(7.5.dp)
+                                                                )
+                                                                .padding(4.dp, 2.dp)
+                                                        )
+
+                                                        {
+                                                            Text(
+                                                                "200+个版本",
+                                                                color = Color.White,
+                                                                fontSize = 14.sp
+                                                            )
+
+                                                        }
+                                                        Box(modifier = Modifier.padding(2.5.dp)) { }
+                                                        Box(
+                                                            modifier = Modifier.background(
+                                                                Color(
+                                                                    0xFF31A9A9
+                                                                ), RoundedCornerShape(7.5.dp)
+                                                            )
+                                                                .padding(4.dp, 2.dp)
+                                                        )
+                                                        {
+                                                            Text(
+                                                                "55.42GB",
+                                                                color = Color.White,
+                                                                fontSize = 14.sp
+                                                            )
+
+                                                        }
+                                                    }
                                                 }
                                             }
+
                                         }
                                     }
 

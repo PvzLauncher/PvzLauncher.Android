@@ -132,7 +132,7 @@ public fun SavePage()
         }
     )
     val scrollState = rememberScrollState()
-    Box(Modifier.fillMaxSize().padding(0.dp, 75.dp, 0.dp, 0.dp)
+    Box(Modifier.fillMaxSize().padding(0.dp, 90.dp, 0.dp, 0.dp)
         .fillMaxSize().verticalScroll(scrollState))
     {
         if(!canEdit)
