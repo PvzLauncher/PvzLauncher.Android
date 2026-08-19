@@ -55,7 +55,8 @@ public suspend fun CheckUpdate(lc : Context,isSilent : Boolean)
             val info = GetWebSiteContent("https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/UpdateInfo.md")
             ltscfg.LatestDescription = info
             XW_UpdateDialog(lc,ltscfg,{},{
-
+                var loa = XW_LoadingMask(lc,"请稍候……")
+                loa.show()
                 PRDownloader.download(
                     ltscfg.LatestLink,
                     "${lc.filesDir}/temp",
@@ -72,7 +73,7 @@ public suspend fun CheckUpdate(lc : Context,isSilent : Boolean)
                         override fun onError(error: Error?) {
                             // 下载失败
                             XW_ToastMessage("下载出错: ${error?.serverErrorMessage}", lc)
-
+                            loa.hide()
                         }
 
 

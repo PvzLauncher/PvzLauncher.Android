@@ -194,22 +194,7 @@ public fun ManageDetailPage()
                         var isDialogVisible2 by remember { mutableStateOf(false) }
 
 
-                        OutlinedButton(onClick = {
-                            lcfg.CurrentGameIndex.GameIndex = ManageIndex
-                            lcfg.CurrentGameIndex.ListIndex = ManagelistIndex
-                            WriteJson(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"), lcfg)
-                            XW_ToastMessage("操作成功", lc)
-                            CurrentDestination = AppDestinations.ManagePage
-                        }, Modifier.padding(2.dp)) {
-                            Text("设为活动")
-                        }
-                        OutlinedButton(onClick = {
-                            isDialogVisible = true
 
-
-                        }, Modifier.padding(2.dp)) {
-                            Text("删除游戏", color = Color.Red)
-                        }
                         XW_CheckBoxDialog(
                             showDialog = isDialogVisible,
                             title = "警告",
@@ -228,10 +213,35 @@ public fun ManageDetailPage()
                                 CurrentDestination = AppDestinations.ManagePage
                             }
                         )
-                        OutlinedButton(onClick = {
-                            isDialogVisible2 = true
-                        }, Modifier.padding(2.dp)) {
-                            Text("更改名称")
+                        Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally)
+                        {
+                            TextButton(onClick = {
+                                lcfg.CurrentGameIndex.GameIndex = ManageIndex
+                                lcfg.CurrentGameIndex.ListIndex = ManagelistIndex
+                                WriteJson(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"), lcfg)
+                                XW_ToastMessage("操作成功", lc)
+                                CurrentDestination = AppDestinations.ManagePage
+                            }, Modifier,contentPadding = PaddingValues(0.dp)) {
+                                Text("设为活动")
+                            }
+                        }
+                        Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally)
+                        {
+                            TextButton(onClick = {
+                                isDialogVisible = true
+
+
+                            }, Modifier,contentPadding = PaddingValues(0.dp)) {
+                                Text("删除游戏", color = Color.Red)
+                            }
+                        }
+                        Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally)
+                        {
+                            TextButton(onClick = {
+                                isDialogVisible2 = true
+                            }, Modifier,contentPadding = PaddingValues(0.dp)) {
+                                Text("更改名称")
+                            }
                         }
                         XW_InputDialog(
                             showDialog = isDialogVisible2,
@@ -289,7 +299,7 @@ public fun ManageDetailPage()
                                     isDialogVisible = true
                                 })
                                 {
-                                    Text("修改所在收藏夹")
+                                    Text("修改")
                                 }
                             }
 

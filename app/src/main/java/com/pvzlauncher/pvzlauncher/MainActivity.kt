@@ -24,6 +24,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Info
@@ -216,11 +217,11 @@ fun PvzLauncherAndroidApp() {
                 }
             )
             {
-                    p -> val a = p
+                innerpadding ->
                 AnimatedContent(
                     targetState = CurrentDestination,
                     modifier = Modifier
-                        .fillMaxSize(),
+                        .fillMaxSize().padding(innerpadding),
                     transitionSpec = {
                         val enterAnim = slideIntoContainer(
                             towards = AnimatedContentTransitionScope.SlideDirection.Right,
@@ -293,6 +294,7 @@ enum class AppDestinations(
 
 @Composable
 fun InitializeAppInterface() {
+    println("used")
     var lc = LocalContext.current
     val scope = rememberCoroutineScope()
     globalContext = LocalContext.current
@@ -311,17 +313,110 @@ fun InitializeAppInterface() {
     }
     var lcfg = ReadJsonLegacy<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
     var scfg = ReadJsonLegacy<SaveConfigList>(File("${lc.filesDir}/${SAVECONFIGNAME}"))
+    val launcher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted -> }
     LaunchedEffect(Unit) {
-        if (checkedupdate.value == false) {
-            if (ReadJsonLegacy<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}")).StartUpCheckUpdate == true) {
-                scope.launch {
+        scope.launch()
+        {
+            val acfg = ReadJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"))
+            if (checkedupdate.value == false) {
+                if (acfg.StartUpCheckUpdate == true) {
                     try {
                         CheckUpdate(lc, true)
                     }
                     catch(e: Exception){}
                 }
+                checkedupdate.value = true
             }
-            checkedupdate.value = true
+            if (!lcfg.RequiredPermission) {
+
+                XW_MarkdownDialog(
+                    lc,
+                    "权限申请",
+                    "本程序需要申请以下权限来运行：",
+                    "1. 完整的网络访问权\r\n    - 用途：用于下载，更新游戏，以及启动器检测更新\r\n2. 请求删除应用程序\r\n    - 用途：完全删除某个游戏版本时需要使用\r\n3. 管理所有文件\r\n    - 用途：管理游戏obb及存档\r\n4. 请求安装来自此来源的应用\r\n    - 用途：用于安装启动器更新，游戏更新和游戏版本本体\r\n5. 请求读取所有应用程序包\r\n    - 用途：用于从所有应用中导入游戏版本\r\n6. 发送通知\r\n    - 用途：在下载游戏完成时提醒您该安装了",
+                    {},
+                    {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            if (!lc.packageManager.canRequestPackageInstalls()) {
+                                val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
+                                    data = Uri.parse("package:${lc.packageName}")
+                                }
+
+                                intent.data = Uri.parse(
+                                    "package:${lc.packageName}"
+                                )
+
+                                lc.startActivity(intent)
+
+                            }
+                        }
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            if (!Environment.isExternalStorageManager()) {
+                                val intent = Intent(
+                                    Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
+                                )
+
+                                intent.data = Uri.parse(
+                                    "package:${lc.packageName}"
+                                )
+
+                                lc.startActivity(intent)
+
+
+                            }
+                        }
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+
+                            if (ActivityCompat.checkSelfPermission(
+                                    lc, Manifest.permission.POST_NOTIFICATIONS
+                                ) != PackageManager.PERMISSION_GRANTED
+                            ) {
+                                launcher.launch(
+                                    Manifest.permission.POST_NOTIFICATIONS
+                                )
+                            }
+                        }
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+                            val channel = NotificationChannel(
+                                "pvzlauncher",
+                                "植物大战僵尸启动器",
+                                NotificationManager.IMPORTANCE_HIGH
+                            )
+
+                            val manager = lc.getSystemService(
+                                NotificationManager::class.java
+                            )
+
+                            manager.createNotificationChannel(channel)
+                        }
+                        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
+                            ActivityCompat.requestPermissions(
+                                currentactivity,
+                                arrayOf(
+                                    android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                                ),
+                                REQ_STORAGE
+                            )
+                        }
+                        requestAndroidDataAccess(
+                            context = lc,
+                            onSuccess = { CanEditSaves = true },
+                            onFailed = { XW_ToastMessage("您的设备不支持进行存档操作") }
+                        )
+                        lcfg.RequiredPermission = true
+                        WriteJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"), lcfg)
+                    })
+                requestAndroidDataAccess(
+                    context = lc,
+                    onSuccess = { CanEditSaves = true },
+                    onFailed = { }
+                )
+
+            }
         }
 
     }
@@ -330,100 +425,9 @@ fun InitializeAppInterface() {
     if (!dir.exists()) {
         dir.mkdirs()
     }
-    if (!lcfg.RequiredPermission) {
-        val launcher = rememberLauncherForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { granted ->
-
-        }
-        XW_MarkdownDialog(
-            lc,
-            "权限申请",
-            "本程序需要申请以下权限来运行：",
-            "1. 完整的网络访问权\r\n    - 用途：用于下载，更新游戏，以及启动器检测更新\r\n2. 请求删除应用程序\r\n    - 用途：完全删除某个游戏版本时需要使用\r\n3. 管理所有文件\r\n    - 用途：管理游戏obb及存档\r\n4. 请求安装来自此来源的应用\r\n    - 用途：用于安装启动器更新，游戏更新和游戏版本本体\r\n5. 请求读取所有应用程序包\r\n    - 用途：用于从所有应用中导入游戏版本\r\n6. 发送通知\r\n    - 用途：在下载游戏完成时提醒您该安装了",
-            {},
-            {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    if (!lc.packageManager.canRequestPackageInstalls()) {
-                        val intent = Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).apply {
-                            data = Uri.parse("package:${lc.packageName}")
-                        }
-
-                        intent.data = Uri.parse(
-                            "package:${lc.packageName}"
-                        )
-
-                        lc.startActivity(intent)
-
-                    }
-                }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    if (!Environment.isExternalStorageManager()) {
-                        val intent = Intent(
-                            Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION
-                        )
-
-                        intent.data = Uri.parse(
-                            "package:${lc.packageName}"
-                        )
-
-                        lc.startActivity(intent)
 
 
-                    }
-                }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
 
-                    if (ActivityCompat.checkSelfPermission(
-                            lc, Manifest.permission.POST_NOTIFICATIONS
-                        ) != PackageManager.PERMISSION_GRANTED
-                    ) {
-                        launcher.launch(
-                            Manifest.permission.POST_NOTIFICATIONS
-                        )
-                    }
-                }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-
-                    val channel = NotificationChannel(
-                        "pvzlauncher",
-                        "植物大战僵尸启动器",
-                        NotificationManager.IMPORTANCE_HIGH
-                    )
-
-                    val manager = lc.getSystemService(
-                        NotificationManager::class.java
-                    )
-
-                    manager.createNotificationChannel(channel)
-                }
-                if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q) {
-                    ActivityCompat.requestPermissions(
-                        currentactivity,
-                        arrayOf(
-                            android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                            android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-                        ),
-                        REQ_STORAGE
-                    )
-                }
-                requestAndroidDataAccess(
-                    context = lc,
-                    onSuccess = { CanEditSaves = true },
-                    onFailed = { XW_ToastMessage("您的设备不支持进行存档操作") }
-                )
-                lcfg.RequiredPermission = true
-                WriteJson<LauncherConfig>(File("${lc.filesDir}/${LAUNCHERCONFIGNAME}"), lcfg)
-            })
-
-
-    }
-
-    requestAndroidDataAccess(
-        context = lc,
-        onSuccess = { CanEditSaves = true },
-        onFailed = { }
-    )
 
 
 

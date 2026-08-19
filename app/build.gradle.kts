@@ -15,8 +15,8 @@ android {
 
 
         //更新时一定要更改此区域
-        versionCode = 20
-        versionName = "1.2.3"
+        versionCode = 21
+        versionName = "1.2.4"
         //更新时一定要更改此区域
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

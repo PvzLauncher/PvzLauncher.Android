@@ -4,6 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -137,54 +138,63 @@ public fun AboutPage()
                     Row()
                     {
                         val cont = LocalContext.current
-                        OutlinedButton(onClick = {
-                            OpenUrl(
-                                "https://github.com/PvzLauncher/PvzLauncher.Android/issues/new?template=bug.yml",
-                                cont
-                            )
-                        })
+                        Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally)
                         {
+                            TextButton(onClick = {
+                                OpenUrl(
+                                    "https://github.com/PvzLauncher/PvzLauncher.Android/issues/new?template=bug.yml",
+                                    cont
+                                )
+                            },contentPadding = PaddingValues(0.dp))
+                            {
 
-                            Text("反馈漏洞")
+                                Text("反馈漏洞")
+                            }
                         }
 
-                        OutlinedButton(onClick = {
-                            //OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/EULA.md",cont)
-                            try {
-                                MDR_FileName = "许可协议"
-                                MDR_MDContent = "https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/Files/EULA.md"
-                                CurrentDestination =
-                                    AppDestinations.MDReaderPage
-                            } catch (e: Exception) {
-                                XW_ToastMessage(
-                                    "无法读取EULA信息,${e.message}",
-                                    lc
-                                )
-                            }
-
-                        })
+                        Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally)
                         {
+                            TextButton(onClick = {
+                                //OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/EULA.md",cont)
+                                try {
+                                    MDR_FileName = "许可协议"
+                                    MDR_MDContent = "https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/Files/EULA.md"
+                                    CurrentDestination =
+                                        AppDestinations.MDReaderPage
+                                } catch (e: Exception) {
+                                    XW_ToastMessage(
+                                        "无法读取EULA信息,${e.message}",
+                                        lc
+                                    )
+                                }
 
-                            Text("许可协议")
+                            },contentPadding = PaddingValues(0.dp))
+                            {
+
+                                Text("许可协议")
+                            }
                         }
 
-                        OutlinedButton(onClick = {
-                            //OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/QandA.md",cont)
-                            try {
-                                MDR_FileName = "常见问题"
-                                MDR_MDContent = "https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/Files/QandA.md"
-                                CurrentDestination =
-                                    AppDestinations.MDReaderPage
-                            } catch (e: Exception) {
-                                XW_ToastMessage(
-                                    "无法读取常见问题信息,${e.message}",
-                                    lc
-                                )
-                            }
-                        })
+                        Column(Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally)
                         {
+                            TextButton(onClick = {
+                                //OpenUrl("https://github.com/PvzLauncher/PvzLauncher.Android/blob/main/Assets/QandA.md",cont)
+                                try {
+                                    MDR_FileName = "常见问题"
+                                    MDR_MDContent = "https://raw.giteeusercontent.com/Wang120229/PvzLauncher.Service.Android/raw/main/Files/QandA.md"
+                                    CurrentDestination =
+                                        AppDestinations.MDReaderPage
+                                } catch (e: Exception) {
+                                    XW_ToastMessage(
+                                        "无法读取常见问题信息,${e.message}",
+                                        lc
+                                    )
+                                }
+                            },contentPadding = PaddingValues(0.dp))
+                            {
 
-                            Text("常见问题")
+                                Text("常见问题")
+                            }
                         }
 
 
